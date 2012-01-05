@@ -2,6 +2,7 @@
 {
 	public enum Authorizations
 	{
+		None,
 		Banned,
 		Disconnected,
 		Quitting,
@@ -10,5 +11,6 @@
 		Registered,
 		NetworkOperator,
 		Service,
+		Preventative,
 	}
 }

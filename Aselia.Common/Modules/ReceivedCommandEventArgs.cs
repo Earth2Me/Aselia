@@ -1,5 +1,5 @@
 ﻿using System;
-using Aselia.Optimized;
+using Aselia.Common.Core;
 
 namespace Aselia.Common.Modules
 {
@@ -7,15 +7,15 @@ namespace Aselia.Common.Modules
 
 	public class ReceivedCommandEventArgs : EventArgs
 	{
-		public Server Server { get; private set; }
+		public ServerBase Server { get; private set; }
 
-		public User User { get; private set; }
+		public UserBase User { get; private set; }
 
-		public Commands Command { get; private set; }
+		public string Command { get; private set; }
 
 		public string[] Arguments { get; private set; }
 
-		public ReceivedCommandEventArgs(Server server, User user, Commands command, string[] arguments)
+		public ReceivedCommandEventArgs(ServerBase server, UserBase user, string command, string[] arguments)
 		{
 			Server = server;
 			User = user;

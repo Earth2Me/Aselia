@@ -15,11 +15,15 @@ namespace Aselia.Common.Core
 
 		public ServerBase Server { get; protected set; }
 
-		protected List<string> Flags { get; protected set; }
+		protected List<string> SessionFlags { get; protected set; }
+
+		public abstract ChannelBase GetChannel(string name);
 
 		public abstract void WriteLine(string line);
 
 		public abstract string CompileCommand(string command, params object[] args);
+
+		public abstract string CompileNumeric(ushort numeric, params object[] args);
 
 		public abstract void SendNumeric(ushort numeric, params object[] args);
 
@@ -34,6 +38,14 @@ namespace Aselia.Common.Core
 		public abstract bool SetFlag(string flag);
 
 		public abstract bool ClearFlag(string flag);
+
+		public abstract bool HasSessionFlag(string flag);
+
+		public abstract bool SetSessionFlag(string flag);
+
+		public abstract bool ClearSessionFlag(string flag);
+
+		public abstract void Names(string name);
 
 		public abstract void Names(ChannelBase channel);
 
@@ -67,7 +79,7 @@ namespace Aselia.Common.Core
 			Id = clone.Id;
 			Channels = clone.Channels;
 			Server = clone.Server;
-			Flags = clone.Flags;
+			SessionFlags = clone.SessionFlags;
 		}
 
 		protected UserBase(ServerBase server, Locations location, HostMask mask, Authorizations level)
@@ -76,7 +88,7 @@ namespace Aselia.Common.Core
 			Server = server;
 			Location = location;
 			Channels = new ConcurrentDictionary<string, ChannelBase>();
-			Flags = new List<string>();
+			SessionFlags = new List<string>();
 			if (mask.Nickname != "*" && mask.Nickname != null)
 			{
 				Id = mask.Nickname.ToLower();

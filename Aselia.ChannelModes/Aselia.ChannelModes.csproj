@@ -40,43 +40,47 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Argumentless\Arena.cs" />
+    <Compile Include="Arguments\Forward.cs" />
+    <Compile Include="Arguments\JoinThrottle.cs" />
+    <Compile Include="Arguments\Key.cs" />
+    <Compile Include="Arguments\Limit.cs" />
+    <Compile Include="ChannelArgument.cs" />
+    <Compile Include="ChannelFlag.cs" />
+    <Compile Include="ChannelList.cs" />
+    <Compile Include="ChannelRank.cs" />
+    <Compile Include="Flags\Arena.cs" />
     <Compile Include="Lists\Ban.cs" />
-    <Compile Include="Argumentless\DisableForward.cs" />
+    <Compile Include="Flags\DisableForward.cs" />
     <Compile Include="Lists\Except.cs" />
-    <Compile Include="Argumented\Forward.cs" />
-    <Compile Include="Argumentless\FreeTarget.cs" />
+    <Compile Include="Flags\FreeTarget.cs" />
     <Compile Include="Ranks\HalfOperator.cs" />
     <Compile Include="Lists\InviteExcept.cs" />
-    <Compile Include="Argumentless\InviteOnly.cs" />
+    <Compile Include="Flags\InviteOnly.cs" />
     <Compile Include="Ranks\IrcOp.cs" />
-    <Compile Include="Argumented\JoinThrottle.cs" />
-    <Compile Include="Argumented\Key.cs" />
-    <Compile Include="Argumented\Limit.cs" />
-    <Compile Include="Argumentless\LockTopic.cs" />
-    <Compile Include="Argumentless\LongLists.cs" />
-    <Compile Include="Argumentless\Moderated.cs" />
-    <Compile Include="Argumentless\NoActions.cs" />
-    <Compile Include="Argumentless\NoColors.cs" />
-    <Compile Include="Argumentless\NoCtcps.cs" />
-    <Compile Include="Argumentless\NoExternal.cs" />
+    <Compile Include="Flags\LockTopic.cs" />
+    <Compile Include="Flags\LongLists.cs" />
+    <Compile Include="Flags\Moderated.cs" />
+    <Compile Include="Flags\NoActions.cs" />
+    <Compile Include="Flags\NoColors.cs" />
+    <Compile Include="Flags\NoCtcps.cs" />
+    <Compile Include="Flags\NoExternal.cs" />
     <Compile Include="Ranks\Operator.cs" />
-    <Compile Include="Argumentless\OpModerated.cs" />
+    <Compile Include="Flags\OpModerated.cs" />
     <Compile Include="Ranks\Owner.cs" />
-    <Compile Include="Argumentless\Permanent.cs" />
-    <Compile Include="Argumentless\Private.cs" />
+    <Compile Include="Flags\Permanent.cs" />
+    <Compile Include="Flags\Private.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Ranks\Protect.cs" />
     <Compile Include="Lists\Quiet.cs" />
-    <Compile Include="Argumentless\RegisteredOnly.cs" />
-    <Compile Include="Argumentless\Secret.cs" />
+    <Compile Include="Flags\RegisteredOnly.cs" />
+    <Compile Include="Flags\Secret.cs" />
     <Compile Include="Ranks\Service.cs" />
     <Compile Include="Ranks\Voice.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Aselia.Core\Aselia.Core.csproj">
-      <Project>{7B97D4B9-4137-4655-ABB9-7286EC778FBF}</Project>
-      <Name>Aselia.Core</Name>
+    <ProjectReference Include="..\Aselia.Common\Aselia.Common.csproj">
+      <Project>{75413C5E-E62F-471C-BA8B-A1F67C615DB9}</Project>
+      <Name>Aselia.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

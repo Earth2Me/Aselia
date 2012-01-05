@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Aselia.Optimized.UserHandlers;
+using Aselia.Common;
+using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(Commands.NICK, Authorizations.Connecting)]
+	[Command(NickHandler.CMD, Authorizations.Connecting)]
 	public class NickHandler : MarshalByRefObject, ICommand
 	{
+		public const string CMD = "NICK";
+
 		public void Handler(object sender, ReceivedCommandEventArgs e)
 		{
 			if (e.Arguments.Length < 1)
 			{
-				e.User.NeedMoreParams();
+				e.User.ErrorNeedMoreParams(CMD);
 				return;
 			}
 			string nickname = e.Arguments[0];
@@ -22,12 +25,12 @@ namespace Aselia.UserCommands
 			{
 				if (!HostMask.NICKNAME_CHARS.Contains(chars[i]))
 				{
-					e.User.Send(Commands.ERR_ERRONEUSNICKNAME, e.Server.Id, e.User.Mask.Nickname, "That nickname contains invalid character(s).");
+					e.User.SendNumeric(Numerics.ERR_ERRONEUSNICKNAME, nickname, "That nickname contains invalid character(s).");
 					return;
 				}
 			}
 
-			foreach (Regex r in e.Server.Settings.QLines)
+			foreach (Regex r in e.Server.IsQLined)
 			{
 				if (r.IsMatch(nickname))
 				{

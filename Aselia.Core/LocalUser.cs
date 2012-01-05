@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
-using System.Text;
 using Aselia.Common;
+using Aselia.Common.Modules;
 
 namespace Aselia.Core
 {
@@ -10,6 +10,7 @@ namespace Aselia.Core
 		private readonly TcpClient Client;
 		private readonly SafeStream Stream;
 		private readonly new Server Server;
+		private readonly bool Encrypted;
 
 		public LocalUser(LocalUser clone)
 			: base(clone)
@@ -17,14 +18,28 @@ namespace Aselia.Core
 			Client = clone.Client;
 			Stream = clone.Stream;
 			Server = clone.Server;
+			Encrypted = clone.Encrypted;
+			Initialize();
 		}
 
-		public LocalUser(Server server, TcpClient client)
-			: base(server, Locations.Local, HostMask.Parse("*!*@*"), Authorizations.Connecting)
+		public LocalUser(Server server, TcpClient client, HostMask mask, bool encrypted)
+			: base(server, Locations.Local, mask, Authorizations.Connecting)
 		{
 			Server = server;
 			Client = client;
 			Stream = new SafeStream(client.GetStream());
+			Encrypted = encrypted;
+			Initialize();
+		}
+
+		private void Initialize()
+		{
+			Stream.Disposed += Stream_Disposed;
+		}
+
+		private void Stream_Disposed(object sender, EventArgs e)
+		{
+			Dispose();
 		}
 
 		private void Receive(string command, params string[] args)
@@ -33,11 +48,11 @@ namespace Aselia.Core
 			{
 				if (!Server.Domains.UserCommandHandlers.ContainsKey(command))
 				{
-					SendNumeric(Commands.ERR_UNKNOWNCOMMAND, Server.Id, Mask.Nickname, "That command does not exist on this IRCd.");
+					SendNumeric(Numerics.ERR_UNKNOWNCOMMAND, command, ":That command does not exist on this IRCd.");
 					return;
 				}
 
-				if (!RequireAccess(Server.Domains.UserCommandLevels[command]))
+				if (!RequireAccess(Server.Domains.UserCommandAttrs[command].Level))
 				{
 					return;
 				}
@@ -45,7 +60,7 @@ namespace Aselia.Core
 			catch (Exception ex)
 			{
 				Console.WriteLine("Receive checks for {0} threw an exception: {1}", command, ex);
-				Send(Commands.ERR_UNAVAILRESOURCE, Server.Id, Mask.Nickname, "Unable to obtain command details.");
+				SendNumeric(Numerics.ERR_UNAVAILRESOURCE, command, ":Unable to obtain command details.");
 				return;
 			}
 
@@ -56,7 +71,7 @@ namespace Aselia.Core
 			catch (Exception ex)
 			{
 				Console.WriteLine("Command handler for {0} threw an exception: {1}", command, ex);
-				Send(Commands.ERR_UNAVAILRESOURCE, Server.Id, Mask.Nickname, "Command handler threw an exception.");
+				SendNumeric(Numerics.ERR_UNAVAILRESOURCE, command, "EXCEPTION", ":" + ex.Message);
 			}
 		}
 
@@ -76,27 +91,21 @@ namespace Aselia.Core
 			string[] tok = line.Split(new char[] { ' ' }, 2);
 
 			string cmd = tok[0].ToUpper();
-			Commands command;
-			if (!Enum.TryParse<Commands>(cmd, false, out command))
-			{
-				Send(Commands.ERR_UNKNOWNCOMMAND, Server.Id, cmd + " Unknown command");
-				return;
-			}
 
 			if (tok.Length < 2)
 			{
-				Receive(command);
+				Receive(cmd);
 			}
 			else if (tok[1][0] == ':')
 			{
-				Receive(command, tok[1].Substring(1));
+				Receive(cmd, tok[1].Substring(1));
 			}
 			else
 			{
 				tok = tok[1].Split(new string[] { " :" }, 2, StringSplitOptions.None);
 				if (tok.Length < 2)
 				{
-					Receive(command, tok[0].Split(' '));
+					Receive(cmd, tok[0].Split(' '));
 				}
 				else
 				{
@@ -105,58 +114,16 @@ namespace Aselia.Core
 					string[] args = new string[tok.Length + 1];
 					Array.Copy(tok, args, tok.Length);
 					args[tok.Length] = final;
-					Receive(command, args);
+					Receive(cmd, args);
 				}
 			}
 		}
 
-		public override void Send(Commands command, string source, params string[] args)
+		public override void WriteLine(string line)
 		{
-			StringBuilder line = new StringBuilder();
+			Stream.BeginWriteLine(line);
 
-			if (!string.IsNullOrWhiteSpace(source))
-			{
-				line.Append(':').Append(source).Append(' ');
-			}
-
-			line.Append(command.GetToken());
-
-			if (args.Length > 0)
-			{
-				for (int i = 0; i < args.Length - 1; i++)
-				{
-					line.Append(' ').Append(args[i]);
-				}
-
-				switch (command)
-				{
-				case Commands.INVITE:
-				case Commands.ISON:
-				case Commands.JOIN:
-				case Commands.KNOCK:
-				case Commands.MODE:
-				case Commands.NICK:
-				case Commands.OPER:
-				case Commands.LS:
-				case Commands.ACK:
-				case Commands.NAMES:
-					line.Append(' ');
-					break;
-
-				case Commands.KICK:
-				case Commands.PART:
-					line.Append(args.Length > 2 ? " :" : " ");
-					break;
-
-				default:
-					line.Append(" :");
-					break;
-				}
-				line.Append(args[args.Length - 1]);
-			}
-
-			Stream.WriteLine(line.ToString());
-			Stream.Flush();
+			base.WriteLine(line);
 		}
 
 		public override void Dispose()

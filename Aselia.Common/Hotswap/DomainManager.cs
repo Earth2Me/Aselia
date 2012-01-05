@@ -119,7 +119,7 @@ namespace Aselia.Common.Hotswap
 				if (Server == null)
 				{
 					Server = (ServerBase)types[0].GetConstructor(new Type[] { typeof(DomainManager) }).Invoke(new object[] { this });
-					Server.Start();
+					Server.Restart();
 				}
 				else
 				{

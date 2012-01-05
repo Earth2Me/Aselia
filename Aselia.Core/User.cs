@@ -17,6 +17,12 @@ namespace Aselia.Core
 		{
 		}
 
+		public override ChannelBase GetChannel(string name)
+		{
+			name = name.ToLower();
+			return Channels.ContainsKey(name) ? Channels[name] : null;
+		}
+
 		public virtual void Start()
 		{
 		}
@@ -56,8 +62,22 @@ namespace Aselia.Core
 			}
 		}
 
-		protected override string CompileCommand(string command, params object[] args)
+		public override string CompileNumeric(ushort numeric, params object[] args)
 		{
+			return string.Format(":{0} {1:000} {2} {3}", Server.Id, numeric, Mask.Nickname, string.Join(" ", args));
+		}
+
+		public override string CompileCommand(string command, params object[] args)
+		{
+			List<object> full = new List<object>(new object[]
+			{
+				Server.Id,
+				command,
+				Mask.Nickname,
+			});
+			full.AddRange(args);
+
+			return string.Format(Server.Domains.UserCommandAttrs[command].Format, full.ToArray());
 		}
 
 		public override void WriteLine(string line)
@@ -124,6 +144,36 @@ namespace Aselia.Core
 			}
 		}
 
+		public override bool HasSessionFlag(string flag)
+		{
+			lock (SessionFlags)
+			{
+				return SessionFlags.Contains(flag);
+			}
+		}
+
+		public override bool SetSessionFlag(string flag)
+		{
+			if (HasSessionFlag(flag))
+			{
+				return false;
+			}
+
+			lock (SessionFlags)
+			{
+				SessionFlags.Add(flag);
+			}
+			return true;
+		}
+
+		public override bool ClearSessionFlag(string flag)
+		{
+			lock (SessionFlags)
+			{
+				return SessionFlags.Remove(flag);
+			}
+		}
+
 		public override string PrefixHostMask(ChannelBase channel)
 		{
 			string prefix = channel.Prefixes[Mask];
@@ -158,7 +208,18 @@ namespace Aselia.Core
 			}
 		}
 
-		public void Names(ChannelBase channel)
+		public override void Names(string name)
+		{
+			ChannelBase channel = GetChannel(name);
+			if (channel == null)
+			{
+				SendNumeric(Numerics.ERR_NOTONCHANNEL, name, ":You are not in that channel.");
+				return;
+			}
+			Names(channel);
+		}
+
+		public override void Names(ChannelBase channel)
 		{
 			string[] start = new string[] { Mask.Nickname, " = ", channel.Name };
 			List<string> args = new List<string>(start);
@@ -192,6 +253,11 @@ namespace Aselia.Core
 		public override void SendNumeric(Numerics numeric, params object[] message)
 		{
 			SendNumeric((ushort)numeric, message);
+		}
+
+		public override void SendNumeric(ushort numeric, params object[] args)
+		{
+			WriteLine(CompileNumeric(numeric, args));
 		}
 
 		public bool AddToChannel(ChannelBase channel, string prefix = "")

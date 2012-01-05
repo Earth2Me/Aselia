@@ -8,7 +8,7 @@ namespace Aselia
 		{
 			DomainManager domains = new DomainManager();
 			domains.Reload();
-			domains.Server.Start();
+			domains.Server.Run();
 		}
 	}
 }

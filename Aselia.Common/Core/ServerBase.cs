@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Net;
 using Aselia.Common.Core.Configuration;
 using Aselia.Common.Hotswap;
 
@@ -19,9 +20,17 @@ namespace Aselia.Common.Core
 
 		public ConcurrentDictionary<HostMask, UserBase> Users { get; private set; }
 
-		public SettingsBase Settings { get; private set; }
+		public SettingsBase Settings { get; set; }
 
-		public abstract void Start();
+		public abstract ChannelBase GetChannel(string name);
+
+		public abstract bool IsQLined(string nickname);
+
+		public abstract bool IsKLined(IPAddress fullIp);
+
+		public abstract void Run();
+
+		public abstract void Restart();
 
 		public abstract void Unload();
 
@@ -31,7 +40,7 @@ namespace Aselia.Common.Core
 
 		public abstract void Dispose();
 
-		protected abstract SettingsBase LoadSettings();
+		public abstract SettingsBase LoadSettings();
 
 		public DomainManager Domains
 		{

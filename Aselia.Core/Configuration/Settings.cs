@@ -14,6 +14,32 @@ namespace Aselia.Core.Configuration
 		[NonSerialized]
 		private FileInfo File;
 
+		public override object this[string key]
+		{
+			get { return Properties[key]; }
+			set { Properties[key] = value; }
+		}
+
+		public override void Flush()
+		{
+			try
+			{
+				Save();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Could not save settings: {0}", ex.Message);
+			}
+
+			try
+			{
+				OnModified();
+			}
+			catch
+			{
+			}
+		}
+
 		public override void Load(FileInfo file)
 		{
 			File = file;
@@ -35,6 +61,8 @@ namespace Aselia.Core.Configuration
 				Console.WriteLine("Invalid configuration file.");
 				throw new Exception("Invalid configuration file.", ex);
 			}
+
+			OnModified();
 		}
 
 		public void Save()
@@ -85,9 +113,32 @@ namespace Aselia.Core.Configuration
 						Backlog = 20,
 						Protocol = Protocols.Traditional,
 						Encrypted = false,
-					}
+					},
+				} },
+				{ "K-", new List<KLine>()
+				{
+					new KLine()
+					{
+						Automated = true,
+						Reason = "Invalid IP address.",
+						Ban = new Cidr(0, 32),
+					},
+				} },
+				{ "Q-", new List<QLine>()
+				{
+					new QLine()
+					{
+						Automated = true,
+						Reason = "Impersonation of services.",
+						Ban = "serv$",
+					},
 				} },
 			};
+		}
+
+		public override void Reload()
+		{
+			Load(File);
 		}
 	}
 }

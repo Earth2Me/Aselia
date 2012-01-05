@@ -112,18 +112,6 @@ namespace Aselia
 			}
 		}
 
-		public void WriteLine(string text)
-		{
-			if (!Stream.CanWrite)
-			{
-				Dispose();
-				return;
-			}
-
-			byte[] buffer = ASCIIEncoding.ASCII.GetBytes(text);
-			Write(buffer, 0, buffer.Length);
-		}
-
 		private void OnDisposed()
 		{
 			if (Disposed != null)
@@ -154,6 +142,35 @@ namespace Aselia
 			}
 
 			base.Dispose(disposing);
+		}
+
+		public void BeginWriteLine(string line)
+		{
+			byte[] data = ASCIIEncoding.ASCII.GetBytes(line);
+
+			try
+			{
+				Stream.BeginWrite(data, 0, data.Length, OnBeginWriteLine, null);
+			}
+			catch
+			{
+				Dispose();
+			}
+		}
+
+		private void OnBeginWriteLine(IAsyncResult ar)
+		{
+			if (ar.IsCompleted)
+			{
+				try
+				{
+					Stream.EndWrite(ar);
+				}
+				catch
+				{
+					Dispose();
+				}
+			}
 		}
 	}
 }

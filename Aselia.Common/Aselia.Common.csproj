@@ -43,6 +43,7 @@
     <Compile Include="Authorizations.cs" />
     <Compile Include="CancelableEventArgs.cs" />
     <Compile Include="Core\ChannelSurrogate.cs" />
+    <Compile Include="Core\Configuration\SettingsBase.cs" />
     <Compile Include="Core\UserBase.cs" />
     <Compile Include="Core\UserSurrogate.cs" />
     <Compile Include="Hotswap\DomainManager.cs" />
@@ -58,9 +59,7 @@
     <Compile Include="Flags\UserModes.cs" />
     <Compile Include="HostMask.cs" />
     <Compile Include="Locations.cs" />
-    <Compile Include="Modules\ChannelList.cs" />
     <Compile Include="Modules\ChannelModeAttribute.cs" />
-    <Compile Include="Modules\ChannelRank.cs" />
     <Compile Include="Modules\CommandAttribute.cs" />
     <Compile Include="Modules\IChannelMode.cs" />
     <Compile Include="Modules\ICommand.cs" />
@@ -68,8 +67,8 @@
     <Compile Include="Modules\ReceivedCommandEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\ServerBase.cs" />
-    <Compile Include="StringExtension.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

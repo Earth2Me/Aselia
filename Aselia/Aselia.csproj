@@ -60,6 +60,10 @@
       <Project>{31BB7637-FC6C-4443-A59B-9D579E2734C0}</Project>
       <Name>Aselia.UserCommands</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Aselia.Common\Aselia.Common.csproj">
+      <Project>{75413C5E-E62F-471C-BA8B-A1F67C615DB9}</Project>
+      <Name>Aselia.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Aselia.Core\Aselia.Core.csproj">
       <Project>{7B97D4B9-4137-4655-ABB9-7286EC778FBF}</Project>
       <Name>Aselia.Core</Name>

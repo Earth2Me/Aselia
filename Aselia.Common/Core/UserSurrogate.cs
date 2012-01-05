@@ -18,6 +18,8 @@ namespace Aselia.Common.Core
 
 		public Authorizations Level { get; set; }
 
+		public List<string> Flags { get; set; }
+
 		public ConcurrentDictionary<string, object> Properties { get; set; }
 
 		public UserSurrogate()
@@ -32,6 +34,7 @@ namespace Aselia.Common.Core
 			Modes = clone.Modes;
 			Properties = clone.Properties;
 			Level = clone.Level;
+			Flags = clone.Flags;
 		}
 
 		protected UserSurrogate(HostMask mask, Authorizations level)
@@ -42,6 +45,7 @@ namespace Aselia.Common.Core
 			LastSeen = DateTime.MaxValue;
 			Modes = new List<Modes>();
 			Properties = new ConcurrentDictionary<string, object>();
+			Flags = new List<string>();
 		}
 	}
 }

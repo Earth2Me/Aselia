@@ -8,7 +8,7 @@
     <ProjectGuid>{7B97D4B9-4137-4655-ABB9-7286EC778FBF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Aselia</RootNamespace>
+    <RootNamespace>Aselia.Core</RootNamespace>
     <AssemblyName>Aselia.Core</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -43,11 +43,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandsExtension.cs" />
+    <Compile Include="Channel.cs" />
     <Compile Include="Configuration\Binding.cs" />
+    <Compile Include="Configuration\Cidr.cs" />
+    <Compile Include="Configuration\KLine.cs" />
+    <Compile Include="Configuration\Line.cs" />
     <Compile Include="Configuration\Protocols.cs" />
+    <Compile Include="Configuration\QLine.cs" />
     <Compile Include="Configuration\ServerInfo.cs" />
     <Compile Include="Configuration\Settings.cs" />
-    <Compile Include="Channel.cs" />
     <Compile Include="LocalUser.cs" />
     <Compile Include="Protocol.cs" />
     <Compile Include="StringExtension.cs" />
