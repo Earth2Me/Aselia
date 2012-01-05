@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{75413C5E-E62F-471C-BA8B-A1F67C615DB9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aselia.Common</RootNamespace>
+    <AssemblyName>Aselia.Common</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Authorizations.cs" />
+    <Compile Include="CancelableEventArgs.cs" />
+    <Compile Include="Core\ChannelSurrogate.cs" />
+    <Compile Include="Core\UserBase.cs" />
+    <Compile Include="Core\UserSurrogate.cs" />
+    <Compile Include="Hotswap\DomainManager.cs" />
+    <Compile Include="Hotswap\Domains.cs" />
+    <Compile Include="Numerics.cs" />
+    <Compile Include="Core\ChannelBase.cs" />
+    <Compile Include="Flags\ChannelModes.cs" />
+    <Compile Include="Flags\Modes.cs" />
+    <Compile Include="Flags\ModeSet.cs" />
+    <Compile Include="Flags\ModesExtension.cs" />
+    <Compile Include="Flags\ModeSyntax.cs" />
+    <Compile Include="Flags\ModeTypes.cs" />
+    <Compile Include="Flags\UserModes.cs" />
+    <Compile Include="HostMask.cs" />
+    <Compile Include="Locations.cs" />
+    <Compile Include="Modules\ChannelList.cs" />
+    <Compile Include="Modules\ChannelModeAttribute.cs" />
+    <Compile Include="Modules\ChannelRank.cs" />
+    <Compile Include="Modules\CommandAttribute.cs" />
+    <Compile Include="Modules\IChannelMode.cs" />
+    <Compile Include="Modules\ICommand.cs" />
+    <Compile Include="Modules\ReceivedChannelModeEventArgs.cs" />
+    <Compile Include="Modules\ReceivedCommandEventArgs.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Core\ServerBase.cs" />
+    <Compile Include="StringExtension.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

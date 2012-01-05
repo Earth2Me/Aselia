@@ -1,9 +1,8 @@
-﻿namespace Aselia.Configuration
+﻿namespace Aselia.Core.Configuration
 {
 	public enum Protocols : byte
 	{
 		Traditional,
-		Aselia,
 		InterServer,
 	}
 }

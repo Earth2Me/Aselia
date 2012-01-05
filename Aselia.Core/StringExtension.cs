@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Aselia
+namespace Aselia.Core
 {
 	public static class StringExtension
 	{

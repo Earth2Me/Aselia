@@ -1,99 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Xml.Serialization;
+using Aselia.Common.Core.Configuration;
 
-namespace Aselia.Configuration
+namespace Aselia.Core.Configuration
 {
 	[Serializable]
-	public class Settings : MarshalByRefObject
+	public class Settings : SettingsBase
 	{
-		private readonly static XmlSerializer Serializer = new XmlSerializer(typeof(Settings));
 		[NonSerialized]
-		private FileInfo _File;
+		private readonly XmlSerializer Serializer = new XmlSerializer(typeof(Settings));
+		[NonSerialized]
+		private FileInfo File;
 
-		public byte NickLength { get; set; }
-
-		public uint MaximumListLength { get; set; }
-
-		public uint MaximumLargeListLength { get; set; }
-
-		public byte Backlog { get; set; }
-
-		public List<Binding> Bindings { get; set; }
-
-		public List<Regex> QLines { get; set; }
-
-		public FileInfo File
+		public override void Load(FileInfo file)
 		{
-			set { _File = value; }
-		}
-
-		public Settings()
-		{
-		}
-
-		public void SetDefaults()
-		{
-			Backlog = 10;
-			NickLength = 20;
-			MaximumListLength = 200;
-			MaximumLargeListLength = 20000;
-
-			QLines = new List<Regex>(new Regex[]
+			File = file;
+			if (!file.Exists)
 			{
-				new Regex("fuck"),
-				new Regex("slut"),
-				new Regex("cunt"),
-				new Regex("nigger"),
-				new Regex("bitch"),
-				new Regex("bastard"),
-			});
+				Console.WriteLine("Generating default configuration file.");
+				LoadDefaults();
+			}
 
-			Bindings = new List<Binding>(new Binding[]
-			{
-				new Binding()
-				{
-					Port = 6667,
-					Protocol = Protocols.Traditional,
-					Interface = 0L,
-				},
-				new Binding()
-				{
-					Port = 41232,
-					Protocol = Protocols.Aselia,
-					Interface = 0L,
-				},
-				new Binding()
-				{
-					Port = 7667,
-					Protocol = Protocols.InterServer,
-					Interface = 0L,
-				},
-			});
-		}
-
-		public static Settings Load(FileInfo file)
-		{
 			try
 			{
 				using (FileStream fs = file.OpenRead())
 				{
-					return (Settings)Serializer.Deserialize(fs);
+					Properties = ((Settings)Serializer.Deserialize(fs)).Properties;
 				}
 			}
-			catch
+			catch (Exception ex)
 			{
 				Console.WriteLine("Invalid configuration file.");
-				Environment.Exit(1);
-				return null;
+				throw new Exception("Invalid configuration file.", ex);
 			}
 		}
 
 		public void Save()
 		{
-			FileInfo file = new FileInfo(_File.FullName + ".tmp");
+			FileInfo file = new FileInfo(File.FullName + ".tmp");
 			try
 			{
 				using (FileStream fs = file.Exists ? file.OpenWrite() : file.Create())
@@ -102,9 +48,9 @@ namespace Aselia.Configuration
 					fs.Flush();
 				}
 
-				file.Replace(_File.FullName, file.FullName + ".bak");
+				file.Replace(File.FullName, file.FullName + ".bak");
 			}
-			catch
+			catch (Exception ex)
 			{
 				Console.WriteLine("Unable to save configuration file.");
 				if (file.Exists)
@@ -117,7 +63,31 @@ namespace Aselia.Configuration
 					{
 					}
 				}
+
+				throw new Exception("Unable to save configuration file.", ex);
 			}
+		}
+
+		private void LoadDefaults()
+		{
+			Properties = new Dictionary<string, object>()
+			{
+				{ "MaximumListSize", 100 },
+				{ "MaximumLongListSize", 1000 },
+				{ "MaximumRanksSize", 20 },
+				{ "MaximumLongRanksSize", 100 },
+				{ "Bindings", new List<Binding>()
+				{
+					new Binding()
+					{
+						Address = "127.0.0.1",
+						Port = 6667,
+						Backlog = 20,
+						Protocol = Protocols.Traditional,
+						Encrypted = false,
+					}
+				} },
+			};
 		}
 	}
 }

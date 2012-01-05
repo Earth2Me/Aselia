@@ -1,5 +1,6 @@
-﻿using Aselia.Flags;
-using Aselia.Modules;
+﻿using Aselia.Common;
+using Aselia.Common.Flags;
+using Aselia.Common.Modules;
 
 namespace Aselia.ChannelModes.Ranks
 {

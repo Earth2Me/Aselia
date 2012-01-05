@@ -41,19 +41,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Users\CapHandler.cs" />
-    <Compile Include="Users\JoinHandler.cs" />
-    <Compile Include="Users\ModeHandler.cs" />
-    <Compile Include="Users\NamesHandler.cs" />
-    <Compile Include="Users\NickHandler.cs" />
-    <Compile Include="Users\UserHandler.cs" />
+    <Compile Include="CapHandler.cs" />
+    <Compile Include="JoinHandler.cs" />
+    <Compile Include="ModeHandler.cs" />
+    <Compile Include="NamesHandler.cs" />
+    <Compile Include="NickHandler.cs" />
+    <Compile Include="UserHandler.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Aselia.Common\Aselia.Common.csproj">
+      <Project>{75413C5E-E62F-471C-BA8B-A1F67C615DB9}</Project>
+      <Name>Aselia.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Aselia.Core\Aselia.Core.csproj">
       <Project>{7B97D4B9-4137-4655-ABB9-7286EC778FBF}</Project>
       <Name>Aselia.Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

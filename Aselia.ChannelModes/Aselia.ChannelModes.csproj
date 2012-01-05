@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>28422b80-2513-4a74-b049-450b62ef624d</ProjectGuid>
+    <ProjectGuid>{37D9E509-62D0-480C-BBBF-BE80556CAE5B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Aselia.ChannelModes</RootNamespace>
@@ -40,9 +40,46 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="Argumentless\Arena.cs" />
+    <Compile Include="Lists\Ban.cs" />
+    <Compile Include="Argumentless\DisableForward.cs" />
+    <Compile Include="Lists\Except.cs" />
+    <Compile Include="Argumented\Forward.cs" />
+    <Compile Include="Argumentless\FreeTarget.cs" />
+    <Compile Include="Ranks\HalfOperator.cs" />
+    <Compile Include="Lists\InviteExcept.cs" />
+    <Compile Include="Argumentless\InviteOnly.cs" />
+    <Compile Include="Ranks\IrcOp.cs" />
+    <Compile Include="Argumented\JoinThrottle.cs" />
+    <Compile Include="Argumented\Key.cs" />
+    <Compile Include="Argumented\Limit.cs" />
+    <Compile Include="Argumentless\LockTopic.cs" />
+    <Compile Include="Argumentless\LongLists.cs" />
+    <Compile Include="Argumentless\Moderated.cs" />
+    <Compile Include="Argumentless\NoActions.cs" />
+    <Compile Include="Argumentless\NoColors.cs" />
+    <Compile Include="Argumentless\NoCtcps.cs" />
+    <Compile Include="Argumentless\NoExternal.cs" />
+    <Compile Include="Ranks\Operator.cs" />
+    <Compile Include="Argumentless\OpModerated.cs" />
+    <Compile Include="Ranks\Owner.cs" />
+    <Compile Include="Argumentless\Permanent.cs" />
+    <Compile Include="Argumentless\Private.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Ranks\Protect.cs" />
+    <Compile Include="Lists\Quiet.cs" />
+    <Compile Include="Argumentless\RegisteredOnly.cs" />
+    <Compile Include="Argumentless\Secret.cs" />
+    <Compile Include="Ranks\Service.cs" />
+    <Compile Include="Ranks\Voice.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aselia.Core\Aselia.Core.csproj">
+      <Project>{7B97D4B9-4137-4655-ABB9-7286EC778FBF}</Project>
+      <Name>Aselia.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

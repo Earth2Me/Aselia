@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
-using Aselia.Flags;
-using Aselia.Modules;
-using Aselia.Optimized;
+using Aselia.Common;
+using Aselia.Common.Core;
+using Aselia.Common.Flags;
+using Aselia.Common.Modules;
 
 namespace Aselia.ChannelModes.Lists
 {
-	[ChannelMode(Modes.e, ModeSyntax.Always, Authorizations.Identified, '@')]
+	[ChannelMode(Modes.e, ModeSyntax.Always, Authorizations.Registered, '@')]
 	public sealed class Except : ChannelList
 	{
-		public override List<HostMask> GetList(Channel channel)
+		public override List<HostMask> GetList(ChannelBase channel)
 		{
 			return channel.Exceptions;
 		}

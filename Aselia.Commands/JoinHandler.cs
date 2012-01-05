@@ -1,5 +1,5 @@
 ﻿using System;
-using Aselia.Optimized.UserHandlers;
+using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
@@ -8,7 +8,7 @@ namespace Aselia.UserCommands
 	{
 		public void Handler(object sender, ReceivedCommandEventArgs e)
 		{
-			throw new NotImplementedException();
+			e.User.NotImplemented();
 		}
 	}
 }
