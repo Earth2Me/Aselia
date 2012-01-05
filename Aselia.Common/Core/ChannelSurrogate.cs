@@ -10,7 +10,7 @@ namespace Aselia.Common.Core
 	{
 		public ConcurrentDictionary<Modes, string> Modes { get; set; }
 
-		public ConcurrentDictionary<HostMask, string> Prefixes { get; set; }
+		public ConcurrentDictionary<string, string> Prefixes { get; set; }
 
 		public Dictionary<string, object> Properties { get; set; }
 

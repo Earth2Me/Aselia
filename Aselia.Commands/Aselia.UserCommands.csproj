@@ -53,10 +53,6 @@
       <Project>{75413C5E-E62F-471C-BA8B-A1F67C615DB9}</Project>
       <Name>Aselia.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Aselia.Core\Aselia.Core.csproj">
-      <Project>{7B97D4B9-4137-4655-ABB9-7286EC778FBF}</Project>
-      <Name>Aselia.Core</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

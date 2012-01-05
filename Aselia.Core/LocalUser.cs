@@ -88,7 +88,7 @@ namespace Aselia.Core
 		private void OnBeginReadLine(IAsyncResult ar)
 		{
 			string line = Stream.EndReadLine(ar);
-			string[] tok = line.Split(new char[] { ' ' }, 2);
+			string[] tok = line.Split(new char[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
 
 			string cmd = tok[0].ToUpper();
 
@@ -105,12 +105,12 @@ namespace Aselia.Core
 				tok = tok[1].Split(new string[] { " :" }, 2, StringSplitOptions.None);
 				if (tok.Length < 2)
 				{
-					Receive(cmd, tok[0].Split(' '));
+					Receive(cmd, tok[0].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
 				}
 				else
 				{
 					string final = tok[1];
-					tok = tok[0].Split(' ');
+					tok = tok[0].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 					string[] args = new string[tok.Length + 1];
 					Array.Copy(tok, args, tok.Length);
 					args[tok.Length] = final;

@@ -4,7 +4,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.ChannelModes.Ranks
 {
-	[ChannelMode(Modes.v, ModeSyntax.Always, Authorizations.Registered, '%')]
+	[ChannelMode(Modes.v, ModeSyntax.Always, Authorizations.Normal, '%')]
 	public class Voice : ChannelRank
 	{
 		public override char Prefix

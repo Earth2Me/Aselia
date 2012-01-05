@@ -5,9 +5,6 @@ namespace Aselia.Common
 	[Serializable]
 	public class HostMask : MarshalByRefObject
 	{
-		public const string NICKNAME_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789[]{}-_|`";
-		public static readonly char[] NICKNAME_CHARS = NICKNAME_STRING.ToCharArray();
-
 		private static char[] FIRST_SPLIT = new char[] { '@' };
 		private static char[] SECOND_SPLIT = new char[] { '!' };
 

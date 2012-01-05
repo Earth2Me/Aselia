@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using Aselia.Common;
 using Aselia.Common.Core;
@@ -15,6 +17,59 @@ namespace Aselia.Core
 		protected User(Server server, Locations location, HostMask mask, Authorizations level)
 			: base(server, location, mask, level)
 		{
+		}
+
+		public override bool ValidateNickname(string nickname)
+		{
+			if (nickname.Length > (byte)Server.Settings["MaximumNicknameLength"])
+			{
+				SendNumeric(Numerics.ERR_ERRONEUSNICKNAME, nickname, ":That nickname is too long.");
+				return false;
+			}
+
+			if (!Validate(nickname, Protocol.NICKNAME_CHARS))
+			{
+				SendNumeric(Numerics.ERR_ERRONEUSNICKNAME, nickname, ":That nickname contains invalid character(s).");
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+
+		public override string MakeUsername(string username)
+		{
+			StringBuilder builder = new StringBuilder(username.Length + 1).Append('-');
+			char[] chars = username.ToCharArray();
+			byte max = (byte)Server.Settings["MaximumUsernameLength"];
+			for (int i = 0; i < chars.Length && i < max; i++)
+			{
+				if (Protocol.USERNAME_CHARS.Contains(chars[i]))
+				{
+					builder.Append(chars[i]);
+				}
+			}
+
+			if (builder.Length == 1)
+			{
+				builder.Append("Invalid");
+			}
+
+			return builder.ToString();
+		}
+
+		private bool Validate(string input, char[] valid)
+		{
+			char[] chars = input.ToCharArray();
+			for (int i = 0; i < chars.Length; i++)
+			{
+				if (!valid.Contains(chars[i]))
+				{
+					return false;
+				}
+			}
+			return true;
 		}
 
 		public override ChannelBase GetChannel(string name)
@@ -71,9 +126,8 @@ namespace Aselia.Core
 		{
 			List<object> full = new List<object>(new object[]
 			{
-				Server.Id,
+				Mask.Hostname,
 				command,
-				Mask.Nickname,
 			});
 			full.AddRange(args);
 
@@ -84,26 +138,26 @@ namespace Aselia.Core
 		{
 		}
 
-		public void BroadcastInclusive(string command, params object[] args)
+		public override void BroadcastInclusive(string command, params object[] args)
 		{
 			string line = CompileCommand(command, args);
 
 			foreach (ChannelBase c in Channels.Values)
 			{
-				foreach (UserBase u in c.Users)
+				foreach (UserBase u in c.Users.Values)
 				{
 					u.WriteLine(line);
 				}
 			}
 		}
 
-		public void BroadcastExclusive(string command, params string[] args)
+		public override void BroadcastExclusive(string command, params string[] args)
 		{
 			string line = CompileCommand(command, args);
 
 			foreach (ChannelBase c in Channels.Values)
 			{
-				foreach (UserBase u in c.Users)
+				foreach (UserBase u in c.Users.Values)
 				{
 					if (u == this)
 					{
@@ -176,7 +230,7 @@ namespace Aselia.Core
 
 		public override string PrefixHostMask(ChannelBase channel)
 		{
-			string prefix = channel.Prefixes[Mask];
+			string prefix = channel.GetPrefix(this);
 			if (string.IsNullOrWhiteSpace(prefix))
 			{
 				return Mask.ToString();
@@ -193,7 +247,7 @@ namespace Aselia.Core
 
 		public override string PrefixNickname(ChannelBase channel)
 		{
-			string prefix = channel.Prefixes[Mask];
+			string prefix = channel.GetPrefix(this);
 			if (string.IsNullOrWhiteSpace(prefix))
 			{
 				return Mask.Nickname;
@@ -224,7 +278,7 @@ namespace Aselia.Core
 			string[] start = new string[] { Mask.Nickname, " = ", channel.Name };
 			List<string> args = new List<string>(start);
 
-			foreach (User u in channel.Users)
+			foreach (UserBase u in channel.Users.Values)
 			{
 				if (args.Count >= 50 + start.Length)
 				{
@@ -260,24 +314,9 @@ namespace Aselia.Core
 			WriteLine(CompileNumeric(numeric, args));
 		}
 
-		public bool AddToChannel(ChannelBase channel, string prefix = "")
+		public override bool AddToChannel(ChannelBase channel)
 		{
-			try
-			{
-				if (!channel.Prefixes.TryAdd(Mask, prefix))
-				{
-					return false;
-				}
-				lock (channel.Users)
-				{
-					channel.Users.Add(this);
-				}
-				return true;
-			}
-			catch
-			{
-				return false;
-			}
+			return channel.Users.TryAdd(Id, this);
 		}
 
 		public override void Dispose()
@@ -289,10 +328,8 @@ namespace Aselia.Core
 
 			foreach (ChannelBase c in Channels.Values)
 			{
-				lock (c.Users)
-				{
-					c.Users.Remove(this);
-				}
+				UserBase dump;
+				c.Users.TryRemove(this.Id, out dump);
 			}
 
 			for (int i = 0; i < 100; i++)
@@ -313,7 +350,7 @@ namespace Aselia.Core
 
 		public override bool IsOwner(ChannelBase channel)
 		{
-			string prefix = channel.Prefixes[Mask];
+			string prefix = channel.GetPrefix(this);
 			if (string.IsNullOrWhiteSpace(prefix))
 			{
 				return false;
@@ -332,7 +369,7 @@ namespace Aselia.Core
 
 		public override bool IsProtect(ChannelBase channel)
 		{
-			string prefix = channel.Prefixes[Mask];
+			string prefix = channel.GetPrefix(this);
 			if (string.IsNullOrWhiteSpace(prefix))
 			{
 				return false;
@@ -352,7 +389,7 @@ namespace Aselia.Core
 
 		public override bool IsOperator(ChannelBase channel)
 		{
-			string prefix = channel.Prefixes[Mask];
+			string prefix = channel.GetPrefix(this);
 			if (string.IsNullOrWhiteSpace(prefix))
 			{
 				return false;
@@ -373,7 +410,7 @@ namespace Aselia.Core
 
 		public override bool IsHalfOperator(ChannelBase channel)
 		{
-			string prefix = channel.Prefixes[Mask];
+			string prefix = channel.GetPrefix(this);
 			if (string.IsNullOrWhiteSpace(prefix))
 			{
 				return false;
@@ -395,7 +432,7 @@ namespace Aselia.Core
 
 		public override bool IsVoice(ChannelBase channel)
 		{
-			string prefix = channel.Prefixes[Mask];
+			string prefix = channel.GetPrefix(this);
 			if (string.IsNullOrWhiteSpace(prefix))
 			{
 				return false;

@@ -9,13 +9,19 @@ namespace Aselia.Common.Core
 	{
 		public Locations Location { get; protected set; }
 
-		public string Id { get; protected set; }
+		public string Id { get; set; }
+
+		public string Gecos { get; set; }
 
 		public ConcurrentDictionary<string, ChannelBase> Channels { get; protected set; }
 
 		public ServerBase Server { get; protected set; }
 
 		protected List<string> SessionFlags { get; protected set; }
+
+		public abstract void BroadcastInclusive(string command, params object[] args);
+
+		public abstract void BroadcastExclusive(string command, params object[] args);
 
 		public abstract ChannelBase GetChannel(string name);
 
@@ -61,11 +67,15 @@ namespace Aselia.Common.Core
 
 		public abstract void ErrorNeedMoreParams(string command);
 
-		public abstract bool AddToChannel(ChannelBase channel, string prefix = "");
+		public abstract bool AddToChannel(ChannelBase channel);
 
 		public abstract void SendNumeric(Numerics numeric, params object[] message);
 
 		public abstract void ErrorAlreadyRegistered(string command);
+
+		public abstract bool ValidateNickname(string nickname);
+
+		public abstract string MakeUsername(string username);
 
 		public UserBase()
 			: base()
@@ -80,6 +90,7 @@ namespace Aselia.Common.Core
 			Channels = clone.Channels;
 			Server = clone.Server;
 			SessionFlags = clone.SessionFlags;
+			Gecos = clone.Gecos;
 		}
 
 		protected UserBase(ServerBase server, Locations location, HostMask mask, Authorizations level)

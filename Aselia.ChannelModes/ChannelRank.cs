@@ -10,7 +10,7 @@ namespace Aselia.ChannelModes
 
 		public void AddHandler(object sender, ReceivedChannelModeEventArgs e)
 		{
-			UserBase target = e.Channel.GetUser(e.Argument, e.User);
+			UserBase target = e.Channel.GetUser(e.Argument, "MODE", e.User);
 			if (target == null)
 			{
 				e.Cancel();
@@ -21,7 +21,7 @@ namespace Aselia.ChannelModes
 
 		public void RemoveHandler(object sender, ReceivedChannelModeEventArgs e)
 		{
-			UserBase target = e.Channel.GetUser(e.Argument, e.User);
+			UserBase target = e.Channel.GetUser(e.Argument, "MODE", e.User);
 			if (target == null)
 			{
 				e.Cancel();

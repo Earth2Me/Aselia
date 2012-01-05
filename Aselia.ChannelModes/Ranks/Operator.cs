@@ -4,7 +4,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.ChannelModes.Ranks
 {
-	[ChannelMode(Modes.o, ModeSyntax.Always, Authorizations.Registered, '&')]
+	[ChannelMode(Modes.o, ModeSyntax.Always, Authorizations.Normal, '&')]
 	public class Operator : ChannelRank
 	{
 		public override char Prefix

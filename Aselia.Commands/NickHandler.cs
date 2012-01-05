@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Linq;
-using System.Text.RegularExpressions;
 using Aselia.Common;
+using Aselia.Common.Core;
 using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(NickHandler.CMD, Authorizations.Connecting)]
+	[Command(NickHandler.CMD, Authorizations.Connecting, ":{0} {1} {2}")]
 	public class NickHandler : MarshalByRefObject, ICommand
 	{
 		public const string CMD = "NICK";
@@ -20,42 +19,41 @@ namespace Aselia.UserCommands
 			}
 			string nickname = e.Arguments[0];
 
-			char[] chars = nickname.ToCharArray();
-			for (int i = 0; i < chars.Length; i++)
+			if (!e.User.ValidateNickname(nickname))
 			{
-				if (!HostMask.NICKNAME_CHARS.Contains(chars[i]))
-				{
-					e.User.SendNumeric(Numerics.ERR_ERRONEUSNICKNAME, nickname, "That nickname contains invalid character(s).");
-					return;
-				}
+				return;
 			}
 
-			foreach (Regex r in e.Server.IsQLined)
+			if (e.Server.IsQLined(nickname))
 			{
-				if (r.IsMatch(nickname))
-				{
-					e.User.Send(Commands.ERR_NICKCOLLISION, e.Server.Id, e.User.Mask.Nickname, "That nickname is invalid.");
-					return;
-				}
+				e.User.SendNumeric(Numerics.ERR_NICKCOLLISION, nickname, ":That nickname is invalid.");
+				return;
 			}
 
 			string id = nickname.ToLower();
-			for (int i = 0; i < e.Server.Users.Count; i++)
+			foreach (UserBase u in e.Server.Users.Values)
 			{
-				if (e.Server.Users[i].Id == id)
+				if (u.Id == id)
 				{
-					e.User.Send(Commands.ERR_NICKNAMEINUSE, e.Server.Id, e.User.Mask.Nickname, "That nickname is already in use.");
+					e.User.SendNumeric(Numerics.ERR_NICKNAMEINUSE, nickname, ":That nickname is already in use.");
 					return;
 				}
 			}
 
-			if (e.User.Authorization != Authorizations.Connecting)
+			if (e.User.Level != Authorizations.Connecting)
 			{
-				e.User.BroadcastInclusive(Commands.NICK, e.User, nickname);
-			}
+				e.User.BroadcastInclusive("NICK", nickname);
 
+				UserBase dump;
+				e.Server.Users.TryRemove(e.User.Mask, out dump);
+				e.User.Mask.Nickname = nickname;
+				e.Server.Users[e.User.Mask] = e.User;
+			}
+			else
+			{
+				e.User.Mask.Nickname = nickname;
+			}
 			e.User.Id = id;
-			e.User.Mask.Nickname = nickname;
 		}
 	}
 }

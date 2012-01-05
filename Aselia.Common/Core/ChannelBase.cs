@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Aselia.Common.Core
@@ -8,7 +9,7 @@ namespace Aselia.Common.Core
 	{
 		public ServerBase Server { get; private set; }
 
-		public List<UserBase> Users { get; protected set; }
+		public ConcurrentDictionary<string, UserBase> Users { get; protected set; }
 
 		protected List<string> Flags { get; protected set; }
 
@@ -45,11 +46,26 @@ namespace Aselia.Common.Core
 			: base(name)
 		{
 			Server = server;
-			Users = new List<UserBase>();
+			Users = new ConcurrentDictionary<string, UserBase>();
 			Flags = new List<string>();
 		}
 
+		public abstract void AddPrefix(UserBase user, char c);
+
+		public abstract void RemovePrefix(UserBase user, char c);
+
+		public abstract void SetModes(UserBase user, string flags, string arguments);
+
+		public abstract void SetModes(UserBase user, string modes);
+
+		public abstract UserBase GetUser(string id, string notifyCommand = null, UserBase notifyOnError = null);
+
+		public abstract string GetPrefix(UserBase user);
+
+		public abstract void Broadcast(string command, UserBase sender, params object[] arguments)
+
 		public virtual void Dispose()
+
 		{
 		}
 	}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
@@ -28,6 +29,61 @@ namespace Aselia
 			: base(domains, server)
 		{
 			Lines = server.Lines;
+		}
+
+		public override UserBase GetUser(string nickname)
+		{
+			string id = nickname.ToLower();
+			foreach (UserBase u in Users.Values)
+			{
+				if (u.Id == id)
+				{
+					return u;
+				}
+			}
+			return null;
+		}
+
+		public override ChannelBase CreateChannel(string name)
+		{
+			Channel channel = new Channel(this, name);
+			Channels[channel.Name.ToLower()] = channel;
+			return channel;
+		}
+
+		public override bool IsValidChannel(string name)
+		{
+			if (string.IsNullOrEmpty(name))
+			{
+				return false;
+			}
+
+			if (name.Length < 2)
+			{
+				return false;
+			}
+
+			char[] chars = name.ToCharArray();
+
+			if (!Protocol.CHANNEL_PREFIX_CHARS.Contains(chars[0]))
+			{
+				return false;
+			}
+
+			if (chars.Length > (byte)Settings.Properties["MaximumChannelLength"])
+			{
+				return false;
+			}
+
+			for (int i = 1; i < name.Length; i++)
+			{
+				if (!Protocol.CHANNEL_CHARS.Contains(chars[i]))
+				{
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		public override ChannelBase GetChannel(string name)
@@ -97,7 +153,9 @@ namespace Aselia
 				return;
 			}
 
-			HostMask mask = HostMask.Parse("*!:" + ep.Port + "@" + ep.Address);
+			string ip = ep.Address.ToString();
+			HostMask mask = HostMask.Parse("*!:" + ep.Port + "@" + ip);
+			mask.Account = "/" + ip;
 			LocalUser user = new LocalUser(this, client, mask, info.Binding.Encrypted);
 			user.Start();
 

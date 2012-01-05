@@ -24,9 +24,15 @@ namespace Aselia.Common.Core
 
 		public abstract ChannelBase GetChannel(string name);
 
+		public abstract bool IsValidChannel(string name);
+
 		public abstract bool IsQLined(string nickname);
 
 		public abstract bool IsKLined(IPAddress fullIp);
+
+		public abstract ChannelBase CreateChannel(string name);
+
+		public abstract UserBase GetUser(string nickname);
 
 		public abstract void Run();
 

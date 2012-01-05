@@ -1,51 +1,64 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Aselia.Common;
+using Aselia.Common.Core;
 using Aselia.Common.Flags;
 using Aselia.Common.Modules;
 
-namespace Aselia.Optimized
+namespace Aselia.Core
 {
-	public class Channel : MarshalByRefObject
+	[Serializable]
+	public class Channel : ChannelBase
 	{
+		public Channel()
+			: base()
+		{
+		}
+
+		public Channel(Channel clone)
+			: base(clone)
+		{
+		}
+
 		public Channel(Server server, string name)
+			: base(server, name)
 		{
-			Server = server;
-			Name = name;
-			IsGlobal = name[0] == '#' || name[0] == '+';
-			Users = new List<User>();
-			Prefixes = new Dictionary<User, string>();
 		}
 
-		public unsafe void AddPrefix(User user, char c)
+		public override unsafe void AddPrefix(UserBase user, char c)
 		{
-			char[] chars = Prefixes[user].ToCharArray();
-			int max = chars.Length + 1;
-			int len = 0;
-			char* prefix = stackalloc char[max];
-
-			for (int i = 0; i < PREFIX_CHARS.Length; i++)
+			if (c != '$' && c != '!')
 			{
-				if (c == PREFIX_CHARS[i] || chars.Contains(PREFIX_CHARS[i]))
+				char[] chars = Prefixes[user.Mask.Account].ToCharArray();
+				int max = chars.Length + 1;
+				int len = 0;
+				char* prefix = stackalloc char[max];
+
+				for (int i = 0; i < Protocol.RANK_CHARS.Length; i++)
 				{
-					prefix[len++] = c;
+					if (c == Protocol.RANK_CHARS[i] || chars.Contains(Protocol.RANK_CHARS[i]))
+					{
+						prefix[len++] = c;
+					}
 				}
+
+				Prefixes[user.Mask.Account] = new string(prefix, 0, len);
 			}
-
-			Prefixes[user] = new string(prefix, 0, len);
 		}
 
-		public void RemovePrefix(User user, char c)
+		public override void RemovePrefix(UserBase user, char c)
 		{
-			Prefixes[user].Replace(c.ToString(), string.Empty);
+			Prefixes[user.Mask.Account].Replace(c.ToString(), string.Empty);
 		}
 
-		public void SetModes(User user, string full)
+		public override void SetModes(UserBase user, string flags, string arguments)
 		{
-			string[] tok = full.Split(' ');
-			char[] chars = tok[0].ToCharArray();
+			string[] tok = arguments.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+			char[] chars = flags.ToCharArray();
 			bool add = true;
-			int arg = 1;
+			int arg = 0;
 
 			List<char> AddModes = new List<char>();
 			List<string> AddArgs = new List<string>();
@@ -68,7 +81,10 @@ namespace Aselia.Optimized
 					Modes mode = chars[i].ToMode();
 					if (mode == 0 || !Server.Domains.ChannelModeAttrs.ContainsKey(mode))
 					{
-						user.Send(Commands.ERR_UNKNOWNMODE, Server.Id, user.Mask.Nickname, chars[i] + " is not a valid mode character.");
+						if (user != null)
+						{
+							user.SendNumeric(Numerics.ERR_UNKNOWNMODE, chars[i], ":That not a valid mode character.");
+						}
 						break;
 					}
 
@@ -121,12 +137,18 @@ namespace Aselia.Optimized
 
 					if (!valid)
 					{
-						user.Send(Commands.ERR_FILEERROR, Server.Id, user.Mask.Nickname, chars[i] + " is programmed incorrectly.  Please file a bug report.");
+						if (user != null)
+						{
+							user.SendNumeric(Numerics.ERR_FILEERROR, "MODE", ":Mode", chars[i], " is programmed incorrectly.  Please file a bug report.");
+						}
 						continue;
 					}
 					else if (missingArgs)
 					{
-						user.Send(Commands.ERR_NEEDMOREPARAMS, Server.Id, user.Mask.Nickname, "Expected parameter for channelmode " + chars[i] + ".");
+						if (user != null)
+						{
+							user.SendNumeric(Numerics.ERR_NEEDMOREPARAMS, "MODE", ":Expected parameter for channelmode ", chars[i] + ".");
+						}
 						continue;
 					}
 
@@ -180,58 +202,62 @@ namespace Aselia.Optimized
 			AddArgs.CopyTo(bargs, 1);
 			RemArgs.CopyTo(bargs, 1 + AddArgs.Count);
 
-			Broadcast(Commands.MODE, user, bargs);
+			Broadcast("MODE", user, bargs);
 		}
 
-		private bool CheckMode(User user, ChannelModeAttribute attr, string argument)
+		private bool CheckMode(UserBase user, ChannelModeAttribute attr, string argument)
 		{
+			if (user == null)
+			{
+				return true;
+			}
+
 			switch (attr.Level)
 			{
 			case Authorizations.Normal:
-				if (user.Authorization < Authorizations.Normal)
+				if (user.Level < Authorizations.Normal)
 				{
-					user.Send(Commands.ERR_NOTREGISTERED, Server.Id, user.Mask.Nickname, "You aren't fully connected at present.");
+					user.SendNumeric(Numerics.ERR_NOTREGISTERED, "MODE", ":You aren't fully connected at present.");
 					return false;
 				}
 				break;
 
 			case Authorizations.Registered:
-				if (user.Authorization < Authorizations.Registered)
+				if (user.Level < Authorizations.Registered)
 				{
-					user.Send(Commands.ERR_NOLOGIN, Server.Id, user.Mask.Nickname, "You must be identified with services to do that.");
+					user.SendNumeric(Numerics.ERR_NOLOGIN, "MODE", ":You must be identified with services to do that.");
 					return false;
 				}
 				break;
 
 			case Authorizations.NetworkOperator:
-				if (user.Authorization < Authorizations.NetworkOperator)
+				if (user.Level < Authorizations.NetworkOperator)
 				{
-					user.Send(Commands.ERR_UNIQOPRIVSNEEDED, Server.Id, user.Mask.Nickname, "You must be a network operator to do that.");
+					user.SendNumeric(Numerics.ERR_UNIQOPRIVSNEEDED, "MODE", ":You must be a network operator to do that.");
 					return false;
 				}
 				break;
 
 			case Authorizations.Service:
-				if (user.Authorization < Authorizations.Service)
+				if (user.Level < Authorizations.Service)
 				{
-					user.Send(Commands.ERR_UNIQOPRIVSNEEDED, Server.Id, user.Mask.Nickname, "That mode is for internal use only.");
+					user.SendNumeric(Numerics.ERR_UNIQOPRIVSNEEDED, "MODE", ":That is for internal use only.");
 					return false;
 				}
 				break;
 
 			default:
-				user.NotImplemented();
 				return false;
 			}
 
-			if (user.Authorization >= Authorizations.Service)
+			if (user.Level >= Authorizations.Service)
 			{
 				return true;
 			}
 
 			if (!CheckRank(user, attr))
 			{
-				user.Send(Commands.ERR_CHANOPRIVSNEEDED, Server.Id, user.Mask.Nickname, "You need to be a higher rank in the channel to set that mode.");
+				user.SendNumeric(Numerics.ERR_CHANOPRIVSNEEDED, "MODE", ":You need to be a higher rank in the channel to set that mode.");
 				return false;
 			}
 			else
@@ -240,7 +266,7 @@ namespace Aselia.Optimized
 			}
 		}
 
-		private bool CheckRank(User user, ChannelModeAttribute attr)
+		private bool CheckRank(UserBase user, ChannelModeAttribute attr)
 		{
 			if (attr.Prefix == null)
 			{
@@ -269,7 +295,7 @@ namespace Aselia.Optimized
 			}
 		}
 
-		private bool RemoveMode(User user, ChannelModeAttribute attr, string argument)
+		private bool RemoveMode(UserBase user, ChannelModeAttribute attr, string argument)
 		{
 			try
 			{
@@ -284,28 +310,25 @@ namespace Aselia.Optimized
 			}
 		}
 
-		public User GetUser(string nickname, User notifyOnError = null)
+		public override UserBase GetUser(string id, string notifyCommand = null, UserBase notifyOnError = null)
 		{
-			for (int i = 0; i < Users.Count; i++)
+			if (Users.ContainsKey(id))
 			{
-				if (Users[i].Mask.Nickname == nickname)
-				{
-					return Users[i];
-				}
+				return Users[id];
 			}
 
-			if (notifyOnError != null)
+			if (notifyCommand != null && notifyOnError != null)
 			{
-				notifyOnError.Send(Commands.ERR_USERNOTINCHANNEL, Server.Id, notifyOnError.Mask.Nickname, "That user is not on the channel.");
+				notifyOnError.SendNumeric(Numerics.ERR_USERNOTINCHANNEL, notifyCommand, ":That user is not on the channel.");
 			}
 			return null;
 		}
 
-		private bool AddModePrefix(User source, char prefix, User target)
+		private bool AddModePrefix(UserBase source, char prefix, User target)
 		{
 			if (target == null)
 			{
-				source.Send(Commands.ERR_USERNOTINCHANNEL, Server.Id, source.Mask.Nickname, "That user is not in " + Name + ".");
+				source.SendNumeric(Numerics.ERR_USERNOTINCHANNEL, "MODE", ":That user is not in " + Name + ".");
 				return false;
 			}
 			else
@@ -315,11 +338,11 @@ namespace Aselia.Optimized
 			}
 		}
 
-		private bool RemoveModePrefix(User source, char prefix, User target)
+		private bool RemoveModePrefix(UserBase source, char prefix, User target)
 		{
 			if (target == null)
 			{
-				source.Send(Commands.ERR_USERNOTINCHANNEL, Server.Id, source.Mask.Nickname, "That user is not in " + Name + ".");
+				source.SendNumeric(Numerics.ERR_USERNOTINCHANNEL, "MODE", ":That user is not in " + Name + ".");
 				return false;
 			}
 			else
@@ -329,7 +352,7 @@ namespace Aselia.Optimized
 			}
 		}
 
-		private bool AddMode(User user, ChannelModeAttribute attr, string argument)
+		private bool AddMode(UserBase user, ChannelModeAttribute attr, string argument)
 		{
 			try
 			{
@@ -344,13 +367,82 @@ namespace Aselia.Optimized
 			}
 		}
 
-		public void Broadcast(Commands command, User sender, params string[] arguments)
+		public override string GetPrefix(UserBase user)
 		{
-			if (!Arena || sender.IsVoice(this))
+			if (user.Level >= Authorizations.Service)
 			{
-				for (int i = 0; i < Users.Count; i++)
+				return "$";
+			}
+			else if (user.Level < Authorizations.Registered)
+			{
+				return string.Empty;
+			}
+			else if (Prefixes.ContainsKey(user.Mask.Account))
+			{
+				return Prefixes[user.Mask.Account];
+			}
+			else if (user.Level == Authorizations.NetworkOperator)
+			{
+				return "!";
+			}
+			else
+			{
+				return string.Empty;
+			}
+		}
+
+		public override bool HasFlag(string flag)
+		{
+			lock (Flags)
+			{
+				return Flags.Contains(flag);
+			}
+		}
+
+		public override bool SetFlag(string flag)
+		{
+			lock (Flags)
+			{
+				if (!Flags.Contains(flag))
 				{
-					Users[i].Send(command, sender.PrefixHostMask(this), arguments);
+					Flags.Add(flag);
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+		}
+
+		public override bool ClearFlag(string flag)
+		{
+			lock (Flags)
+			{
+				return Flags.Remove(flag);
+			}
+		}
+
+		public override void SetModes(UserBase user, string modes)
+		{
+			string[] tok = modes.Split(new char[] { ' ' }, 2);
+			SetModes(user, tok[0], tok.Length > 1 ? tok[1] : string.Empty);
+		}
+
+		public override void Broadcast(string command, UserBase sender, params object[] arguments)
+		{
+			if (!HasFlag("Arena") || sender.IsVoice(this))
+			{
+				List<object> full = new List<object>(new object[]
+				{
+					sender == null ? Server.Id : (object)sender.Mask,
+				});
+				full.AddRange(arguments);
+				object[] args = full.ToArray();
+
+				foreach (UserBase u in Users.Values)
+				{
+					u.SendCommand(command, args);
 				}
 			}
 		}

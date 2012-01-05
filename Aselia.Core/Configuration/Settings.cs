@@ -100,10 +100,16 @@ namespace Aselia.Core.Configuration
 		{
 			Properties = new Dictionary<string, object>()
 			{
-				{ "MaximumListSize", 100 },
-				{ "MaximumLongListSize", 1000 },
-				{ "MaximumRanksSize", 20 },
-				{ "MaximumLongRanksSize", 100 },
+				{ "MaximumListSize", 100u },
+				{ "MaximumLongListSize", 1000u },
+				{ "MaximumRanksSize", 20u },
+				{ "MaximumLongRanksSize", (byte)100 },
+				{ "MaximumUsernameLength", (byte)16 },
+				{ "MaximumNicknameLength", (byte)16 },
+				{ "MaximumChannelLength", (byte)25 },
+				{ "DefaultChannelModes:#", "+rntpCc" },
+				{ "DefaultChannelModes:+", "+ntpC" },
+				{ "DefaultChannelModes:&", "+ntpC" },
 				{ "Bindings", new List<Binding>()
 				{
 					new Binding()
