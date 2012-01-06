@@ -126,7 +126,6 @@ namespace Aselia.Core
 		{
 			List<object> full = new List<object>(new object[]
 			{
-				Mask.Hostname,
 				command,
 			});
 			full.AddRange(args);

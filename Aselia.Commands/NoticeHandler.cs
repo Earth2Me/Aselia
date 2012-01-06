@@ -6,9 +6,9 @@ using Aselia.Common.Modules;
 namespace Aselia.UserCommands
 {
 	[Command(PrivmsgHandler.CMD, Authorizations.Normal, ":{1} {0} {2} :{3}")]
-	public sealed class PrivmsgHandler : MarshalByRefObject, ICommand
+	public sealed class NoticeHandler : MarshalByRefObject, ICommand
 	{
-		public const string CMD = "PRIVMSG";
+		public const string CMD = "NOTICE";
 
 		public void Handler(object sender, ReceivedCommandEventArgs e)
 		{
@@ -63,15 +63,9 @@ namespace Aselia.UserCommands
 					return;
 				}
 
-				if (channel.HasFlag("NoCtcps") && e.Arguments[1][0] == 1 && !e.Arguments[1].StartsWith("\x0001ACTION"))
+				if (channel.HasFlag("NoCtcps") && e.Arguments[1][0] == 1)
 				{
-					e.User.SendNumeric(Numerics.ERR_CANNOTSENDTOCHAN, CMD, channel.Name, ":CTCPs are disallowed on this channel.  Your message was blocked.");
-					return;
-				}
-
-				if (channel.HasFlag("NoActions") && e.Arguments[1].StartsWith("\x0001ACTION"))
-				{
-					e.User.SendNumeric(Numerics.ERR_CANNOTSENDTOCHAN, CMD, channel.Name, ":Actions are disallowed on this channel.  Your message was blocked.");
+					e.User.SendNumeric(Numerics.ERR_CANNOTSENDTOCHAN, CMD, channel.Name, ":CTCP replies are disallowed on this channel.  Your message was blocked.");
 					return;
 				}
 

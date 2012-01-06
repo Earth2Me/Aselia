@@ -442,7 +442,7 @@ namespace Aselia.Core
 
 				foreach (UserBase u in Users.Values)
 				{
-					u.SendCommand(command, args);
+					u.SendCommand(command, sender, this.Name, args);
 				}
 			}
 		}

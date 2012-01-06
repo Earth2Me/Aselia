@@ -5,7 +5,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(NickHandler.CMD, Authorizations.Connecting, ":{0} {1} {2}")]
+	[Command(NickHandler.CMD, Authorizations.Connecting, ":{1} {0} {2}")]
 	public class NickHandler : MarshalByRefObject, ICommand
 	{
 		public const string CMD = "NICK";

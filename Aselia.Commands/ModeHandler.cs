@@ -5,7 +5,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(ModeHandler.CMD, Authorizations.Normal)]
+	[Command(ModeHandler.CMD, Authorizations.Normal, ":{1} {0} {2} {3}")]
 	public sealed class ModeHandler : MarshalByRefObject, ICommand
 	{
 		public const string CMD = "MODE";
