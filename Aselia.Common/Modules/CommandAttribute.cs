@@ -11,7 +11,7 @@ namespace Aselia.Common.Modules
 
 		public string Format { get; private set; }
 
-		public CommandAttribute(string command, Authorizations level, string format = null)
+		public CommandAttribute(string command, Authorizations level, string format = "")
 			: base()
 		{
 			Command = command.ToUpper();

@@ -1,21 +1,25 @@
-﻿using Aselia.Flags;
-using Aselia.Modules;
+﻿using System;
+using Aselia.Common;
+using Aselia.Common.Flags;
+using Aselia.Common.Modules;
 
 namespace Aselia.ChannelModes
 {
-	[ChannelMode(Modes.j, ModeSyntax.OnAdd, Authorizations.Identified, '@')]
-	public class JoinThrottle : IChannelMode
+	[ChannelMode(Modes.j, ModeSyntax.OnAdd, Authorizations.Normal, '@')]
+	public class JoinThrottle : MarshalByRefObject, IChannelMode
 	{
 		public void AddHandler(object sender, ReceivedChannelModeEventArgs e)
 		{
-			e.User.NotImplemented();
-			e.Cancel();
+			uint value;
+			if (uint.TryParse(e.Argument, out value))
+			{
+				e.Channel.Properties[this.GetType().Name] = value;
+			}
 		}
 
 		public void RemoveHandler(object sender, ReceivedChannelModeEventArgs e)
 		{
-			e.User.NotImplemented();
-			e.Cancel();
+			e.Channel.Properties.Remove(this.GetType().Name);
 		}
 	}
 }

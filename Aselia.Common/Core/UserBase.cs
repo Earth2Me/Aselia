@@ -17,7 +17,7 @@ namespace Aselia.Common.Core
 
 		public ServerBase Server { get; protected set; }
 
-		protected List<string> SessionFlags { get; protected set; }
+		protected List<string> SessionFlags { get; set; }
 
 		public abstract void BroadcastInclusive(string command, params object[] args);
 
@@ -107,6 +107,14 @@ namespace Aselia.Common.Core
 		}
 
 		public virtual void Dispose()
+		{
+		}
+
+		public virtual void OnConnected()
+		{
+		}
+
+		public virtual void ReplyVersion()
 		{
 		}
 	}

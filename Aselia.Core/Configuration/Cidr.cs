@@ -29,8 +29,8 @@ namespace Aselia.Core.Configuration
 				byte[] bytes = ip.GetAddressBytes();
 				fixed (byte* pBytes = bytes)
 				{
-					int offset = bytes.Length - 32;
-					Ip = *(uint*)pBytes[offset];
+					int offset = bytes.Length - 4;
+					Ip = *(uint*)&pBytes[offset];
 				}
 			}
 		}

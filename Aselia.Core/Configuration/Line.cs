@@ -5,7 +5,7 @@ namespace Aselia.Core.Configuration
 	[Serializable]
 	public abstract class Line<T> : MarshalByRefObject
 	{
-		public override T Ban { get; set; }
+		public T Ban { get; set; }
 
 		public DateTime? Set { get; set; }
 

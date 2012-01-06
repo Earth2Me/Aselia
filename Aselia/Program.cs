@@ -1,4 +1,5 @@
-﻿using Aselia.Common.Hotswap;
+﻿using System.Threading;
+using Aselia.Common.Hotswap;
 
 namespace Aselia
 {
@@ -8,7 +9,11 @@ namespace Aselia
 		{
 			DomainManager domains = new DomainManager();
 			domains.Reload();
-			domains.Server.Run();
+
+			while (domains.Alive)
+			{
+				Thread.Sleep(0);
+			}
 		}
 	}
 }

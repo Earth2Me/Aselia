@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 
 namespace Aselia.Common.Core
 {
 	[Serializable]
-	public class ChannelBase : ChannelSurrogate, IDisposable
+	public abstract class ChannelBase : ChannelSurrogate, IDisposable
 	{
 		public ServerBase Server { get; private set; }
 
 		public ConcurrentDictionary<string, UserBase> Users { get; protected set; }
-
-		protected List<string> Flags { get; protected set; }
 
 		public bool IsGlobal
 		{
@@ -39,7 +36,6 @@ namespace Aselia.Common.Core
 		{
 			Server = clone.Server;
 			Users = clone.Users;
-			Flags = clone.Flags;
 		}
 
 		protected ChannelBase(ServerBase server, string name)
@@ -47,7 +43,6 @@ namespace Aselia.Common.Core
 		{
 			Server = server;
 			Users = new ConcurrentDictionary<string, UserBase>();
-			Flags = new List<string>();
 		}
 
 		public abstract void AddPrefix(UserBase user, char c);

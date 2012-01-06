@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Xml.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using Aselia.Common.Core.Configuration;
 
 namespace Aselia.Core.Configuration
@@ -10,7 +10,7 @@ namespace Aselia.Core.Configuration
 	public class Settings : SettingsBase
 	{
 		[NonSerialized]
-		private readonly XmlSerializer Serializer = new XmlSerializer(typeof(Settings));
+		private readonly BinaryFormatter Serializer = new BinaryFormatter();
 		[NonSerialized]
 		private FileInfo File;
 
@@ -47,13 +47,16 @@ namespace Aselia.Core.Configuration
 			{
 				Console.WriteLine("Generating default configuration file.");
 				LoadDefaults();
+				OnModified();
+				Save();
+				return;
 			}
 
 			try
 			{
 				using (FileStream fs = file.OpenRead())
 				{
-					Properties = ((Settings)Serializer.Deserialize(fs)).Properties;
+					Properties = ((SettingsBase)Serializer.Deserialize(fs)).Properties;
 				}
 			}
 			catch (Exception ex)
@@ -65,7 +68,7 @@ namespace Aselia.Core.Configuration
 			OnModified();
 		}
 
-		public void Save()
+		public override void Save()
 		{
 			FileInfo file = new FileInfo(File.FullName + ".tmp");
 			try
@@ -76,7 +79,14 @@ namespace Aselia.Core.Configuration
 					fs.Flush();
 				}
 
-				file.Replace(File.FullName, file.FullName + ".bak");
+				if (File.Exists)
+				{
+					file.Replace(File.FullName, file.FullName + ".bak");
+				}
+				else
+				{
+					file.MoveTo(File.FullName);
+				}
 			}
 			catch (Exception ex)
 			{
@@ -100,6 +110,7 @@ namespace Aselia.Core.Configuration
 		{
 			Properties = new Dictionary<string, object>()
 			{
+				{ "NetworkName", "IronDust-Aselia" },
 				{ "MaximumListSize", 100u },
 				{ "MaximumLongListSize", 1000u },
 				{ "MaximumRanksSize", 20u },
@@ -107,6 +118,8 @@ namespace Aselia.Core.Configuration
 				{ "MaximumUsernameLength", (byte)16 },
 				{ "MaximumNicknameLength", (byte)16 },
 				{ "MaximumChannelLength", (byte)25 },
+				{ "MaximumTopicLength", (ushort)256 },
+				{ "MaximumChannels", (byte)50 },
 				{ "DefaultChannelModes:#", "+rntpCc" },
 				{ "DefaultChannelModes:+", "+ntpC" },
 				{ "DefaultChannelModes:&", "+ntpC" },

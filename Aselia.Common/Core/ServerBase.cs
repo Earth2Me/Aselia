@@ -12,6 +12,12 @@ namespace Aselia.Common.Core
 		[NonSerialized]
 		private DomainManager _Domains;
 
+		public abstract Version CoreVersion { get; protected set; }
+
+		public abstract string CoreName { get; protected set; }
+
+		public DateTime Created { get; private set; }
+
 		public string Id { get; private set; }
 
 		public bool Running { get; protected set; }
@@ -33,8 +39,6 @@ namespace Aselia.Common.Core
 		public abstract ChannelBase CreateChannel(string name);
 
 		public abstract UserBase GetUser(string nickname);
-
-		public abstract void Run();
 
 		public abstract void Restart();
 
@@ -63,7 +67,7 @@ namespace Aselia.Common.Core
 			_Domains = domains;
 			Channels = new ConcurrentDictionary<string, ChannelBase>();
 			Users = new ConcurrentDictionary<HostMask, UserBase>();
-			Settings = LoadSettings();
+			Created = DateTime.Now;
 		}
 
 		protected ServerBase(DomainManager domains, ServerBase clone)
@@ -74,6 +78,7 @@ namespace Aselia.Common.Core
 			Running = clone.Running;
 			Channels = clone.Channels;
 			Users = clone.Users;
+			Created = clone.Created;
 		}
 	}
 }

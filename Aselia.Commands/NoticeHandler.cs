@@ -5,7 +5,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(PrivmsgHandler.CMD, Authorizations.Normal, ":{1} {0} {2} :{3}")]
+	[Command(NoticeHandler.CMD, Authorizations.Normal, ":{1} {0} {2} :{3}")]
 	public sealed class NoticeHandler : MarshalByRefObject, ICommand
 	{
 		public const string CMD = "NOTICE";

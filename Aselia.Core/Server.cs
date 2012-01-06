@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Aselia.Common;
 using Aselia.Common.Core;
@@ -19,16 +20,48 @@ namespace Aselia
 		private readonly List<TcpListener> Listeners = new List<TcpListener>();
 		private readonly LineSet Lines;
 
+		public override Version CoreVersion { get; protected set; }
+
+		public override string CoreName { get; protected set; }
+
 		public Server(DomainManager domains)
 			: base(domains, Environment.MachineName)
 		{
 			Lines = new LineSet();
+			Settings = LoadSettings();
+			Initialize();
 		}
 
 		public Server(DomainManager domains, Server server)
 			: base(domains, server)
 		{
 			Lines = server.Lines;
+			Initialize();
+		}
+
+		private void Initialize()
+		{
+			Assembly asm = Assembly.GetExecutingAssembly();
+
+			AssemblyTitleAttribute[] name = (AssemblyTitleAttribute[])asm.GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
+			if (name.Length > 0)
+			{
+				CoreName = name[0].Title;
+			}
+			else
+			{
+				CoreName = "Unknown";
+			}
+
+			AssemblyVersionAttribute[] version = (AssemblyVersionAttribute[])asm.GetCustomAttributes(typeof(AssemblyVersionAttribute), false);
+			if (version.Length > 0)
+			{
+				CoreVersion = new Version(version[0].Version);
+			}
+			else
+			{
+				CoreVersion = new Version();
+			}
 		}
 
 		public override UserBase GetUser(string nickname)
@@ -38,7 +71,14 @@ namespace Aselia
 			{
 				if (u.Id == id)
 				{
-					return u;
+					if (u.Level < Authorizations.Normal)
+					{
+						return null;
+					}
+					else
+					{
+						return u;
+					}
 				}
 			}
 			return null;
@@ -92,50 +132,55 @@ namespace Aselia
 			return Channels.ContainsKey(name) ? Channels[name] : null;
 		}
 
-		public override void Run()
-		{
-			Settings = LoadSettings();
-			Restart();
-		}
-
 		private void OnBeginAcceptTcpClient(IAsyncResult ar)
 		{
-			if (ar.IsCompleted)
+			ListenerInfo info = (ListenerInfo)ar.AsyncState;
+			try
 			{
+				if (!info.Listener.Server.IsBound)
+				{
+					return;
+				}
+				TcpClient client = info.Listener.EndAcceptTcpClient(ar);
+
 				try
 				{
-					ListenerInfo info = (ListenerInfo)ar.AsyncState;
-					TcpClient client = info.Listener.EndAcceptTcpClient(ar);
-					try
+					switch (info.Binding.Protocol)
 					{
-						switch (info.Binding.Protocol)
-						{
-						case Protocols.Traditional:
-							AcceptClient(client, info);
-							break;
+					case Protocols.Traditional:
+						Console.WriteLine("Client connecting from {0}.", client.Client.RemoteEndPoint);
+						AcceptClient(client, info);
+						break;
 
-						case Protocols.InterServer:
-							AcceptServer(client, info);
-							break;
+					case Protocols.InterServer:
+						Console.WriteLine("Client connecting from {0}.", client.Client.RemoteEndPoint);
+						AcceptServer(client, info);
+						break;
 
-						default:
-							client.Close();
-							break;
-						}
-					}
-					catch
-					{
+					default:
 						client.Close();
+						break;
 					}
 				}
 				catch
 				{
+					client.Close();
 				}
 			}
-			else
+			catch
 			{
-				Console.WriteLine("Appear to have lost a binding.  Rebinding.");
-				Restart();
+			}
+			finally
+			{
+				try
+				{
+					info.Listener.BeginAcceptTcpClient(OnBeginAcceptTcpClient, ar.AsyncState);
+				}
+				catch
+				{
+					Console.WriteLine("Appear to have lost a binding.  Rebinding.");
+					Restart();
+				}
 			}
 		}
 
@@ -149,6 +194,7 @@ namespace Aselia
 			IPEndPoint ep = (IPEndPoint)client.Client.RemoteEndPoint;
 			if (IsKLined(ep.Address))
 			{
+				Console.WriteLine("Client is K:lined!  Dropping.");
 				client.Close();
 				return;
 			}
@@ -161,6 +207,7 @@ namespace Aselia
 
 			if (!Users.TryAdd(user.Mask, user))
 			{
+				Console.WriteLine("Error adding user to dictionary.  Concurrency issue?");
 				user.Dispose();
 			}
 		}
@@ -185,7 +232,7 @@ namespace Aselia
 		public override unsafe bool IsKLined(IPAddress fullIp)
 		{
 			byte[] bytes = fullIp.GetAddressBytes();
-			if (bytes.Length < 32)
+			if (bytes.Length < 4)
 			{
 				return true;
 			}
@@ -195,8 +242,8 @@ namespace Aselia
 				uint ip;
 				fixed (byte* pBytes = bytes)
 				{
-					int offset = bytes.Length - 32;
-					ip = *(uint*)pBytes[offset];
+					int offset = bytes.Length - 4;
+					ip = *(uint*)&pBytes[offset];
 				}
 
 				Cidr[] ks = Lines.K;
@@ -271,12 +318,13 @@ namespace Aselia
 		{
 			Settings settings = new Settings();
 			settings.Modified += Settings_Modified;
-			settings.Load(new FileInfo("Settings.xml"));
+			settings.Load(new FileInfo("Settings.dat"));
 			return settings;
 		}
 
 		private void Settings_Modified(object sender, EventArgs e)
 		{
+			Console.WriteLine("Settings were modified.");
 			Lines.Load((SettingsBase)sender);
 		}
 
@@ -336,9 +384,9 @@ namespace Aselia
 			{
 				try
 				{
-					List<KLine> ks = ((List<KLine>)settings.Properties["Q-"]);
+					List<KLine> ks = (List<KLine>)settings.Properties["K-"];
 					K = new Cidr[ks.Count];
-					for (int i = 0; i < Q.Length; i++)
+					for (int i = 0; i < K.Length; i++)
 					{
 						K[i] = ks[i].Ban;
 					}

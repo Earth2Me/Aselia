@@ -47,7 +47,7 @@ namespace Aselia.Common.Core
 		{
 			Modes = new ConcurrentDictionary<Modes, string>();
 			Properties = new Dictionary<string, object>();
-			Prefixes = new ConcurrentDictionary<HostMask, string>();
+			Prefixes = new ConcurrentDictionary<string, string>();
 			Bans = new List<HostMask>();
 			InviteExcepts = new List<HostMask>();
 			Exceptions = new List<HostMask>();

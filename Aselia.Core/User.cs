@@ -95,18 +95,18 @@ namespace Aselia.Core
 					break;
 
 				case Authorizations.Connecting:
-					SendNumeric(Numerics.ERR_NOTREGISTERED, "You need to fully connect you can" + action + ".");
+					SendNumeric(Numerics.ERR_NOTREGISTERED, ":You need to fully connect you can " + action + ".");
 					break;
 				}
 
 				switch (level)
 				{
 				case Authorizations.Registered:
-					SendNumeric(Numerics.ERR_NOLOGIN, "Only users identified with services can " + action + ".");
+					SendNumeric(Numerics.ERR_NOLOGIN, ":Only users identified with services can " + action + ".");
 					break;
 
 				case Authorizations.NetworkOperator:
-					SendNumeric(Numerics.ERR_NOPRIVILEGES, "Only network operators can " + ".");
+					SendNumeric(Numerics.ERR_NOPRIVILEGES, ":Only network operators can " + ".");
 					break;
 				}
 				return false;
@@ -150,7 +150,7 @@ namespace Aselia.Core
 			}
 		}
 
-		public override void BroadcastExclusive(string command, params string[] args)
+		public override void BroadcastExclusive(string command, params object[] args)
 		{
 			string line = CompileCommand(command, args);
 

@@ -5,7 +5,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(CapHandler.CMD, Authorizations.Connecting, ":{0} {1} {2} {3} {4}")]
+	[Command(CapHandler.CMD, Authorizations.Connecting, ":{1} {0} {2} {3} {4}")]
 	public sealed class CapHandler : MarshalByRefObject, ICommand
 	{
 		public const string CMD = "CAP";
@@ -30,7 +30,7 @@ namespace Aselia.UserCommands
 			switch (e.Arguments[0].ToUpper())
 			{
 			case "LS":
-				e.User.SendCommand(CMD, "LS", SUPPORTED_STRING);
+				e.User.SendCommand(CMD, e.Server.Id, e.User.Mask, "LS", SUPPORTED_STRING);
 				break;
 
 			case "REQ":
@@ -46,7 +46,7 @@ namespace Aselia.UserCommands
 					{
 						if (SUPPORTED_ARRAY.Contains(tok[n]))
 						{
-							e.User.SendCommand(CMD, "ACK", ":" + tok[n]);
+							e.User.SendCommand(CMD, e.Server.Id, e.User.Mask, "ACK", ":" + tok[n]);
 							switch (tok[n])
 							{
 							case "multi-prefix":
@@ -56,7 +56,7 @@ namespace Aselia.UserCommands
 						}
 						else
 						{
-							e.User.SendCommand(CMD, "NAK", ":" + tok[n]);
+							e.User.SendCommand(CMD, e.Server.Id, e.User.Mask, "NAK", ":" + tok[n]);
 						}
 					}
 				}
@@ -67,7 +67,7 @@ namespace Aselia.UserCommands
 				{
 					if (e.User.Mask.Nickname != "*")
 					{
-						e.User.Level = Authorizations.Normal;
+						e.User.OnConnected();
 					}
 					e.User.ClearSessionFlag("WaitForCap");
 				}

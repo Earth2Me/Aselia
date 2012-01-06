@@ -25,6 +25,13 @@ namespace Aselia.UserCommands
 
 			e.User.Mask.Username = e.User.MakeUsername(e.Arguments[0]);
 			e.User.Gecos = e.Arguments[3];
+
+			if (e.User.HasSessionFlag("WaitForCap"))
+			{
+				return;
+			}
+
+			e.User.OnConnected();
 		}
 	}
 }

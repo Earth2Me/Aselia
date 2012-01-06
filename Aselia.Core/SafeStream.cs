@@ -78,7 +78,7 @@ namespace Aselia
 
 		public string EndReadLine(IAsyncResult ar)
 		{
-			return Line.ToString();
+			return Line.ToString().TrimEnd('\r');
 		}
 
 		public override void Flush()
@@ -146,7 +146,7 @@ namespace Aselia
 
 		public void BeginWriteLine(string line)
 		{
-			byte[] data = ASCIIEncoding.ASCII.GetBytes(line);
+			byte[] data = ASCIIEncoding.ASCII.GetBytes(line + "\r\n");
 
 			try
 			{
@@ -165,12 +165,55 @@ namespace Aselia
 				try
 				{
 					Stream.EndWrite(ar);
+					Stream.Flush();
 				}
 				catch
 				{
 					Dispose();
 				}
 			}
+		}
+
+		public override bool CanRead
+		{
+			get { return Stream.CanRead; }
+		}
+
+		public override bool CanSeek
+		{
+			get { return Stream.CanSeek; }
+		}
+
+		public override bool CanWrite
+		{
+			get { return Stream.CanWrite; }
+		}
+
+		public override long Length
+		{
+			get { return Stream.Length; }
+		}
+
+		public override long Position
+		{
+			get
+			{
+				return Stream.Position;
+			}
+			set
+			{
+				Stream.Position = value;
+			}
+		}
+
+		public override long Seek(long offset, SeekOrigin origin)
+		{
+			return Stream.Seek(offset, origin);
+		}
+
+		public override void SetLength(long value)
+		{
+			Stream.SetLength(value);
 		}
 	}
 }

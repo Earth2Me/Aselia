@@ -14,13 +14,13 @@ namespace Aselia.Common.Modules
 
 		public char? Prefix { get; private set; }
 
-		public ChannelModeAttribute(Modes mode, ModeSyntax syntax, Authorizations level, char? prefix = null)
+		public ChannelModeAttribute(Modes mode, ModeSyntax syntax, Authorizations level, char prefix = (char)0)
 			: base()
 		{
 			Mode = mode;
 			Syntax = syntax;
 			Level = level;
-			Prefix = prefix;
+			Prefix = prefix == 0 ? (char?)null : prefix;
 		}
 	}
 }

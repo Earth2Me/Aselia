@@ -7,7 +7,14 @@ namespace Aselia.Common.Core.Configuration
 	[Serializable]
 	public abstract class SettingsBase : MarshalByRefObject
 	{
-		public event EventHandler Modified;
+		[NonSerialized]
+		private EventHandler _Modified;
+
+		public event EventHandler Modified
+		{
+			add { _Modified += value; }
+			remove { _Modified -= value; }
+		}
 
 		public Dictionary<string, object> Properties { get; set; }
 
@@ -32,9 +39,9 @@ namespace Aselia.Common.Core.Configuration
 
 		protected virtual void OnModified()
 		{
-			if (Modified != null)
+			if (_Modified != null)
 			{
-				Modified.Invoke(this, new EventArgs());
+				_Modified.Invoke(this, new EventArgs());
 			}
 		}
 	}

@@ -63,7 +63,7 @@ namespace Aselia.UserCommands
 								Forward(e, channel);
 								continue;
 							}
-							else if (e.Arguments[key] != channel.Properties["Key"])
+							else if (e.Arguments[key] != (string)channel.Properties["Key"])
 							{
 								e.User.SendNumeric(Numerics.ERR_BADCHANNELKEY, CMD, channels[i], ":Incorrect channel key specified.");
 								Forward(e, channel);
