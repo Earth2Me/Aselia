@@ -33,24 +33,10 @@ namespace Aselia.UserCommands
 							continue;
 						}
 
-						channel = e.Server.CreateChannel(channels[i]);
-
-						if (channel.IsSystem && e.User.Level < Authorizations.NetworkOperator)
+						channel = e.Server.CreateChannel(channels[i], e.User);
+						if (channel == null)
 						{
-							e.User.SendNumeric(Numerics.ERR_NOLOGIN, CMD, channels[i], ":You need to be a network operator to register a system channel.");
 							continue;
-						}
-
-						if (channel.IsRegistered && e.User.Level < Authorizations.Registered)
-						{
-							e.User.SendNumeric(Numerics.ERR_NOLOGIN, CMD, channels[i], ":You need to be registered to own a channel.  To create a temporary channel, prefix the channel name with # instead of !.");
-							continue;
-						}
-
-						if (channel.Prefixes.Count < 1)
-						{
-							channel.AddPrefix(e.User, '~');
-							channel.SetModes(null, (string)e.Server.Settings["DefaultChannelModes:" + channel.Name[0]]);
 						}
 					}
 					else
@@ -135,14 +121,15 @@ namespace Aselia.UserCommands
 
 					if (!e.User.AddToChannel(channel))
 					{
-						e.User.SendNumeric(Numerics.ERR_UNKNOWNERROR, CMD, channel.Name, ":Unknown error occurred while joining channel.");
+						e.User.SendNumeric(Numerics.ERR_UNKNOWNERROR, ":An unknown error occurred while joining channel.");
+						return;
 					}
 					channel.Broadcast(CMD, e.User, channel.Name);
 					e.User.Names(channel);
 				}
 				catch (Exception ex)
 				{
-					e.User.SendNumeric(Numerics.ERR_UNKNOWNERROR, CMD, channels[i], ":Error joining channel:", ex.Message);
+					e.User.SendNumeric(Numerics.ERR_UNKNOWNERROR, ":Error joining channel:", ex.Message);
 				}
 			}
 		}
@@ -229,6 +216,7 @@ namespace Aselia.UserCommands
 				{
 					e.User.SendNumeric(Numerics.ERR_UNKNOWNERROR, CMD, channel.Name, ":Unknown error occurred while joining channel.");
 				}
+
 				channel.Broadcast(CMD, e.User, channel.Name);
 				e.User.Names(channel);
 			}

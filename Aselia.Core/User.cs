@@ -75,8 +75,8 @@ namespace Aselia.Core
 
 		public override ChannelBase GetChannel(string name)
 		{
-			name = name.ToLower();
-			return Channels.ContainsKey(name) ? Channels[name] : null;
+			string id = name.ToLower();
+			return Channels.ContainsKey(id) ? Channels[id] : null;
 		}
 
 		public virtual void Start()
@@ -197,15 +197,21 @@ namespace Aselia.Core
 			{
 				Flags.Add(flag);
 			}
+
+			Server.Commit(this);
 			return true;
 		}
 
 		public override bool ClearFlag(string flag)
 		{
+			bool retval;
 			lock (Flags)
 			{
-				return Flags.Remove(flag);
+				retval = Flags.Remove(flag);
 			}
+
+			Server.Commit(this);
+			return retval;
 		}
 
 		public override bool HasSessionFlag(string flag)
@@ -346,8 +352,12 @@ namespace Aselia.Core
 
 		public override void Dispose(string reason)
 		{
+			Properties["LastSeenTime"] = DateTime.Now;
+
 			if (Server.Running)
 			{
+				Server.Commit(this);
+
 				if (Level > Authorizations.Connecting)
 				{
 					BroadcastInclusive("QUIT", Mask.Nickname, reason);
@@ -366,7 +376,7 @@ namespace Aselia.Core
 					{
 						break;
 					}
-					Thread.Sleep(1);
+					Thread.Sleep(0);
 				}
 			}
 

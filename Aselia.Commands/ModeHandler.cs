@@ -48,6 +48,7 @@ namespace Aselia.UserCommands
 					if (channel == null)
 					{
 						e.User.SendNumeric(Numerics.ERR_NOTONCHANNEL, c, ":You are not on that channel.");
+						return;
 					}
 
 					channel.SetModes(e.User, e.Arguments[1], args);

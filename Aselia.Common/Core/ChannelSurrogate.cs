@@ -8,11 +8,13 @@ namespace Aselia.Common.Core
 	[Serializable]
 	public class ChannelSurrogate : MarshalByRefObject
 	{
-		public ConcurrentDictionary<Modes, string> Modes { get; set; }
+		public string Id { get; set; }
 
-		public ConcurrentDictionary<string, string> Prefixes { get; set; }
+		public IDictionary<Modes, string> Modes { get; set; }
 
-		public Dictionary<string, object> Properties { get; set; }
+		public IDictionary<string, string> Prefixes { get; set; }
+
+		public IDictionary<string, object> Properties { get; set; }
 
 		public List<HostMask> Bans { get; set; }
 
@@ -32,6 +34,7 @@ namespace Aselia.Common.Core
 
 		public ChannelSurrogate(ChannelSurrogate clone)
 		{
+			Id = clone.Id;
 			Modes = clone.Modes;
 			Prefixes = clone.Prefixes;
 			Bans = clone.Bans;
@@ -43,10 +46,11 @@ namespace Aselia.Common.Core
 			Properties = clone.Properties;
 		}
 
-		protected ChannelSurrogate(string name)
+		protected ChannelSurrogate(string name, string id)
 		{
+			Id = id;
 			Modes = new ConcurrentDictionary<Modes, string>();
-			Properties = new Dictionary<string, object>();
+			Properties = new ConcurrentDictionary<string, object>();
 			Prefixes = new ConcurrentDictionary<string, string>();
 			Bans = new List<HostMask>();
 			InviteExcepts = new List<HostMask>();

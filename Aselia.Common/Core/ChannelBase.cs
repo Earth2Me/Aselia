@@ -36,12 +36,14 @@ namespace Aselia.Common.Core
 			Users = clone.Users;
 		}
 
-		protected ChannelBase(ServerBase server, string name)
-			: base(name)
+		protected ChannelBase(ServerBase server, string name, string id)
+			: base(name, id)
 		{
 			Server = server;
 			Users = new ConcurrentDictionary<string, UserBase>();
 		}
+
+		public abstract void RemoveUser(UserBase user);
 
 		public abstract void AddPrefix(UserBase user, char c);
 
@@ -51,7 +53,7 @@ namespace Aselia.Common.Core
 
 		public abstract void SetModes(UserBase user, string modes);
 
-		public abstract UserBase GetUser(string id, string notifyCommand = null, UserBase notifyOnError = null);
+		public abstract UserBase GetUser(string nick, UserBase notifyOnError = null);
 
 		public abstract string GetPrefix(UserBase user);
 

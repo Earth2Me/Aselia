@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Aselia.Common;
 using Aselia.Common.Core;
 using Aselia.Common.Core.Configuration;
@@ -20,6 +21,9 @@ namespace Aselia
 	{
 		private readonly List<TcpListener> Listeners = new List<TcpListener>();
 		private readonly LineSet Lines;
+		private readonly Timer SaveTimer;
+
+		public new Cache Cache { get; set; }
 
 		public override CertificateManagerBase Certificates { get; set; }
 
@@ -30,16 +34,29 @@ namespace Aselia
 		public Server(DomainManager domains)
 			: base(domains, Environment.MachineName)
 		{
+			SaveTimer = new Timer(SaveProc);
 			Lines = new LineSet();
 			Settings = LoadSettings();
+
+			base.Cache = Cache = Cache.Load();
+			if (Cache == null)
+			{
+				base.Cache = Cache = Cache.Create();
+				if (!Cache.Save())
+				{
+					Console.WriteLine("Unable to save cache.  Will not start until cache is writable for security.");
+					Environment.Exit(1);
+					return;
+				}
+			}
 
 			Certificates = new CertificateManager();
 			string password = (string)Settings.Properties["CertificatePassword"];
 			if (!Certificates.Load(Id, password) && !Certificates.Generate(Id, password))
 			{
-				string error = "There must be a single, valid X.509 certificate file named 'Certificate." + Id + ".*' in the current directory.";
-				Console.WriteLine(error);
-				throw new Exception(error);
+				Console.WriteLine("There must be a single, valid X.509 certificate file named 'Certificate.{0}.*' in the current directory.", Id);
+				Environment.Exit(1);
+				return;
 			}
 
 			Initialize();
@@ -48,7 +65,14 @@ namespace Aselia
 		public Server(DomainManager domains, Server server)
 			: base(domains, server)
 		{
+			SaveTimer = new Timer(SaveProc);
 			Lines = server.Lines;
+
+			if (server.SaveTimer.Change(Timeout.Infinite, Timeout.Infinite))
+			{
+				server.Dispose();
+			}
+
 			Initialize();
 		}
 
@@ -56,6 +80,71 @@ namespace Aselia
 		{
 			CoreName = Protocol.CORE_NAME;
 			CoreVersion = new Version(Protocol.CORE_VERSION);
+
+			int save = (int)Settings["CacheCommitInterval"];
+			SaveTimer.Change(save, save);
+		}
+
+		private void SaveProc(object state)
+		{
+			if (!CommitCache())
+			{
+				Console.WriteLine("Unable to save cache database.  Trying again in 30 seconds.");
+				SaveTimer.Change(30000, 30000);
+			}
+		}
+
+		public override bool CommitCache()
+		{
+			foreach (KeyValuePair<string, ChannelBase> kv in Channels)
+			{
+				Cache.Channels[kv.Key] = new ChannelSurrogate(kv.Value);
+			}
+
+			foreach (KeyValuePair<HostMask, UserBase> kv in Users)
+			{
+				if (!string.IsNullOrEmpty(kv.Key.Account) && kv.Key.Account[0] != '/')
+				{
+					Cache.Accounts[kv.Key.Account] = new UserSurrogate(kv.Value);
+				}
+			}
+
+			return Cache.Save();
+		}
+
+		public override void Commit(ChannelBase channel)
+		{
+			if (!channel.IsRegistered && !channel.IsSystem)
+			{
+				return;
+			}
+
+			Cache.Channels[channel.Id] = new ChannelSurrogate(channel);
+		}
+
+		public override void Commit(UserBase user)
+		{
+			if (string.IsNullOrEmpty(user.Mask.Account))
+			{
+				return;
+			}
+
+			foreach (UserBase u in Users.Values)
+			{
+				if (u.Mask.Account == user.Mask.Account)
+				{
+					u.Flags = user.Flags;
+					u.Password = user.Password;
+					u.Properties = user.Properties;
+				}
+			}
+
+			if (user.Mask.Account[0] == '/')
+			{
+				return;
+			}
+
+			Cache.Accounts[user.Mask.Account] = new UserSurrogate(user);
 		}
 
 		public override UserBase GetUser(string nickname)
@@ -78,14 +167,42 @@ namespace Aselia
 			return null;
 		}
 
-		public override ChannelBase CreateChannel(string name)
+		public override ChannelBase CreateChannel(string name, UserBase user)
 		{
-			return new Channel(this, name);
-		}
+			Channel channel = new Channel(this, name, name.ToLower());
 
-		public override void CommitChannel(ChannelBase channel)
-		{
-			Channels[channel.Name.ToLower()] = channel;
+			if (Cache.Channels.ContainsKey(channel.Id))
+			{
+				ChannelSurrogate cache = Cache.Channels[channel.Id];
+				channel.Name = cache.Name;
+				channel.Modes = cache.Modes;
+				channel.Prefixes = cache.Prefixes;
+				channel.Quiets = cache.Quiets;
+				channel.Bans = cache.Bans;
+				channel.Exceptions = cache.Exceptions;
+				channel.InviteExcepts = cache.InviteExcepts;
+				channel.Properties = cache.Properties;
+				channel.Flags = cache.Flags;
+			}
+			else
+			{
+				if (channel.IsSystem && user.Level < Authorizations.NetworkOperator)
+				{
+					user.SendNumeric(Numerics.ERR_UNIQOPRIVSNEEDED, ":You need to be a network operator to register a system channel.");
+					return null;
+				}
+
+				if (channel.IsRegistered && user.Level < Authorizations.Registered)
+				{
+					user.SendNumeric(Numerics.ERR_NOLOGIN, ":You need to be registered to own a channel.  To create a temporary channel, prefix the channel name with # instead of !.");
+					return null;
+				}
+
+				channel.AddPrefix(user, '~');
+				channel.SetModes(null, (string)Settings["DefaultChannelModes:" + channel.Name[0]]);
+			}
+
+			return channel;
 		}
 
 		public override bool IsValidChannel(string name)
@@ -299,6 +416,8 @@ namespace Aselia
 
 		public override void Stop()
 		{
+			SaveTimer.Change(Timeout.Infinite, Timeout.Infinite);
+
 			foreach (TcpListener l in Listeners)
 			{
 				try
@@ -360,6 +479,8 @@ namespace Aselia
 				{
 				}
 			}
+
+			CommitCache();
 		}
 
 		private class ListenerInfo

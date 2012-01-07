@@ -127,6 +127,7 @@ namespace Aselia.Core.Configuration
 				{ "DefaultChannelModes:!", "+rntpCc" },
 				{ "DefaultChannelModes:#", "+ntpC" },
 				{ "DefaultChannelModes:&", "+ntpC" },
+				{ "CacheCommitInterval", 300000 },
 				{ "CertificatePassword", "3F3fB2K3JFN2N2CU23v*ZHv&#(@b@#fnn3B@nf*vh@(V@nv(vHvh&@n@v* (!(@nvw(eughw)gDV(w_e_e@f@nc!efkq!fmw)vwd_vlfl!#f{g}|!" },
 				{ "Bindings", new List<Binding>()
 				{

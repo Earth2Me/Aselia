@@ -37,8 +37,8 @@ namespace Aselia.Core
 		{
 		}
 
-		public Channel(Server server, string name)
-			: base(server, name)
+		public Channel(Server server, string name, string id)
+			: base(server, name, id)
 		{
 		}
 
@@ -59,13 +59,13 @@ namespace Aselia.Core
 			return builder.ToString();
 		}
 
-		public override unsafe void AddPrefix(UserBase user, char c)
+		public override unsafe void AddPrefix(UserBase user, char add)
 		{
 			if (user.Level >= Authorizations.Service)
 			{
 				return;
 			}
-			if (c == '$' || c == '!')
+			if (add == '$' || add == '!')
 			{
 				return;
 			}
@@ -83,9 +83,10 @@ namespace Aselia.Core
 
 				char* prefix = stackalloc char[max];
 
-				for (int i = 0; i < Protocol.RANK_CHARS.Length; i++)
+				for (int i = 0; i < Protocol.RANK_CHARS.Length && len < max; i++)
 				{
-					if (c == Protocol.RANK_CHARS[i] || chars.Contains(Protocol.RANK_CHARS[i]))
+					char c = Protocol.RANK_CHARS[i];
+					if (add == c || chars.Contains(c))
 					{
 						prefix[len++] = c;
 					}
@@ -95,13 +96,45 @@ namespace Aselia.Core
 			}
 			else
 			{
-				Prefixes[user.Mask.Account] = c.ToString();
+				Prefixes[user.Mask.Account] = add.ToString();
+			}
+
+			Server.Commit(this);
+		}
+
+		public override void Dispose()
+		{
+			if (Server.Running)
+			{
+				ChannelBase dump;
+				Server.Channels.TryRemove(Id, out dump);
+				Server.Commit(this);
+			}
+
+			base.Dispose();
+		}
+
+		public override void RemoveUser(UserBase user)
+		{
+			UserBase dump;
+			Users.TryRemove(user.Id, out dump);
+
+			ChannelBase dump2;
+			user.Channels.TryRemove(Id, out dump2);
+
+			if (Users.IsEmpty)
+			{
+				Dispose();
 			}
 		}
 
 		public override void RemovePrefix(UserBase user, char c)
 		{
-			Prefixes[user.Mask.Account].Replace(c.ToString(), string.Empty);
+			if (Prefixes.ContainsKey(user.Mask.Account))
+			{
+				Prefixes[user.Mask.Account] = Prefixes[user.Mask.Account].Replace(c.ToString(), string.Empty);
+				Server.Commit(this);
+			}
 		}
 
 		public override void SetModes(UserBase user, string flags, string arguments)
@@ -190,7 +223,7 @@ namespace Aselia.Core
 					{
 						if (user != null)
 						{
-							user.SendNumeric(Numerics.ERR_FILEERROR, "MODE", ":Mode", chars[i], " is programmed incorrectly.  Please file a bug report.");
+							user.SendNumeric(Numerics.ERR_UNKNOWNERROR, ":Mode", chars[i], " is programmed incorrectly.  Please file a bug report.");
 						}
 						continue;
 					}
@@ -253,7 +286,8 @@ namespace Aselia.Core
 			AddArgs.CopyTo(bargs, 1);
 			RemArgs.CopyTo(bargs, 1 + AddArgs.Count);
 
-			Broadcast("MODE", user, bargs);
+			Server.Commit(this);
+			Broadcast("MODE", user, Name, string.Join(" ", bargs));
 		}
 
 		private bool CheckMode(UserBase user, ChannelModeAttribute attr, string argument)
@@ -352,7 +386,16 @@ namespace Aselia.Core
 			{
 				ReceivedChannelModeEventArgs e = new ReceivedChannelModeEventArgs(Server, this, user, argument);
 				Server.Domains.RemoveChannelModeHandlers[attr.Mode].Invoke(this, e);
-				return !e.IsCanceled;
+
+				if (e.IsCanceled)
+				{
+					return false;
+				}
+				else
+				{
+					Modes.Remove(attr.Mode);
+					return true;
+				}
 			}
 			catch (Exception ex)
 			{
@@ -361,16 +404,17 @@ namespace Aselia.Core
 			}
 		}
 
-		public override UserBase GetUser(string id, string notifyCommand = null, UserBase notifyOnError = null)
+		public override UserBase GetUser(string nick, UserBase notifyOnError = null)
 		{
+			string id = nick.ToLower();
 			if (Users.ContainsKey(id))
 			{
 				return Users[id];
 			}
 
-			if (notifyCommand != null && notifyOnError != null)
+			if (notifyOnError != null)
 			{
-				notifyOnError.SendNumeric(Numerics.ERR_USERNOTINCHANNEL, notifyCommand, ":That user is not on the channel.");
+				notifyOnError.SendNumeric(Numerics.ERR_USERNOTINCHANNEL, nick, Name, ":That user is not on the channel.");
 			}
 			return null;
 		}
@@ -379,7 +423,7 @@ namespace Aselia.Core
 		{
 			if (target == null)
 			{
-				source.SendNumeric(Numerics.ERR_USERNOTINCHANNEL, "MODE", ":That user is not in " + Name + ".");
+				source.SendNumeric(Numerics.ERR_USERNOTINCHANNEL, "*", ":That user is not in " + Name + ".");
 				return false;
 			}
 			else
@@ -409,7 +453,16 @@ namespace Aselia.Core
 			{
 				ReceivedChannelModeEventArgs e = new ReceivedChannelModeEventArgs(Server, this, user, argument);
 				Server.Domains.AddChannelModeHandlers[attr.Mode].Invoke(this, e);
-				return !e.IsCanceled;
+
+				if (e.IsCanceled)
+				{
+					return false;
+				}
+				else
+				{
+					Modes[attr.Mode] = argument ?? string.Empty;
+					return true;
+				}
 			}
 			catch (Exception ex)
 			{
@@ -457,6 +510,7 @@ namespace Aselia.Core
 				if (!Flags.Contains(flag))
 				{
 					Flags.Add(flag);
+					Server.Commit(this);
 					return true;
 				}
 				else
@@ -468,10 +522,14 @@ namespace Aselia.Core
 
 		public override bool ClearFlag(string flag)
 		{
+			bool retval;
 			lock (Flags)
 			{
-				return Flags.Remove(flag);
+				retval = Flags.Remove(flag);
 			}
+
+			Server.Commit(this);
+			return retval;
 		}
 
 		public override void SetModes(UserBase user, string modes)
@@ -489,7 +547,7 @@ namespace Aselia.Core
 			full.AddRange(arguments);
 			object[] args = full.ToArray();
 
-			if (!HasFlag("Arena") || sender.IsVoice(this))
+			if (sender == null || !HasFlag("Arena") || sender.IsVoice(this))
 			{
 				foreach (UserBase u in Users.Values)
 				{

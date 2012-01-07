@@ -25,6 +25,8 @@ namespace Aselia.Common.Core
 
 		public bool Running { get; set; }
 
+		public CacheSurrogate Cache { get; set; }
+
 		public int PingTimeout { get; set; }
 
 		public int PongTimeout { get; set; }
@@ -37,6 +39,12 @@ namespace Aselia.Common.Core
 
 		public string NetworkName { get; set; }
 
+		public abstract bool CommitCache();
+
+		public abstract void Commit(UserBase user);
+
+		public abstract void Commit(ChannelBase channel);
+
 		public abstract ChannelBase GetChannel(string name);
 
 		public abstract bool IsValidChannel(string name);
@@ -45,9 +53,7 @@ namespace Aselia.Common.Core
 
 		public abstract bool IsKLined(IPAddress fullIp);
 
-		public abstract ChannelBase CreateChannel(string name);
-
-		public abstract void CommitChannel(ChannelBase channel);
+		public abstract ChannelBase CreateChannel(string name, UserBase user);
 
 		public abstract UserBase GetUser(string nickname);
 
@@ -79,6 +85,7 @@ namespace Aselia.Common.Core
 			Channels = new ConcurrentDictionary<string, ChannelBase>();
 			Users = new ConcurrentDictionary<HostMask, UserBase>();
 			Created = DateTime.Now;
+			Running = true;
 		}
 
 		protected ServerBase(DomainManager domains, ServerBase clone)
@@ -94,6 +101,7 @@ namespace Aselia.Common.Core
 			PongTimeout = clone.PongTimeout;
 			NetworkName = clone.NetworkName;
 			Certificates = clone.Certificates;
+			Cache = clone.Cache;
 		}
 	}
 }

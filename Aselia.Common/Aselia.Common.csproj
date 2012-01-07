@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Authorizations.cs" />
+    <Compile Include="Core\CacheSurrogate.cs" />
     <Compile Include="CancelableEventArgs.cs" />
     <Compile Include="Core\ChannelSurrogate.cs" />
     <Compile Include="Core\Configuration\SettingsBase.cs" />

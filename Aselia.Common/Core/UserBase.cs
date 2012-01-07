@@ -113,6 +113,7 @@ namespace Aselia.Common.Core
 
 		public virtual void Dispose(string reason)
 		{
+			Server.Commit(this);
 		}
 
 		public virtual void OnConnected()

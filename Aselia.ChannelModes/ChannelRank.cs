@@ -10,10 +10,11 @@ namespace Aselia.ChannelModes
 
 		public void AddHandler(object sender, ReceivedChannelModeEventArgs e)
 		{
-			UserBase target = e.Channel.GetUser(e.Argument, "MODE", e.User);
+			UserBase target = e.Channel.GetUser(e.Argument, e.User);
 			if (target == null)
 			{
 				e.Cancel();
+				return;
 			}
 
 			e.Channel.AddPrefix(target, Prefix);
@@ -21,10 +22,11 @@ namespace Aselia.ChannelModes
 
 		public void RemoveHandler(object sender, ReceivedChannelModeEventArgs e)
 		{
-			UserBase target = e.Channel.GetUser(e.Argument, "MODE", e.User);
+			UserBase target = e.Channel.GetUser(e.Argument, e.User);
 			if (target == null)
 			{
 				e.Cancel();
+				return;
 			}
 
 			e.Channel.RemovePrefix(target, Prefix);

@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cache.cs" />
     <Compile Include="Channel.cs" />
     <Compile Include="Configuration\Binding.cs" />
     <Compile Include="Configuration\Cidr.cs" />
