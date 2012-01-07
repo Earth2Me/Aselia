@@ -50,7 +50,7 @@ namespace Aselia.Core
 			if (encrypted)
 			{
 				IsAuthenticated = false;
-				Stream = new SafeStream(client.GetStream(), Server.Certificates.Id);
+				Stream = new SafeStream(client.GetStream(), Server.Certificates.Certificate);
 			}
 			else
 			{

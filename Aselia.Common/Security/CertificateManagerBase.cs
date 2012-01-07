@@ -6,7 +6,7 @@ namespace Aselia.Common.Security
 	[Serializable]
 	public abstract class CertificateManagerBase : MarshalByRefObject
 	{
-		public abstract X509Certificate2 Id { get; set; }
+		public abstract X509Certificate2 Certificate { get; set; }
 
 		public abstract bool Load(string id, string password);
 
@@ -18,7 +18,7 @@ namespace Aselia.Common.Security
 
 		public CertificateManagerBase(CertificateManagerBase clone)
 		{
-			Id = clone.Id;
+			Certificate = clone.Certificate;
 		}
 	}
 }

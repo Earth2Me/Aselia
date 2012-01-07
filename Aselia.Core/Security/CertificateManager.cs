@@ -8,7 +8,7 @@ namespace Aselia.Core.Security
 {
 	public sealed class CertificateManager : CertificateManagerBase
 	{
-		public override X509Certificate2 Id { get; set; }
+		public override X509Certificate2 Certificate { get; set; }
 
 		public override bool Load(string id, string password)
 		{
@@ -21,8 +21,8 @@ namespace Aselia.Core.Security
 
 			try
 			{
-				Id = new X509Certificate2(files[0].FullName, password);
-				if (Id == null)
+				Certificate = new X509Certificate2(files[0].FullName, password);
+				if (Certificate == null)
 				{
 					return false;
 				}

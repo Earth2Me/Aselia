@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Aselia.Core.Configuration
 {
@@ -7,8 +8,10 @@ namespace Aselia.Core.Configuration
 	{
 		public string Id { get; set; }
 
-		public string Host { get; set; }
+		public string InterServerIp { get; set; }
 
-		public ushort Port { get; set; }
+		public List<string> Interfaces { get; set; }
+
+		public ushort InterServerPort { get; set; }
 	}
 }
