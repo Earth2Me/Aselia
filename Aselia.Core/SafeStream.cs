@@ -1,6 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Net.Security;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
 
 namespace Aselia
 {
@@ -12,14 +16,68 @@ namespace Aselia
 		private byte[] ReadBuffer;
 		private AsyncCallback ReadCallback;
 		private readonly StringBuilder Line = new StringBuilder(MAX);
+		private readonly bool Encrypted;
+		private readonly SslStream Ssl;
+		private readonly X509Certificate2 Certificate;
+		private volatile bool IsWriting;
 
 		public event EventHandler Disposed;
 
 		public bool IsDisposed { get; private set; }
 
-		public SafeStream(Stream stream)
+		public SafeStream(Stream stream, X509Certificate2 certificate)
 		{
-			Stream = stream;
+			Certificate = certificate;
+			Encrypted = certificate != null;
+			if (Encrypted)
+			{
+				Stream = Ssl = new SslStream(stream, false, RemoteVerification, LocalSelection, EncryptionPolicy.RequireEncryption);
+			}
+			else
+			{
+				Stream = stream;
+				Ssl = null;
+			}
+		}
+
+		private bool RemoteVerification(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+		{
+			return true;
+		}
+
+		private X509Certificate LocalSelection(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
+		{
+			return Certificate;
+		}
+
+		public void BeginAuthenticate(AsyncCallback callback)
+		{
+			if (!Encrypted)
+			{
+				return;
+			}
+
+			Ssl.BeginAuthenticateAsServer(Certificate, true, SslProtocols.Tls, false, OnBeginAuthenticate, callback);
+		}
+
+		private void OnBeginAuthenticate(IAsyncResult ar)
+		{
+			try
+			{
+				if (!ar.IsCompleted)
+				{
+					Dispose();
+					return;
+				}
+
+				Ssl.EndAuthenticateAsServer(ar);
+				((AsyncCallback)ar.AsyncState).Invoke(ar);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.Message);
+				Dispose();
+			}
 		}
 
 		public override int ReadByte()
@@ -150,11 +208,34 @@ namespace Aselia
 
 			try
 			{
-				Stream.BeginWrite(data, 0, data.Length, OnBeginWriteLine, null);
+				BeginWrite(data, 0, data.Length, OnBeginWriteLine, null);
 			}
 			catch
 			{
 				Dispose();
+			}
+		}
+
+		public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+		{
+			while (IsWriting)
+			{
+				Thread.Sleep(0);
+			}
+			IsWriting = true;
+
+			return base.BeginWrite(buffer, offset, count, callback, state);
+		}
+
+		public override void EndWrite(IAsyncResult asyncResult)
+		{
+			try
+			{
+				base.EndWrite(asyncResult);
+			}
+			finally
+			{
+				IsWriting = false;
 			}
 		}
 
@@ -164,8 +245,8 @@ namespace Aselia
 			{
 				try
 				{
-					Stream.EndWrite(ar);
-					Stream.Flush();
+					EndWrite(ar);
+					Flush();
 				}
 				catch
 				{

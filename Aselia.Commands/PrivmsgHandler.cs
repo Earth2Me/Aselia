@@ -24,14 +24,14 @@ namespace Aselia.UserCommands
 				char c = e.Arguments[0][0];
 				if (c == '#' || c == '&' || c == '+')
 				{
-					e.User.SendNumeric(Numerics.ERR_NOSUCHCHANNEL, CMD, e.Arguments[0], ":That channel does not exist.");
+					e.User.SendNumeric(Numerics.ERR_NOSUCHCHANNEL, e.Arguments[0], ":That channel does not exist.");
 					return;
 				}
 
 				UserBase user = e.Server.GetUser(e.Arguments[0]);
 				if (user == null)
 				{
-					e.User.SendNumeric(Numerics.ERR_NOSUCHNICK, CMD, e.Arguments[0], ":That user does not exist.");
+					e.User.SendNumeric(Numerics.ERR_NOSUCHNICK, e.Arguments[0], ":That user does not exist.");
 					return;
 				}
 

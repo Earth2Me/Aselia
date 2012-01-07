@@ -2,7 +2,8 @@
 {
 	public enum Protocols : byte
 	{
-		Traditional,
+		Rfc2812,
+		Rfc2812Ssl,
 		InterServer,
 	}
 }

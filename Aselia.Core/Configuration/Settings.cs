@@ -122,20 +122,27 @@ namespace Aselia.Core.Configuration
 				{ "MaximumChannelLength", (byte)25 },
 				{ "MaximumTopicLength", (ushort)256 },
 				{ "MaximumChannels", (byte)50 },
-				{ "PongTimeout", 500 },
-				{ "PingTimeout", 1000 },
+				{ "PongTimeout", 20000 },
+				{ "PingTimeout", 120000 },
 				{ "DefaultChannelModes:!", "+rntpCc" },
 				{ "DefaultChannelModes:#", "+ntpC" },
 				{ "DefaultChannelModes:&", "+ntpC" },
+				{ "CertificatePassword", "3F3fB2K3JFN2N2CU23v*ZHv&#(@b@#fnn3B@nf*vh@(V@nv(vHvh&@n@v* (!(@nvw(eughw)gDV(w_e_e@f@nc!efkq!fmw)vwd_vlfl!#f{g}|!" },
 				{ "Bindings", new List<Binding>()
 				{
 					new Binding()
 					{
-						Address = "127.0.0.1",
+						Address = "0.0.0.0",
 						Port = 6667,
 						Backlog = 20,
-						Protocol = Protocols.Traditional,
-						Encrypted = false,
+						Protocol = Protocols.Rfc2812,
+					},
+					new Binding()
+					{
+						Address = "0.0.0.0",
+						Port = 7000,
+						Backlog = 20,
+						Protocol = Protocols.Rfc2812Ssl,
 					},
 				} },
 				{ "K-", new List<KLine>()

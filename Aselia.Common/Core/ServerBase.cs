@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Net;
 using Aselia.Common.Core.Configuration;
 using Aselia.Common.Hotswap;
+using Aselia.Common.Security;
 
 namespace Aselia.Common.Core
 {
@@ -11,6 +12,8 @@ namespace Aselia.Common.Core
 	{
 		[NonSerialized]
 		private DomainManager _Domains;
+
+		public abstract CertificateManagerBase Certificates { get; set; }
 
 		public abstract Version CoreVersion { get; set; }
 
@@ -90,6 +93,7 @@ namespace Aselia.Common.Core
 			PingTimeout = clone.PingTimeout;
 			PongTimeout = clone.PongTimeout;
 			NetworkName = clone.NetworkName;
+			Certificates = clone.Certificates;
 		}
 	}
 }

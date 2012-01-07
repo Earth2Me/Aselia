@@ -17,6 +17,7 @@ namespace Aselia.Core
 		public static readonly char[] CHANNEL_CHARS = CHANNEL_STRING.ToCharArray();
 		public static readonly string RANK_STRING = "$~&@%+!";
 		public static readonly char[] RANK_CHARS = RANK_STRING.ToCharArray();
+		public static readonly string STATUSMSG = "~&@%+";
 
 		public static readonly string CHANNEL_LIST_MODES = "eIbq";
 		public static readonly string CHANNEL_ARG_BOTH_MODES = "k";

@@ -9,8 +9,10 @@ using Aselia.Common;
 using Aselia.Common.Core;
 using Aselia.Common.Core.Configuration;
 using Aselia.Common.Hotswap;
+using Aselia.Common.Security;
 using Aselia.Core;
 using Aselia.Core.Configuration;
+using Aselia.Core.Security;
 
 namespace Aselia
 {
@@ -18,6 +20,8 @@ namespace Aselia
 	{
 		private readonly List<TcpListener> Listeners = new List<TcpListener>();
 		private readonly LineSet Lines;
+
+		public override CertificateManagerBase Certificates { get; set; }
 
 		public override Version CoreVersion { get; set; }
 
@@ -28,6 +32,16 @@ namespace Aselia
 		{
 			Lines = new LineSet();
 			Settings = LoadSettings();
+
+			Certificates = new CertificateManager();
+			string password = (string)Settings.Properties["CertificatePassword"];
+			if (!Certificates.Load(Id, password) && !Certificates.Generate(Id, password))
+			{
+				string error = "There must be a single, valid X.509 certificate file named 'Certificate." + Id + ".*' in the current directory.";
+				Console.WriteLine(error);
+				throw new Exception(error);
+			}
+
 			Initialize();
 		}
 
@@ -130,7 +144,8 @@ namespace Aselia
 				{
 					switch (info.Binding.Protocol)
 					{
-					case Protocols.Traditional:
+					case Protocols.Rfc2812:
+					case Protocols.Rfc2812Ssl:
 						Console.WriteLine("Client connecting from {0}.", client.Client.RemoteEndPoint);
 						AcceptClient(client, info);
 						break;
@@ -185,7 +200,7 @@ namespace Aselia
 			string ip = ep.Address.ToString();
 			HostMask mask = HostMask.Parse("*!:" + ep.Port + "@" + ip);
 			mask.Account = "/" + ip;
-			LocalUser user = new LocalUser(this, client, mask, info.Binding.Encrypted);
+			LocalUser user = new LocalUser(this, client, mask, info.Binding.Protocol == Protocols.Rfc2812 ? false : true);
 			user.Start();
 
 			if (!Users.TryAdd(user.Mask, user))

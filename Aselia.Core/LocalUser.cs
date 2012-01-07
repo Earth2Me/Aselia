@@ -15,6 +15,7 @@ namespace Aselia.Core
 		private readonly bool Encrypted;
 		private volatile bool Ping;
 		private bool IsDisposing;
+		private bool IsAuthenticated;
 
 		public LocalUser(LocalUser clone)
 			: base(clone)
@@ -24,16 +25,18 @@ namespace Aselia.Core
 			Server = clone.Server;
 			Encrypted = clone.Encrypted;
 			Ping = clone.Ping;
+			IsAuthenticated = clone.IsAuthenticated;
 
 			if (clone.PingTimer.Change(Timeout.Infinite, Timeout.Infinite))
 			{
-				clone.Dispose();
+				clone.PingTimer.Dispose();
 			}
 
 			PingTimer = new Timer(PingProc);
 			PingTimer.Change(Server.PingTimeout, Server.PingTimeout);
 
 			Initialize();
+			BeginRead();
 		}
 
 		public LocalUser(Server server, TcpClient client, HostMask mask, bool encrypted)
@@ -42,8 +45,18 @@ namespace Aselia.Core
 			Server = server;
 			Client = client;
 			PingTimer = new Timer(PingProc);
-			Stream = new SafeStream(client.GetStream());
 			Encrypted = encrypted;
+
+			if (encrypted)
+			{
+				IsAuthenticated = false;
+				Stream = new SafeStream(client.GetStream(), Server.Certificates.Id);
+			}
+			else
+			{
+				IsAuthenticated = true;
+				Stream = new SafeStream(client.GetStream(), null);
+			}
 
 			PingTimer = new Timer(PingProc);
 			OnPing();
@@ -98,7 +111,6 @@ namespace Aselia.Core
 		{
 			Level = Authorizations.Connecting;
 			BeginRead();
-			SendCommand("NOTICE", Server.Id, "*", "*** Welcome");
 		}
 
 		public override void OnPing()
@@ -122,7 +134,24 @@ namespace Aselia.Core
 
 		private void BeginRead()
 		{
-			Stream.BeginReadLine(OnBeginReadLine, null);
+			if (IsAuthenticated)
+			{
+				Stream.BeginReadLine(OnBeginReadLine, null);
+			}
+			else
+			{
+				Stream.BeginAuthenticate(OnBeginAuthenticate);
+			}
+		}
+
+		private void OnBeginAuthenticate(IAsyncResult ar)
+		{
+			if (ar.IsCompleted)
+			{
+				IsAuthenticated = true;
+				BeginRead();
+				SendCommand("NOTICE", Server.Id, "*", "*** Welcome.");
+			}
 		}
 
 		public override void OnPong()
@@ -141,19 +170,21 @@ namespace Aselia.Core
 				"CHANLIMIT=" + Protocol.CHANNEL_PREFIX_STRING + ":" + Server.Settings["MaximumChannels"],
 				"PREFIX=(" + Protocol.CHANNEL_RANK_MODES + ")" + Protocol.RANK_STRING,
 				"MAXLIST=" + Protocol.CHANNEL_LIST_MODES + ":" + Server.Settings["MaximumListSize"],
-				"MODES=4",
+				"MODES=10",
 				"NETWORK=" + Server.NetworkName,
-				"KNOCK",
-				"STATUSMSG=" + Protocol.RANK_STRING,
+				"RFC2812",
+				// TODO: "IDCHAN=!:5",
+				// TODO: "KNOCK",
+				// TODO: "STATUSMSG=" + Protocol.STATUSMSG,
 				":are supported by this server");
 			SendNumeric(Numerics.RPL_ISUPPORT,
 				"SAFELIST",
-				"CASEMAPPING=rfc1459",
+				"CASEMAPPING=ascii",
 				"CHARSET=ascii",
 				"NICKLEN=" + Server.Settings["MaximumNicknameLength"],
 				"CHANNELLEN=" + Server.Settings["MaximumChannelLength"],
 				"TOPICLEN=" + Server.Settings["MaximumTopicLength"],
-				"CLIENTVER=3.0",
+				"CLIENTVER=2.0",
 				"TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:1,NOTICE:1",
 				"EXTBAN=$,a",
 				":are supported by this server");
@@ -258,16 +289,20 @@ namespace Aselia.Core
 				PingTimer.Dispose();
 			}
 
-			try
+			if (IsAuthenticated)
 			{
-				if (Stream.CanWrite)
+				try
 				{
-					Stream.BeginWriteLine(":" + Mask + " QUIT :" + reason);
+					if (Stream.CanWrite)
+					{
+						Stream.BeginWriteLine(":" + Mask + " QUIT :" + reason);
+					}
+				}
+				catch
+				{
 				}
 			}
-			catch
-			{
-			}
+
 			base.Dispose(reason);
 
 			try
