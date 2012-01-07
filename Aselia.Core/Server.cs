@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using Aselia.Common;
 using Aselia.Common.Core;
@@ -20,9 +19,9 @@ namespace Aselia
 		private readonly List<TcpListener> Listeners = new List<TcpListener>();
 		private readonly LineSet Lines;
 
-		public override Version CoreVersion { get; protected set; }
+		public override Version CoreVersion { get; set; }
 
-		public override string CoreName { get; protected set; }
+		public override string CoreName { get; set; }
 
 		public Server(DomainManager domains)
 			: base(domains, Environment.MachineName)
@@ -41,27 +40,8 @@ namespace Aselia
 
 		private void Initialize()
 		{
-			Assembly asm = Assembly.GetExecutingAssembly();
-
-			AssemblyTitleAttribute[] name = (AssemblyTitleAttribute[])asm.GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
-			if (name.Length > 0)
-			{
-				CoreName = name[0].Title;
-			}
-			else
-			{
-				CoreName = "Unknown";
-			}
-
-			AssemblyVersionAttribute[] version = (AssemblyVersionAttribute[])asm.GetCustomAttributes(typeof(AssemblyVersionAttribute), false);
-			if (version.Length > 0)
-			{
-				CoreVersion = new Version(version[0].Version);
-			}
-			else
-			{
-				CoreVersion = new Version();
-			}
+			CoreName = Protocol.CORE_NAME;
+			CoreVersion = new Version(Protocol.CORE_VERSION);
 		}
 
 		public override UserBase GetUser(string nickname)
@@ -86,9 +66,12 @@ namespace Aselia
 
 		public override ChannelBase CreateChannel(string name)
 		{
-			Channel channel = new Channel(this, name);
+			return new Channel(this, name);
+		}
+
+		public override void CommitChannel(ChannelBase channel)
+		{
 			Channels[channel.Name.ToLower()] = channel;
-			return channel;
 		}
 
 		public override bool IsValidChannel(string name)
@@ -208,7 +191,7 @@ namespace Aselia
 			if (!Users.TryAdd(user.Mask, user))
 			{
 				Console.WriteLine("Error adding user to dictionary.  Concurrency issue?");
-				user.Dispose();
+				user.Dispose("Concurrency error.");
 			}
 		}
 
@@ -325,7 +308,14 @@ namespace Aselia
 		private void Settings_Modified(object sender, EventArgs e)
 		{
 			Console.WriteLine("Settings were modified.");
-			Lines.Load((SettingsBase)sender);
+
+			SettingsBase settings = (SettingsBase)sender;
+
+			Lines.Load(settings);
+
+			PingTimeout = (int)settings["PingTimeout"];
+			PongTimeout = (int)settings["PongTimeout"];
+			NetworkName = (string)settings["NetworkName"];
 		}
 
 		public override void Dispose()
@@ -349,7 +339,7 @@ namespace Aselia
 			{
 				try
 				{
-					u.Dispose();
+					u.Dispose("Server shutting down.");
 				}
 				catch
 				{

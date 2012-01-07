@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -86,16 +87,16 @@ namespace Aselia.Core
 		{
 			if (Level < level)
 			{
-				switch (level)
+				switch (Level)
 				{
 				case Authorizations.Disconnected:
 				case Authorizations.Quitting:
 				case Authorizations.Banned:
-					Dispose();
+					Dispose("Below-normal authorization: " + Enum.GetName(typeof(Authorizations), Level));
 					break;
 
 				case Authorizations.Connecting:
-					SendNumeric(Numerics.ERR_NOTREGISTERED, ":You need to fully connect you can " + action + ".");
+					SendNumeric(Numerics.ERR_NOTREGISTERED, ":You need to fully connect before you can " + action + ".");
 					break;
 				}
 
@@ -143,6 +144,11 @@ namespace Aselia.Core
 
 			foreach (ChannelBase c in Channels.Values)
 			{
+				if (c.HasFlag("Arena") && !IsVoice(c))
+				{
+					continue;
+				}
+
 				foreach (UserBase u in c.Users.Values)
 				{
 					u.WriteLine(line);
@@ -156,6 +162,11 @@ namespace Aselia.Core
 
 			foreach (ChannelBase c in Channels.Values)
 			{
+				if (c.HasFlag("Arena") && !IsVoice(c))
+				{
+					continue;
+				}
+
 				foreach (UserBase u in c.Users.Values)
 				{
 					if (u == this)
@@ -274,7 +285,7 @@ namespace Aselia.Core
 
 		public override void Names(ChannelBase channel)
 		{
-			string[] start = new string[] { Mask.Nickname, " = ", channel.Name };
+			string[] start = new string[] { channel.Name };
 			List<string> args = new List<string>(start);
 
 			foreach (UserBase u in channel.Users.Values)
@@ -287,7 +298,7 @@ namespace Aselia.Core
 
 				if (!channel.HasFlag("Arena") || u.IsVoice(channel))
 				{
-					args.Add(u.PrefixNickname(channel));
+					args.Add((args.Count == start.Length ? ":" : "") + u.PrefixNickname(channel));
 				}
 			}
 
@@ -315,31 +326,51 @@ namespace Aselia.Core
 
 		public override bool AddToChannel(ChannelBase channel)
 		{
-			return channel.Users.TryAdd(Id, this);
+			string id = channel.Name.ToLower();
+			if (Channels.ContainsKey(id))
+			{
+				return false;
+			}
+
+			try
+			{
+				channel.Users[Id] = this;
+				Channels[id] = channel;
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
 		}
 
-		public override void Dispose()
+		public override void Dispose(string reason)
 		{
-			if (Level > Authorizations.Connecting)
+			if (Server.Running)
 			{
-				BroadcastInclusive("QUIT", "Client disposed.");
-			}
-
-			foreach (ChannelBase c in Channels.Values)
-			{
-				UserBase dump;
-				c.Users.TryRemove(this.Id, out dump);
-			}
-
-			for (int i = 0; i < 100; i++)
-			{
-				UserBase dump;
-				if (Server.Users.TryRemove(Mask, out dump))
+				if (Level > Authorizations.Connecting)
 				{
-					break;
+					BroadcastInclusive("QUIT", Mask.Nickname, reason);
 				}
-				Thread.Sleep(1);
+
+				foreach (ChannelBase c in Channels.Values)
+				{
+					UserBase dump;
+					c.Users.TryRemove(this.Id, out dump);
+				}
+
+				for (int i = 0; i < 100; i++)
+				{
+					UserBase dump;
+					if (Server.Users.TryRemove(Mask, out dump))
+					{
+						break;
+					}
+					Thread.Sleep(1);
+				}
 			}
+
+			base.Dispose(reason);
 		}
 
 		public override void ErrorAlreadyRegistered(string command)
@@ -349,6 +380,11 @@ namespace Aselia.Core
 
 		public override bool IsOwner(ChannelBase channel)
 		{
+			if (channel.IsSystem && Level >= Authorizations.NetworkOperator)
+			{
+				return true;
+			}
+
 			string prefix = channel.GetPrefix(this);
 			if (string.IsNullOrWhiteSpace(prefix))
 			{

@@ -12,9 +12,21 @@ namespace Aselia.UserCommands
 
 		public void Handler(object sender, ReceivedCommandEventArgs e)
 		{
-			if (e.Arguments.Length < 2)
+			if (e.Arguments.Length < 1)
 			{
 				e.User.ErrorNeedMoreParams(CMD);
+				return;
+			}
+			else if (e.Arguments.Length < 2)
+			{
+				ChannelBase channel = e.User.GetChannel(e.Arguments[0]);
+				if (channel == null)
+				{
+					e.User.SendNumeric(Numerics.ERR_NOTONCHANNEL, e.Arguments[0], ":You are not on that channel.");
+					return;
+				}
+
+				e.User.SendNumeric(Numerics.RPL_CHANNELMODEIS, channel.Name, channel.GetModeString());
 				return;
 			}
 

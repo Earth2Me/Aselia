@@ -46,8 +46,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PartHandler.cs" />
     <Compile Include="NoticeHandler.cs" />
     <Compile Include="HotswapHandler.cs" />
+    <Compile Include="PingHandler.cs" />
+    <Compile Include="PongHandler.cs" />
     <Compile Include="PrivmsgHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CapHandler.cs" />
@@ -55,6 +58,7 @@
     <Compile Include="ModeHandler.cs" />
     <Compile Include="NamesHandler.cs" />
     <Compile Include="NickHandler.cs" />
+    <Compile Include="QuitHandler.cs" />
     <Compile Include="UserHandler.cs" />
     <Compile Include="UserhostHandler.cs" />
   </ItemGroup>

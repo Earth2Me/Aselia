@@ -48,7 +48,9 @@ namespace Aselia.Core.Configuration
 				Console.WriteLine("Generating default configuration file.");
 				LoadDefaults();
 				OnModified();
+#if !DEBUG
 				Save();
+#endif
 				return;
 			}
 
@@ -120,8 +122,10 @@ namespace Aselia.Core.Configuration
 				{ "MaximumChannelLength", (byte)25 },
 				{ "MaximumTopicLength", (ushort)256 },
 				{ "MaximumChannels", (byte)50 },
-				{ "DefaultChannelModes:#", "+rntpCc" },
-				{ "DefaultChannelModes:+", "+ntpC" },
+				{ "PongTimeout", 500 },
+				{ "PingTimeout", 1000 },
+				{ "DefaultChannelModes:!", "+rntpCc" },
+				{ "DefaultChannelModes:#", "+ntpC" },
 				{ "DefaultChannelModes:&", "+ntpC" },
 				{ "Bindings", new List<Binding>()
 				{

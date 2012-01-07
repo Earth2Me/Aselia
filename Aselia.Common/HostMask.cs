@@ -31,7 +31,7 @@ namespace Aselia.Common
 			else
 			{
 				string[] tok = raw.Split(FIRST_SPLIT, 2);
-				if (tok.Length == 2)
+				if (tok.Length < 2)
 				{
 					tok = raw.Split(SECOND_SPLIT, 2);
 				}

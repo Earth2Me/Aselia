@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Threading;
 using Aselia.Common;
 using Aselia.Common.Modules;
 
@@ -7,10 +8,13 @@ namespace Aselia.Core
 {
 	public sealed class LocalUser : User
 	{
+		private Timer PingTimer;
 		private readonly TcpClient Client;
 		private readonly SafeStream Stream;
 		private readonly new Server Server;
 		private readonly bool Encrypted;
+		private volatile bool Ping;
+		private bool IsDisposing;
 
 		public LocalUser(LocalUser clone)
 			: base(clone)
@@ -19,6 +23,16 @@ namespace Aselia.Core
 			Stream = clone.Stream;
 			Server = clone.Server;
 			Encrypted = clone.Encrypted;
+			Ping = clone.Ping;
+
+			if (clone.PingTimer.Change(Timeout.Infinite, Timeout.Infinite))
+			{
+				clone.Dispose();
+			}
+
+			PingTimer = new Timer(PingProc);
+			PingTimer.Change(Server.PingTimeout, Server.PingTimeout);
+
 			Initialize();
 		}
 
@@ -27,8 +41,13 @@ namespace Aselia.Core
 		{
 			Server = server;
 			Client = client;
+			PingTimer = new Timer(PingProc);
 			Stream = new SafeStream(client.GetStream());
 			Encrypted = encrypted;
+
+			PingTimer = new Timer(PingProc);
+			OnPing();
+
 			Initialize();
 		}
 
@@ -79,8 +98,26 @@ namespace Aselia.Core
 		{
 			Level = Authorizations.Connecting;
 			BeginRead();
-			SendCommand("NOTICE", Server.Id, "*", "*** Looking up your hostname...");
-			SendCommand("NOTICE", Server.Id, "*", "*** Found your hostname");
+			SendCommand("NOTICE", Server.Id, "*", "*** Welcome");
+		}
+
+		public override void OnPing()
+		{
+			PingTimer.Change(Server.PongTimeout, Timeout.Infinite);
+			Ping = true;
+		}
+
+		private void PingProc(object state)
+		{
+			if (Ping)
+			{
+				Dispose("Ping/pong timeout.");
+			}
+			else
+			{
+				SendCommand("PING", Server.Id, Mask, Server.Id);
+				OnPing();
+			}
 		}
 
 		private void BeginRead()
@@ -88,54 +125,68 @@ namespace Aselia.Core
 			Stream.BeginReadLine(OnBeginReadLine, null);
 		}
 
-		public override void ReplyVersion()
+		public override void OnPong()
 		{
-			SendNumeric(Numerics.RPL_VERSION,
+			PingTimer.Change(Server.PingTimeout, Timeout.Infinite);
+			Ping = false;
+		}
+
+		public override void ReplyISupport()
+		{
+			SendNumeric(Numerics.RPL_ISUPPORT,
 				"CHANTYPES=" + Protocol.CHANNEL_PREFIX_STRING,
 				"EXCEPTS",
 				"INVEX",
-				"CHANMODES=eIbq,k,flj,CFLOPQcgimnpstuz",
+				"CHANMODES=" + Protocol.CHANNEL_CATEGORIZED_MODES,
 				"CHANLIMIT=" + Protocol.CHANNEL_PREFIX_STRING + ":" + Server.Settings["MaximumChannels"],
-				"PREFIX=(XOaohvx)$~&@%+!",
-				"MAXLIST=bqeI:" + Server.Settings["MaximumListSize"],
+				"PREFIX=(" + Protocol.CHANNEL_RANK_MODES + ")" + Protocol.RANK_STRING,
+				"MAXLIST=" + Protocol.CHANNEL_LIST_MODES + ":" + Server.Settings["MaximumListSize"],
 				"MODES=4",
-				"NETWORK=" + Server.Settings["NetworkName"],
+				"NETWORK=" + Server.NetworkName,
 				"KNOCK",
-				"STATUSMSG=$~&@%+!",
-				"are supported by this server");
-			SendNumeric(Numerics.RPL_VERSION,
+				"STATUSMSG=" + Protocol.RANK_STRING,
+				":are supported by this server");
+			SendNumeric(Numerics.RPL_ISUPPORT,
 				"SAFELIST",
 				"CASEMAPPING=rfc1459",
-				"CHARSET=asscii",
+				"CHARSET=ascii",
 				"NICKLEN=" + Server.Settings["MaximumNicknameLength"],
 				"CHANNELLEN=" + Server.Settings["MaximumChannelLength"],
 				"TOPICLEN=" + Server.Settings["MaximumTopicLength"],
 				"CLIENTVER=3.0",
 				"TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:1,NOTICE:1",
 				"EXTBAN=$,a",
-				"are supported by this server");
+				":are supported by this server");
 
-			base.ReplyVersion();
+			base.ReplyISupport();
 		}
 
 		public override void OnConnected()
 		{
+#if DEBUG
+			Level = Authorizations.NetworkOperator;
+#else
 			Level = Authorizations.Normal;
+#endif
 
-			SendNumeric(Numerics.RPL_WELCOME, string.Format(":Welcome to the {0} Internet Relay Chat Network {1}", Server.Settings["NetworkName"], Mask.Nickname));
-			SendNumeric(Numerics.RPL_YOURHOST, string.Format(":Your host is {0}[{1}], running version {2}={3}", Environment.MachineName, Client.Client.LocalEndPoint, Server.CoreName, Server.CoreVersion));
+			SendNumeric(Numerics.RPL_WELCOME, string.Format(":Welcome to the {0} Internet Relay Chat Network {1}", Server.NetworkName, Mask.Nickname));
+			SendNumeric(Numerics.RPL_YOURHOST, string.Format(":Your host is {0}[{1}], running version {2}={3}", Server.Id, Client.Client.LocalEndPoint, Server.CoreName, Server.CoreVersion));
 			SendNumeric(Numerics.RPL_CREATED, string.Format(":This server was created at {0}", Server.Created));
-			SendNumeric(Numerics.RPL_MYINFO, string.Format(":{0} {1}={2} ABCDEFGHIJKKLMNOPQRSTUVWXYZabcdefghijkklmnopqrstuvwxyz0123456789 ABCDEFGHIJKKLMNOPQRSTUVWXYZabcdefghijkklmnopqrstuvwxyz0123456789 bkloveqjfIOaxhX", Environment.MachineName, Server.CoreName, Server.CoreVersion));
-			ReplyVersion();
+			SendNumeric(Numerics.RPL_MYINFO, string.Format("{0} {1}={2} {3} {4} {4}", Server.Id, Server.CoreName, Server.CoreVersion, Protocol.USER_MODES, Protocol.CHANNEL_MODES, Protocol.CHANNEL_PARAM_MODES));
+			ReplyISupport();
 
 			base.OnConnected();
+
+			OnPong();
 		}
 
 		private void OnBeginReadLine(IAsyncResult ar)
 		{
-			string line = Stream.EndReadLine(ar);
 			try
 			{
+				OnPong();
+
+				string line = Stream.EndReadLine(ar);
 				string[] tok = line.Split(new char[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
 
 				string cmd = tok[0].ToUpper();
@@ -171,7 +222,14 @@ namespace Aselia.Core
 			}
 			finally
 			{
-				Stream.BeginReadLine(OnBeginReadLine, null);
+				try
+				{
+					Stream.BeginReadLine(OnBeginReadLine, null);
+				}
+				catch
+				{
+					Dispose("Socket closed.");
+				}
 			}
 		}
 
@@ -184,7 +242,33 @@ namespace Aselia.Core
 
 		public override void Dispose()
 		{
-			base.Dispose();
+			Dispose("Client disposed.");
+		}
+
+		public override void Dispose(string reason)
+		{
+			if (IsDisposing)
+			{
+				return;
+			}
+			IsDisposing = true;
+
+			if (PingTimer.Change(Timeout.Infinite, Timeout.Infinite))
+			{
+				PingTimer.Dispose();
+			}
+
+			try
+			{
+				if (Stream.CanWrite)
+				{
+					Stream.BeginWriteLine(":" + Mask + " QUIT :" + reason);
+				}
+			}
+			catch
+			{
+			}
+			base.Dispose(reason);
 
 			try
 			{

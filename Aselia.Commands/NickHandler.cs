@@ -19,8 +19,15 @@ namespace Aselia.UserCommands
 			}
 			string nickname = e.Arguments[0];
 
+			if (e.User.Mask.Nickname != "*")
+			{
+				e.User.ErrorAlreadyRegistered(CMD);
+				return;
+			}
+
 			if (!e.User.ValidateNickname(nickname))
 			{
+				// ValidateNickname will send the numeric.
 				return;
 			}
 
@@ -42,7 +49,7 @@ namespace Aselia.UserCommands
 
 			if (e.User.Level != Authorizations.Connecting)
 			{
-				e.User.BroadcastInclusive("NICK", nickname);
+				e.User.BroadcastInclusive("NICK", e.User.Mask.Nickname, nickname);
 
 				UserBase dump;
 				e.Server.Users.TryRemove(e.User.Mask, out dump);

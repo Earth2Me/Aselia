@@ -58,12 +58,10 @@
     <Compile Include="Hotswap\Domains.cs" />
     <Compile Include="Numerics.cs" />
     <Compile Include="Core\ChannelBase.cs" />
-    <Compile Include="Flags\ChannelModes.cs" />
     <Compile Include="Flags\Modes.cs" />
     <Compile Include="Flags\ModesExtension.cs" />
     <Compile Include="Flags\ModeSyntax.cs" />
     <Compile Include="Flags\ModeTypes.cs" />
-    <Compile Include="Flags\UserModes.cs" />
     <Compile Include="HostMask.cs" />
     <Compile Include="Locations.cs" />
     <Compile Include="Modules\ChannelModeAttribute.cs" />

@@ -108,13 +108,30 @@ namespace Aselia.Common.Core
 
 		public virtual void Dispose()
 		{
+			Dispose("User disposed.");
+		}
+
+		public virtual void Dispose(string reason)
+		{
 		}
 
 		public virtual void OnConnected()
 		{
 		}
 
-		public virtual void ReplyVersion()
+		public virtual void ReplyISupport()
+		{
+		}
+
+		public virtual void OnPong()
+		{
+		}
+
+		public virtual void OnPing()
+		{
+		}
+
+		public virtual void OnMaskChanged()
 		{
 		}
 	}

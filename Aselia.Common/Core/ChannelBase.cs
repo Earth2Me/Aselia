@@ -10,15 +10,13 @@ namespace Aselia.Common.Core
 
 		public ConcurrentDictionary<string, UserBase> Users { get; protected set; }
 
-		public bool IsGlobal
-		{
-			get { return Name[0] == '#' || Name[0] == '+'; }
-		}
+		public abstract bool IsGlobal { get; }
 
-		public bool IsRegistered
-		{
-			get { return Name[0] == '#'; }
-		}
+		public abstract bool IsRegistered { get; }
+
+		public abstract bool IsSystem { get; }
+
+		public abstract string GetModeString();
 
 		public abstract bool HasFlag(string flag);
 

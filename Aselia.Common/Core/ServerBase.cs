@@ -12,21 +12,27 @@ namespace Aselia.Common.Core
 		[NonSerialized]
 		private DomainManager _Domains;
 
-		public abstract Version CoreVersion { get; protected set; }
+		public abstract Version CoreVersion { get; set; }
 
-		public abstract string CoreName { get; protected set; }
+		public abstract string CoreName { get; set; }
 
-		public DateTime Created { get; private set; }
+		public DateTime Created { get; set; }
 
-		public string Id { get; private set; }
+		public string Id { get; set; }
 
-		public bool Running { get; protected set; }
+		public bool Running { get; set; }
 
-		public ConcurrentDictionary<string, ChannelBase> Channels { get; private set; }
+		public int PingTimeout { get; set; }
 
-		public ConcurrentDictionary<HostMask, UserBase> Users { get; private set; }
+		public int PongTimeout { get; set; }
+
+		public ConcurrentDictionary<string, ChannelBase> Channels { get; set; }
+
+		public ConcurrentDictionary<HostMask, UserBase> Users { get; set; }
 
 		public SettingsBase Settings { get; set; }
+
+		public string NetworkName { get; set; }
 
 		public abstract ChannelBase GetChannel(string name);
 
@@ -37,6 +43,8 @@ namespace Aselia.Common.Core
 		public abstract bool IsKLined(IPAddress fullIp);
 
 		public abstract ChannelBase CreateChannel(string name);
+
+		public abstract void CommitChannel(ChannelBase channel);
 
 		public abstract UserBase GetUser(string nickname);
 
@@ -79,6 +87,9 @@ namespace Aselia.Common.Core
 			Channels = clone.Channels;
 			Users = clone.Users;
 			Created = clone.Created;
+			PingTimeout = clone.PingTimeout;
+			PongTimeout = clone.PongTimeout;
+			NetworkName = clone.NetworkName;
 		}
 	}
 }

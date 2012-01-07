@@ -12,6 +12,21 @@ namespace Aselia.Core
 	[Serializable]
 	public class Channel : ChannelBase
 	{
+		public override bool IsGlobal
+		{
+			get { return Name[0] != Protocol.CP_LOCAL; }
+		}
+
+		public override bool IsSystem
+		{
+			get { return Name[0] == Protocol.CP_SYSTEM; }
+		}
+
+		public override bool IsRegistered
+		{
+			get { return Name[0] == Protocol.CP_REGISTERED; }
+		}
+
 		public Channel()
 			: base()
 		{
@@ -27,13 +42,45 @@ namespace Aselia.Core
 		{
 		}
 
+		public override string GetModeString()
+		{
+			StringBuilder builder = new StringBuilder("+");
+
+			foreach (Modes m in Modes.Keys)
+			{
+				builder.Append(m.ToChar());
+			}
+
+			foreach (string a in Modes.Values)
+			{
+				builder.Append(' ').Append(a);
+			}
+
+			return builder.ToString();
+		}
+
 		public override unsafe void AddPrefix(UserBase user, char c)
 		{
-			if (c != '$' && c != '!')
+			if (user.Level >= Authorizations.Service)
+			{
+				return;
+			}
+			if (c == '$' || c == '!')
+			{
+				return;
+			}
+			if (IsSystem && user.Level >= Authorizations.NetworkOperator)
+			{
+				return;
+			}
+
+			if (Prefixes.ContainsKey(user.Mask.Account))
 			{
 				char[] chars = Prefixes[user.Mask.Account].ToCharArray();
+
 				int max = chars.Length + 1;
 				int len = 0;
+
 				char* prefix = stackalloc char[max];
 
 				for (int i = 0; i < Protocol.RANK_CHARS.Length; i++)
@@ -45,6 +92,10 @@ namespace Aselia.Core
 				}
 
 				Prefixes[user.Mask.Account] = new string(prefix, 0, len);
+			}
+			else
+			{
+				Prefixes[user.Mask.Account] = c.ToString();
 			}
 		}
 
@@ -241,7 +292,7 @@ namespace Aselia.Core
 			case Authorizations.Service:
 				if (user.Level < Authorizations.Service)
 				{
-					user.SendNumeric(Numerics.ERR_UNIQOPRIVSNEEDED, "MODE", ":That is for internal use only.");
+					user.SendNumeric(Numerics.ERR_UNIQOPRIVSNEEDED, "MODE", ":That is for use only.");
 					return false;
 				}
 				break;
@@ -431,19 +482,23 @@ namespace Aselia.Core
 
 		public override void Broadcast(string command, UserBase sender, params object[] arguments)
 		{
-			if (!HasFlag("Arena") || sender.IsVoice(this))
-			{
-				List<object> full = new List<object>(new object[]
+			List<object> full = new List<object>(new object[]
 				{
 					sender == null ? Server.Id : (object)sender.Mask,
 				});
-				full.AddRange(arguments);
-				object[] args = full.ToArray();
+			full.AddRange(arguments);
+			object[] args = full.ToArray();
 
+			if (!HasFlag("Arena") || sender.IsVoice(this))
+			{
 				foreach (UserBase u in Users.Values)
 				{
-					u.SendCommand(command, sender, this.Name, args);
+					u.SendCommand(command, args);
 				}
+			}
+			else
+			{
+				sender.SendCommand(command, args);
 			}
 		}
 	}

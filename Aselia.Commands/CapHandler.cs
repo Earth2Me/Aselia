@@ -65,7 +65,7 @@ namespace Aselia.UserCommands
 			case "END":
 				if (e.User.Level == Authorizations.Connecting)
 				{
-					if (e.User.Mask.Nickname != "*")
+					if (e.User.Mask.Username[0] != ':')
 					{
 						e.User.OnConnected();
 					}

@@ -1,47 +1,22 @@
-﻿using System;
-using System.Linq;
-
-namespace Aselia.Common.Flags
+﻿namespace Aselia.Common.Flags
 {
 	public static class ModesExtension
 	{
-		public static readonly char[] MODE_CHARS = "ABCDEFGHIJJKLMNOPQRSTUVWXYZabcdefghijjklmnopqrstuvwxyz0123456789".ToCharArray();
-		public static readonly Modes[] MODE_FLAGS = Enum.GetValues(typeof(Modes)).Cast<Modes>().ToArray();
-
 		public static Modes ToMode(this char c)
 		{
-			for (int i = 0; i < MODE_CHARS.Length; i++)
+			if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'))
 			{
-				if (MODE_CHARS[i] == c)
-				{
-					return MODE_FLAGS[i];
-				}
+				return (Modes)c;
 			}
-			return 0;
+			else
+			{
+				return 0;
+			}
 		}
 
-		public static unsafe string ToFlagString(this Modes modes)
+		public static char ToChar(this Modes mode)
 		{
-			ulong lmodes = (ulong)modes;
-			int flagCount = 0;
-			for (int i = 0; i < MODE_FLAGS.Length; i++)
-			{
-				if (unchecked((int)(lmodes >> i) & 1) == 1)
-				{
-					flagCount++;
-				}
-			}
-
-			char* mstring = stackalloc char[flagCount];
-			for (int i = 0, c = 0; i < MODE_FLAGS.Length; i++)
-			{
-				if (modes.HasFlag(MODE_FLAGS[i]))
-				{
-					mstring[c++] = MODE_CHARS[i];
-				}
-			}
-
-			return new string(mstring, 0, flagCount);
+			return (char)mode;
 		}
 	}
 }

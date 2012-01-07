@@ -42,7 +42,7 @@ namespace Aselia
 
 		private void OnBeginReadLine(IAsyncResult ar)
 		{
-			if (!ar.IsCompleted)
+			if (!ar.IsCompleted || !Stream.CanRead)
 			{
 				Dispose();
 				return;
@@ -160,7 +160,7 @@ namespace Aselia
 
 		private void OnBeginWriteLine(IAsyncResult ar)
 		{
-			if (ar.IsCompleted)
+			if (ar.IsCompleted && Stream.CanWrite)
 			{
 				try
 				{
@@ -171,6 +171,10 @@ namespace Aselia
 				{
 					Dispose();
 				}
+			}
+			else
+			{
+				Dispose();
 			}
 		}
 
