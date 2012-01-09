@@ -266,6 +266,10 @@ namespace Aselia.Core
 			{
 				Ssl.EndAuthenticateAsClient(ar);
 				BeginReadCommand();
+				if (Local.NetworkEstablished)
+				{
+					BeginWrite(ServerCommands.JoinedLate);
+				}
 			}
 			catch
 			{

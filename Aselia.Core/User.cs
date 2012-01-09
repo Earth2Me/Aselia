@@ -365,8 +365,7 @@ namespace Aselia.Core
 
 				foreach (ChannelBase c in Channels.Values)
 				{
-					UserBase dump;
-					c.Users.TryRemove(this.Id, out dump);
+					c.RemoveUser(this, false);
 				}
 
 				for (int i = 0; i < 100; i++)
@@ -374,6 +373,7 @@ namespace Aselia.Core
 					UserBase dump;
 					if (Server.Users.TryRemove(Mask, out dump))
 					{
+						dump = null;
 						break;
 					}
 					Thread.Sleep(0);

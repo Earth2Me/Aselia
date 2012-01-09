@@ -6,5 +6,7 @@
 		Reloading,
 		ReloadingAcknowledge,
 		JoinedLate,
+		ToChannel,
+		ToUser,
 	}
 }

@@ -43,7 +43,7 @@ namespace Aselia.Common.Core
 			Users = new ConcurrentDictionary<string, UserBase>();
 		}
 
-		public abstract void RemoveUser(UserBase user);
+		public abstract void RemoveUser(UserBase user, bool removeFromUser = true);
 
 		public abstract void AddPrefix(UserBase user, char c);
 

@@ -108,19 +108,26 @@ namespace Aselia.Core
 			{
 				ChannelBase dump;
 				Server.Channels.TryRemove(Id, out dump);
+				dump = null;
+
 				Server.Commit(this);
 			}
 
 			base.Dispose();
 		}
 
-		public override void RemoveUser(UserBase user)
+		public override void RemoveUser(UserBase user, bool removeFromUser = true)
 		{
 			UserBase dump;
 			Users.TryRemove(user.Id, out dump);
+			dump = null;
 
-			ChannelBase dump2;
-			user.Channels.TryRemove(Id, out dump2);
+			if (removeFromUser)
+			{
+				ChannelBase dump2;
+				user.Channels.TryRemove(Id, out dump2);
+				dump = null;
+			}
 
 			if (Users.IsEmpty)
 			{

@@ -53,6 +53,8 @@ namespace Aselia.UserCommands
 
 				UserBase dump;
 				e.Server.Users.TryRemove(e.User.Mask, out dump);
+				dump = null;
+
 				e.User.Mask.Nickname = nickname;
 				e.Server.Users[e.User.Mask] = e.User;
 			}
