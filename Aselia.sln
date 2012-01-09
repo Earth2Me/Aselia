@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aselia.ChannelModes", "Asel
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aselia.Common", "Aselia.Common\Aselia.Common.csproj", "{75413C5E-E62F-471C-BA8B-A1F67C615DB9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aselia.Test", "Aselia.Test\Aselia.Test.csproj", "{1A4A4F51-4788-4E8D-B5BD-CE26A0AD3DA9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,16 @@ Global
 		{75413C5E-E62F-471C-BA8B-A1F67C615DB9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{75413C5E-E62F-471C-BA8B-A1F67C615DB9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{75413C5E-E62F-471C-BA8B-A1F67C615DB9}.Release|x86.ActiveCfg = Release|Any CPU
+		{1A4A4F51-4788-4E8D-B5BD-CE26A0AD3DA9}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{1A4A4F51-4788-4E8D-B5BD-CE26A0AD3DA9}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{1A4A4F51-4788-4E8D-B5BD-CE26A0AD3DA9}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{1A4A4F51-4788-4E8D-B5BD-CE26A0AD3DA9}.Debug|x86.ActiveCfg = Debug|x86
+		{1A4A4F51-4788-4E8D-B5BD-CE26A0AD3DA9}.Debug|x86.Build.0 = Debug|x86
+		{1A4A4F51-4788-4E8D-B5BD-CE26A0AD3DA9}.Release|Any CPU.ActiveCfg = Release|x86
+		{1A4A4F51-4788-4E8D-B5BD-CE26A0AD3DA9}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{1A4A4F51-4788-4E8D-B5BD-CE26A0AD3DA9}.Release|Mixed Platforms.Build.0 = Release|x86
+		{1A4A4F51-4788-4E8D-B5BD-CE26A0AD3DA9}.Release|x86.ActiveCfg = Release|x86
+		{1A4A4F51-4788-4E8D-B5BD-CE26A0AD3DA9}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

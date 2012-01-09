@@ -45,7 +45,8 @@ namespace Aselia
 			Lines = new LineSet();
 			DirectRemotes = new Dictionary<string, RemoteServer>();
 			Remotes = new Dictionary<string, RemoteServer>();
-			Settings = LoadSettings();
+			Settings = InitializeSettings();
+			Settings.Load(new FileInfo("Settings.db"));
 
 			base.Cache = Cache = Cache.Load();
 			if (Cache == null)
@@ -81,6 +82,7 @@ namespace Aselia
 			RemoteInfo = clone.RemoteInfo;
 			Remotes = clone.Remotes;
 			Lines = clone.Lines;
+			NetworkEstablished = clone.NetworkEstablished;
 
 			SaveTimer = new Timer(SaveProc);
 			if (clone.SaveTimer.Change(Timeout.Infinite, Timeout.Infinite))
@@ -261,6 +263,16 @@ namespace Aselia
 			return Channels.ContainsKey(name) ? Channels[name] : null;
 		}
 
+		private void Bind(ListenerInfo info, bool rebind)
+		{
+			if (rebind)
+			{
+				Console.WriteLine("Appear to have lost a binding.  Rebinding.");
+			}
+			info.Listener.Start(info.Binding.Backlog);
+			info.Listener.BeginAcceptTcpClient(OnBeginAcceptTcpClient, info);
+		}
+
 		private void OnBeginAcceptTcpClient(IAsyncResult ar)
 		{
 			ListenerInfo info = (ListenerInfo)ar.AsyncState;
@@ -268,6 +280,7 @@ namespace Aselia
 			{
 				if (!info.Listener.Server.IsBound)
 				{
+					Bind(info, true);
 					return;
 				}
 				TcpClient client = info.Listener.EndAcceptTcpClient(ar);
@@ -296,27 +309,18 @@ namespace Aselia
 				{
 					client.Close();
 				}
+
+				info.Listener.BeginAcceptTcpClient(OnBeginAcceptTcpClient, info);
 			}
 			catch
 			{
-			}
-			finally
-			{
-				try
-				{
-					info.Listener.BeginAcceptTcpClient(OnBeginAcceptTcpClient, ar.AsyncState);
-				}
-				catch
-				{
-					Console.WriteLine("Appear to have lost a binding.  Rebinding.");
-					Restart();
-				}
+				Bind(info, true);
 			}
 		}
 
 		private void AcceptServer(TcpClient client, ListenerInfo info)
 		{
-			throw new NotImplementedException();
+			// TODO
 		}
 
 		private void AcceptClient(TcpClient client, ListenerInfo info)
@@ -433,8 +437,7 @@ namespace Aselia
 						try
 						{
 							TcpListener listener = new TcpListener(BindIps[i], b.Port);
-							listener.Start(b.Backlog);
-							listener.BeginAcceptTcpClient(OnBeginAcceptTcpClient, new ListenerInfo(listener, b));
+							Bind(new ListenerInfo(listener, b), false);
 							Listeners.Add(listener);
 						}
 						catch (Exception ex)
@@ -480,7 +483,7 @@ namespace Aselia
 			{
 				try
 				{
-					r.Dispose();
+					r.SendReloading();
 				}
 				catch
 				{
@@ -488,11 +491,10 @@ namespace Aselia
 			}
 		}
 
-		public override SettingsBase LoadSettings()
+		public override SettingsBase InitializeSettings()
 		{
 			Settings settings = new Settings();
 			settings.Modified += Settings_Modified;
-			settings.Load(new FileInfo("Settings.db"));
 			return settings;
 		}
 

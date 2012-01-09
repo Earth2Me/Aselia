@@ -148,6 +148,11 @@ namespace Aselia
 		{
 			try
 			{
+				if (!Stream.CanWrite)
+				{
+					Dispose();
+					return;
+				}
 				Stream.Write(buffer, offset, count);
 			}
 			catch

@@ -4,6 +4,7 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using Aselia.Core.Configuration;
+using Aselia.Core.InterServer;
 
 namespace Aselia.Core
 {
@@ -12,6 +13,7 @@ namespace Aselia.Core
 		private readonly Server Local;
 		private readonly TcpClient Client;
 		private bool IsDisposing;
+		private bool IsDisposable;
 		private SslStream Ssl;
 		private ServerInfo Info;
 		private byte[] CommandBuffer = new byte[sizeof(ushort)];
@@ -80,6 +82,35 @@ namespace Aselia.Core
 			}
 		}
 
+		private void BeginWrite(ServerCommands command)
+		{
+			Ssl.BeginWrite(BitConverter.GetBytes((ushort)command), 0, sizeof(ushort), OnBeginWrite, null);
+		}
+
+		private void OnBeginWrite(IAsyncResult ar)
+		{
+			try
+			{
+				if (!ar.IsCompleted)
+				{
+					OnDropped();
+					return;
+				}
+
+				Ssl.EndWrite(ar);
+			}
+			catch
+			{
+				OnDropped();
+			}
+		}
+
+		public void SendReloading()
+		{
+			IsDisposable = true;
+			BeginWrite(ServerCommands.Reloading);
+		}
+
 		private void BeginReadLength()
 		{
 			try
@@ -133,8 +164,15 @@ namespace Aselia.Core
 				{
 					switch (ReadCommand)
 					{
+					case ServerCommands.Void:
+						break;
+
 					case ServerCommands.Reloading:
 						OnReloading();
+						break;
+
+					case ServerCommands.JoinedLate:
+						OnJoinedLate();
 						break;
 
 					default:
@@ -151,6 +189,14 @@ namespace Aselia.Core
 			catch
 			{
 				OnDropped();
+			}
+		}
+
+		private void OnJoinedLate()
+		{
+			if (!Local.NetworkEstablished)
+			{
+				Local.OnJoinedLate();
 			}
 		}
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Aselia.Common.Core;
@@ -40,6 +41,7 @@ namespace Aselia.Common.Hotswap
 
 		public void Reload(Domains domain)
 		{
+			FileInfo file;
 #if DEBUG
 			AppDomain ad = AppDomain.CurrentDomain;
 			string name;
@@ -67,7 +69,7 @@ namespace Aselia.Common.Hotswap
 			AppDomain ad = AppDomain.CreateDomain(name);
 
 			byte[] assembly;
-			FileInfo file = new FileInfo("Aselia." + name + ".dll");
+			file = new FileInfo("Aselia." + name + ".dll");
 			using (FileStream fs = file.OpenRead())
 			{
 				assembly = new byte[fs.Length];
@@ -159,7 +161,6 @@ namespace Aselia.Common.Hotswap
 				if (Server == null)
 				{
 					Server = (ServerBase)types[0].GetConstructor(new Type[] { typeof(DomainManager) }).Invoke(new object[] { this });
-					Server.Restart();
 				}
 				else
 				{

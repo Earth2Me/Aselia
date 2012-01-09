@@ -67,7 +67,7 @@ namespace Aselia.Common.Core
 
 		public abstract void Dispose();
 
-		public abstract SettingsBase LoadSettings();
+		public abstract SettingsBase InitializeSettings();
 
 		public DomainManager Domains
 		{
