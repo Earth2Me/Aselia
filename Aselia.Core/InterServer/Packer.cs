@@ -99,7 +99,7 @@ namespace Aselia.Core.InterServer
 
 		public static string Unpack(byte[] packed)
 		{
-			Unpacks(packed, 0, packed.Length);
+			return Unpack(packed, 0, packed.Length);
 		}
 
 		public static string Unpack(byte[] packed, int start, int count)
