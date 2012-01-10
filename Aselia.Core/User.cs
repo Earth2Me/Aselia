@@ -134,6 +134,18 @@ namespace Aselia.Core
 			return string.Format(Server.Domains.UserCommandAttrs[command].Format, full.ToArray());
 		}
 
+		public override string CompileCommand(string command, string origin, params object[] args)
+		{
+			List<object> full = new List<object>(new object[]
+			{
+				command,
+				origin,
+			});
+			full.AddRange(args);
+
+			return string.Format(Server.Domains.UserCommandAttrs[command].Format, full.ToArray());
+		}
+
 		public override void WriteLine(string line)
 		{
 		}
@@ -501,6 +513,11 @@ namespace Aselia.Core
 		public override void SendCommand(string command, params object[] args)
 		{
 			WriteLine(CompileCommand(command, args));
+		}
+
+		public override void SendCommand(string command, string origin, params object[] args)
+		{
+			WriteLine(CompileCommand(command, origin, args));
 		}
 	}
 }

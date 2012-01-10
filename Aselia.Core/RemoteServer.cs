@@ -294,7 +294,7 @@ namespace Aselia.Core
 			if (user != null)
 			{
 				string[] buffer = new string[args.Length + 1];
-				user.SendCommand(command, buffer);
+				user.SendCommand(command, origin, buffer);
 			}
 		}
 

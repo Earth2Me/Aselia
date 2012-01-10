@@ -29,11 +29,15 @@ namespace Aselia.Common.Core
 
 		public abstract string CompileCommand(string command, params object[] args);
 
+		public abstract string CompileCommand(string command, string origin, params object[] args);
+
 		public abstract string CompileNumeric(ushort numeric, params object[] args);
 
 		public abstract void SendNumeric(ushort numeric, params object[] args);
 
 		public abstract void SendCommand(string command, params object[] args);
+
+		public abstract void SendCommand(string command, string origin, params object[] args);
 
 		public abstract string PrefixHostMask(ChannelBase channel);
 
