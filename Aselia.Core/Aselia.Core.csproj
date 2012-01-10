@@ -59,6 +59,7 @@
     <Compile Include="Configuration\QLine.cs" />
     <Compile Include="Configuration\ServerInfo.cs" />
     <Compile Include="Configuration\Settings.cs" />
+    <Compile Include="InterServer\Rfc.cs" />
     <Compile Include="LocalUser.cs" />
     <Compile Include="InterServer\Packer.cs" />
     <Compile Include="Protocol.cs" />
