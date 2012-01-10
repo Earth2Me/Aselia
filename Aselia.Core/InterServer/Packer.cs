@@ -6,7 +6,7 @@ namespace Aselia.Core.InterServer
 {
 	public static class Packer
 	{
-		public static readonly char[,] PATTERNS =
+		private static readonly char[,] PATTERNS =
 		{
 			{ ' ', 'e', 't', 'a', 'o', 'i', 'n', 's', 'h', 'r', 'd', 'l', 'u', 'c', 'm' },
 			{ ' ', 'E', 'T', 'A', 'O', 'I', 'N', 'S', 'H', 'R', 'D', 'L', 'U', 'C', 'M' },
@@ -16,7 +16,7 @@ namespace Aselia.Core.InterServer
 			{ ' ', 'e', 't', 'a', 'o', 'i', 'n', 's', 'h', 'r', 'd', 'l', 'u', 'c', '*' },
 			{ ' ', 'e', 't', 'a', 'o', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' },
 			{ ' ', 'E', 'T', 'A', 'O', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' },
-			{ ' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n' },
+			{ ' ', 'e', 't', 'a', 'o', 'i', 'n', 's', 'h', 'r', 'd', '-', '.', '!', '@' },
 		};
 
 		public static byte[] Pack(string text)
@@ -99,14 +99,19 @@ namespace Aselia.Core.InterServer
 
 		public static string Unpack(byte[] packed)
 		{
-			if (packed[0] == 0xff)
+			Unpacks(packed, 0, packed.Length);
+		}
+
+		public static string Unpack(byte[] packed, int start, int count)
+		{
+			if (packed[start] == 0xff)
 			{
-				return ASCIIEncoding.ASCII.GetString(packed, 1, packed.Length - 1);
+				return ASCIIEncoding.ASCII.GetString(packed, start + 1, count - 1);
 			}
 
-			int pattern = packed[0] & 0xf;
+			int pattern = packed[start] & 0xf;
 			StringBuilder builder = new StringBuilder();
-			for (int b = 0; b < packed.Length; )
+			for (int b = start; b < count + start; )
 			{
 				int i = packed[b++] >> 4;
 				if (i == 0xf)

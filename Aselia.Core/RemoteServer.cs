@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
+using Aselia.Common.Core;
 using Aselia.Core.Configuration;
 using Aselia.Core.InterServer;
 
@@ -217,6 +218,13 @@ namespace Aselia.Core
 				{
 					switch (ReadCommand)
 					{
+					case ServerCommands.ToChannel:
+						OnToChannel();
+						break;
+
+					case ServerCommands.ToUser:
+						OnToUser();
+						break;
 					}
 				}
 				catch
@@ -231,6 +239,70 @@ namespace Aselia.Core
 			{
 				OnDropped();
 			}
+		}
+
+		private unsafe void ReadPacket(out string target, out string origin, out string command, out string[] args)
+		{
+			List<string> lines = new List<string>();
+			fixed (byte* body = BodyBuffer)
+			{
+				int index = 1;
+				while (index < BodyBuffer.Length)
+				{
+					ushort length = *(ushort*)&body[index];
+					index += 2;
+					Packer.Unpack(BodyBuffer, index, length);
+				}
+			}
+
+			command = Rfc.ToCommand(BodyBuffer[0]);
+			target = lines[1];
+			origin = lines[2];
+			args = lines.ToArray();
+		}
+
+		private void WritePacket(string target, string origin, string command, string[] args)
+		{
+			byte[][] packed = new byte[args.Length + 3][];
+			packed[0] = new byte[] { Rfc.FromCommand(command) };
+			packed[1] = Packer.Pack(target);
+			packed[2] = Packer.Pack(origin);
+			for (int i = 2; i < args.Length + 3; i++)
+			{
+				packed[i] = Packer.Pack(args[i]);
+			}
+
+			byte[] buffer = new byte[packed.Length];
+			for (int p = 0, b = 0; b < buffer.Length; b += packed[p++].Length)
+			{
+				Array.Copy(packed[p], 0, buffer, b, packed[p].Length);
+			}
+		}
+
+		private void OnToUser()
+		{
+			string target, origin, command;
+			string[] args;
+			ReadPacket(out target, out origin, out command, out args);
+			if (command == null)
+			{
+				Console.WriteLine("Received invalid command from remote server.");
+				return;
+			}
+
+			UserBase user = Local.GetUser(target);
+			if (user != null)
+			{
+				string[] buffer = new string[args.Length + 1];
+				user.SendCommand(command, buffer);
+			}
+		}
+
+		private void OnToChannel()
+		{
+			string target, origin, command;
+			string[] args;
+			ReadPacket(out target, out origin, out command, out args);
 		}
 
 		private void OnReloading()
