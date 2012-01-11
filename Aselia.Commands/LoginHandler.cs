@@ -4,7 +4,7 @@ using Aselia.Common.Modules;
 namespace Aselia.UserCommands
 {
 	[Command(CMD + " IDENTIFY ID", Authorizations.Normal)]
-	public class IdentifyHandler : ICommand
+	public class LoginHandler : ICommand
 	{
 		public const string CMD = "LOGIN";
 
