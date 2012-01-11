@@ -93,6 +93,11 @@ namespace Aselia.Core
 				SendNumeric(Numerics.ERR_NOTONCHANNEL, channel.Name, ":You cannot " + action + " while not in that channel.");
 				return false;
 			}
+			else if (channel.HasFlag("Muted") && !IsVoice(channel))
+			{
+				SendNumeric(Numerics.ERR_CANNOTSENDTOCHAN, channel.Name, ":You cannot " + action + " while that channel is muted.");
+				return false;
+			}
 			else if (IsBanned(channel))
 			{
 				SendNumeric(Numerics.ERR_BANNEDFROMCHAN, channel.Name, ":You cannot " + action + " while banned.");
