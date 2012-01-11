@@ -1,12 +1,14 @@
 ﻿namespace Aselia.Core.InterServer
 {
-	public enum ServerCommands : ushort
+	public enum ServerCommands : byte
 	{
 		Void = 0,
 		Reloading,
-		ReloadingAcknowledge,
 		JoinedLate,
+		Dispose,
 		ToChannel,
 		ToUser,
+		CacheRequest,
+		Cache,
 	}
 }

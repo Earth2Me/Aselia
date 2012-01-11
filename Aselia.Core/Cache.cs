@@ -22,15 +22,22 @@ namespace Aselia.Core
 		{
 		}
 
+		public void Serialize(Stream stream, bool leaveOpen)
+		{
+			using (DeflateStream deflate = new DeflateStream(stream, CompressionMode.Compress, leaveOpen))
+			{
+				Serializer.Serialize(stream, new CacheSurrogate(this));
+			}
+		}
+
 		public bool Save()
 		{
 			FileInfo tmp = new FileInfo(File.FullName + ".tmp");
 			try
 			{
 				using (FileStream fs = tmp.Exists ? tmp.OpenWrite() : tmp.Create())
-				using (DeflateStream deflate = new DeflateStream(fs, CompressionMode.Compress))
 				{
-					Serializer.Serialize(fs, new CacheSurrogate(this));
+					Serialize(fs, false);
 				}
 
 				FileInfo bak = new FileInfo(File.FullName + ".bak");
@@ -65,6 +72,21 @@ namespace Aselia.Core
 				Accounts = new ConcurrentDictionary<string, UserSurrogate>(),
 				Channels = new ConcurrentDictionary<string, ChannelSurrogate>(),
 			};
+		}
+
+		public static Cache Load(Stream stream, bool leaveOpen = false)
+		{
+			try
+			{
+				using (DeflateStream deflate = new DeflateStream(stream, CompressionMode.Decompress, leaveOpen))
+				{
+					return new Cache((CacheSurrogate)Serializer.Deserialize(stream));
+				}
+			}
+			catch
+			{
+				return null;
+			}
 		}
 
 		public static Cache Load()

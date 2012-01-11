@@ -22,7 +22,6 @@ namespace Aselia
 		private readonly List<TcpListener> Listeners = new List<TcpListener>();
 		private readonly LineSet Lines;
 		private readonly Timer SaveTimer;
-		private readonly new Cache Cache;
 		private IPAddress[] BindIps;
 		private ServerInfo Info;
 		private ServerInfo[] RemoteInfo;
@@ -38,6 +37,12 @@ namespace Aselia
 
 		public override string CoreName { get; set; }
 
+		public new Cache Cache
+		{
+			get { return base.Cache as Cache; }
+			set { base.Cache = value; }
+		}
+
 		public Server(DomainManager domains)
 			: base(domains, Environment.MachineName)
 		{
@@ -48,10 +53,10 @@ namespace Aselia
 			Settings = InitializeSettings();
 			Settings.Load(new FileInfo("Settings.db"));
 
-			base.Cache = Cache = Cache.Load();
+			Cache = Cache.Load();
 			if (Cache == null)
 			{
-				base.Cache = Cache = Cache.Create();
+				Cache = Cache.Create();
 				if (!Cache.Save())
 				{
 					Console.WriteLine("Unable to save cache.  Will not start until cache is writable for security.");

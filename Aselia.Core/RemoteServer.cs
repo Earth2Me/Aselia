@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
@@ -17,7 +18,7 @@ namespace Aselia.Core
 		private bool IsDisposable;
 		private SslStream Ssl;
 		private ServerInfo Info;
-		private byte[] CommandBuffer = new byte[sizeof(ushort)];
+		private byte[] CommandBuffer = new byte[sizeof(ServerCommands)];
 		private byte[] LengthBuffer = new byte[sizeof(int)];
 		private byte[] BodyBuffer;
 		private ServerCommands ReadCommand;
@@ -63,7 +64,14 @@ namespace Aselia.Core
 
 		private void OnDropped()
 		{
-			throw new NotImplementedException();
+			if (IsDisposable)
+			{
+				Dispose("Connection drop negotiated.");
+			}
+			else
+			{
+				// TODO: Handle non-negotiated drops.
+			}
 		}
 
 		private void BeginReadCommand()
@@ -85,7 +93,7 @@ namespace Aselia.Core
 
 		private void BeginWrite(ServerCommands command)
 		{
-			Ssl.BeginWrite(BitConverter.GetBytes((ushort)command), 0, sizeof(ushort), OnBeginWrite, null);
+			Ssl.BeginWrite(new byte[] { (byte)command }, 0, sizeof(byte), OnBeginWrite, null);
 		}
 
 		private void OnBeginWrite(IAsyncResult ar)
@@ -159,7 +167,7 @@ namespace Aselia.Core
 					OnDropped();
 				}
 
-				ReadCommand = (ServerCommands)BitConverter.ToUInt16(CommandBuffer, 0);
+				ReadCommand = (ServerCommands)CommandBuffer[0];
 
 				try
 				{
@@ -174,6 +182,14 @@ namespace Aselia.Core
 
 					case ServerCommands.JoinedLate:
 						OnJoinedLate();
+						break;
+
+					case ServerCommands.Dispose:
+						OnDispose();
+						break;
+
+					case ServerCommands.CacheRequest:
+						OnCacheRequest();
 						break;
 
 					default:
@@ -191,6 +207,30 @@ namespace Aselia.Core
 			{
 				OnDropped();
 			}
+		}
+
+		private void OnCacheRequest()
+		{
+			using (MemoryStream mem = new MemoryStream())
+			{
+				mem.WriteByte(unchecked((byte)ServerCommands.Cache));
+				Local.Cache.Serialize(mem, true);
+
+				byte[] buffer = mem.ToArray();
+				Ssl.BeginWrite(buffer, 0, buffer.Length, OnBeginWrite, null);
+			}
+		}
+
+		private void OnDispose()
+		{
+			IsDisposable = true;
+			Dispose("Remote server requested disposal.");
+		}
+
+		public void SendDispose()
+		{
+			IsDisposable = true;
+			BeginWrite(ServerCommands.Dispose);
 		}
 
 		private void OnJoinedLate()
@@ -225,6 +265,10 @@ namespace Aselia.Core
 					case ServerCommands.ToUser:
 						OnToUser();
 						break;
+
+					case ServerCommands.Cache:
+						OnCache();
+						break;
 					}
 				}
 				catch
@@ -241,7 +285,17 @@ namespace Aselia.Core
 			}
 		}
 
-		private unsafe void ReadPacket(out string target, out string origin, out string command, out string[] args)
+		private void OnCache()
+		{
+			using (MemoryStream mem = new MemoryStream(BodyBuffer))
+			{
+				Local.Cache = Cache.Load(mem);
+			}
+
+			Local.CommitCache();
+		}
+
+		private unsafe void ReadMessagePacket(out string target, out string origin, out string command, out string[] args)
 		{
 			List<string> lines = new List<string>();
 			fixed (byte* body = BodyBuffer)
@@ -283,7 +337,7 @@ namespace Aselia.Core
 		{
 			string target, origin, command;
 			string[] args;
-			ReadPacket(out target, out origin, out command, out args);
+			ReadMessagePacket(out target, out origin, out command, out args);
 			if (command == null)
 			{
 				Console.WriteLine("Received invalid command from remote server.");
@@ -302,12 +356,18 @@ namespace Aselia.Core
 		{
 			string target, origin, command;
 			string[] args;
-			ReadPacket(out target, out origin, out command, out args);
+			ReadMessagePacket(out target, out origin, out command, out args);
 		}
 
 		private void OnReloading()
 		{
-			throw new NotImplementedException();
+			IsDisposable = true;
+			Dispose("Remote server reloading.");
+		}
+
+		public void Dispose(string reason)
+		{
+			Console.WriteLine("Disposing remote server: {0}", reason);
 		}
 
 		private void OnBeginReadLength(IAsyncResult ar)
