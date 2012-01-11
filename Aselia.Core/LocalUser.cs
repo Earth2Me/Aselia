@@ -74,6 +74,11 @@ namespace Aselia.Core
 			Dispose();
 		}
 
+		public override bool Register(byte[] password, string email)
+		{
+			return Server.Register(this, password, email);
+		}
+
 		private void Receive(string command, params string[] args)
 		{
 			try
@@ -150,7 +155,6 @@ namespace Aselia.Core
 			{
 				IsAuthenticated = true;
 				BeginRead();
-				SendCommand("NOTICE", Server.Id, "*", "*** Welcome.");
 			}
 		}
 
@@ -184,7 +188,6 @@ namespace Aselia.Core
 				"NICKLEN=" + Server.Settings["MaximumNicknameLength"],
 				"CHANNELLEN=" + Server.Settings["MaximumChannelLength"],
 				"TOPICLEN=" + Server.Settings["MaximumTopicLength"],
-				"CLIENTVER=2.0",
 				"TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:1,NOTICE:1",
 				"EXTBAN=$,a",
 				":are supported by this server");
@@ -194,11 +197,7 @@ namespace Aselia.Core
 
 		public override void OnConnected()
 		{
-#if DEBUG
-			Level = Authorizations.NetworkOperator;
-#else
 			Level = Authorizations.Normal;
-#endif
 
 			SendNumeric(Numerics.RPL_WELCOME, string.Format(":Welcome to the {0} Internet Relay Chat Network {1}", Server.NetworkName, Mask.Nickname));
 			SendNumeric(Numerics.RPL_YOURHOST, string.Format(":Your host is {0}[{1}], running version {2}={3}", Server.Id, Client.Client.LocalEndPoint, Server.CoreName, Server.CoreVersion));

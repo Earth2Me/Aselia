@@ -71,6 +71,7 @@
     <Compile Include="Modules\ICommand.cs" />
     <Compile Include="Modules\ReceivedChannelModeEventArgs.cs" />
     <Compile Include="Modules\ReceivedCommandEventArgs.cs" />
+    <Compile Include="Password.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\ServerBase.cs" />
     <Compile Include="Security\CertificateManagerBase.cs" />

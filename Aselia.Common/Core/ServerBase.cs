@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net;
 using Aselia.Common.Core.Configuration;
 using Aselia.Common.Hotswap;
@@ -31,15 +32,28 @@ namespace Aselia.Common.Core
 
 		public int PongTimeout { get; set; }
 
-		public ConcurrentDictionary<string, ChannelBase> Channels { get; set; }
+		public IDictionary<string, ChannelBase> Channels { get; set; }
 
-		public ConcurrentDictionary<HostMask, UserBase> Users { get; set; }
+		public IDictionary<HostMask, UserBase> UsersByMask { get; set; }
+
+		public IDictionary<string, List<UserBase>> UsersByAccount { get; set; }
+
+		public IDictionary<string, UserBase> UsersById { get; set; }
 
 		public SettingsBase Settings { get; set; }
 
 		public string NetworkName { get; set; }
 
+		public DomainManager Domains
+		{
+			get { return _Domains; }
+		}
+
 		public abstract bool CommitCache();
+
+		public abstract bool Register(UserBase user, byte[] password, string email);
+
+		public abstract bool LogIn(UserBase user, string account, byte[] password);
 
 		public abstract void Commit(UserBase user);
 
@@ -69,10 +83,9 @@ namespace Aselia.Common.Core
 
 		public abstract SettingsBase InitializeSettings();
 
-		public DomainManager Domains
-		{
-			get { return _Domains; }
-		}
+		public abstract UserSurrogate GetRegisteredUser(string account);
+
+		public abstract ChannelSurrogate GetRegisteredChannel(string account);
 
 		public ServerBase()
 		{
@@ -83,7 +96,9 @@ namespace Aselia.Common.Core
 			Id = id;
 			_Domains = domains;
 			Channels = new ConcurrentDictionary<string, ChannelBase>();
-			Users = new ConcurrentDictionary<HostMask, UserBase>();
+			UsersByMask = new ConcurrentDictionary<HostMask, UserBase>();
+			UsersByAccount = new ConcurrentDictionary<string, List<UserBase>>();
+			UsersById = new ConcurrentDictionary<string, UserBase>();
 			Created = DateTime.Now;
 			Running = true;
 		}
@@ -95,7 +110,9 @@ namespace Aselia.Common.Core
 			_Domains = domains;
 			Running = clone.Running;
 			Channels = clone.Channels;
-			Users = clone.Users;
+			UsersByMask = clone.UsersByMask;
+			UsersById = clone.UsersById;
+			UsersByAccount = clone.UsersByAccount;
 			Created = clone.Created;
 			PingTimeout = clone.PingTimeout;
 			PongTimeout = clone.PongTimeout;

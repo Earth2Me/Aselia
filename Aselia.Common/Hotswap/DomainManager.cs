@@ -190,14 +190,17 @@ namespace Aselia.Common.Hotswap
 				try
 				{
 					CommandAttribute[] attrs = t.GetCustomAttributes(typeof(CommandAttribute), false).Cast<CommandAttribute>().ToArray();
-					if (attrs.Length < 1 || userCommandHandlers.ContainsKey(attrs[0].Command))
+					if (attrs.Length < 1)
 					{
 						continue;
 					}
 
 					ICommand command = (ICommand)t.GetConstructor(Type.EmptyTypes).Invoke(new object[0]);
-					userCommandHandlers.Add(attrs[0].Command, command.Handler);
-					userCommandAttrs.Add(attrs[0].Command, attrs[0]);
+					for (int i = 0; i < attrs[0].Commands.Length; i++)
+					{
+						userCommandHandlers[attrs[0].Commands[i]] = command.Handler;
+						userCommandAttrs[attrs[0].Commands[i]] = attrs[0];
+					}
 				}
 				catch
 				{

@@ -112,7 +112,7 @@ namespace Aselia.Core.Configuration
 		{
 			Properties = new Dictionary<string, object>()
 			{
-				{ "NetworkName", "IronDust-Aselia" },
+				{ "NetworkName", "Earth2Me" },
 				{ "MaximumListSize", 100u },
 				{ "MaximumLongListSize", 1000u },
 				{ "MaximumRanksSize", 20u },

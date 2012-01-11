@@ -59,7 +59,7 @@ namespace Aselia.Common.Core
 
 		public abstract void Names(ChannelBase channel);
 
-		public abstract bool IsOwner(ChannelBase channel);
+		public abstract bool IsOwner(ChannelSurrogate channel);
 
 		public abstract bool IsProtect(ChannelBase channel);
 
@@ -138,6 +138,11 @@ namespace Aselia.Common.Core
 
 		public virtual void OnMaskChanged()
 		{
+		}
+
+		public virtual bool Register(byte[] password, string email)
+		{
+			return false;
 		}
 	}
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using Aselia.Common;
-using Aselia.Common.Core;
 using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
@@ -38,31 +37,30 @@ namespace Aselia.UserCommands
 			}
 
 			string id = nickname.ToLower();
-			foreach (UserBase u in e.Server.Users.Values)
+			if (e.Server.UsersById.ContainsKey(id))
 			{
-				if (u.Id == id)
-				{
-					e.User.SendNumeric(Numerics.ERR_NICKNAMEINUSE, nickname, ":That nickname is already in use.");
-					return;
-				}
+				e.User.SendNumeric(Numerics.ERR_NICKNAMEINUSE, nickname, ":That nickname is already in use.");
+				return;
 			}
 
 			if (e.User.Level != Authorizations.Connecting)
 			{
 				e.User.BroadcastInclusive("NICK", e.User.Mask.Nickname, nickname);
 
-				UserBase dump;
-				e.Server.Users.TryRemove(e.User.Mask, out dump);
-				dump = null;
+				e.Server.UsersByMask.Remove(e.User.Mask);
+				e.Server.UsersById.Remove(e.User.Id);
 
 				e.User.Mask.Nickname = nickname;
-				e.Server.Users[e.User.Mask] = e.User;
+				e.User.Id = id;
+
+				e.Server.UsersByMask[e.User.Mask] = e.User;
+				e.Server.UsersById[e.User.Id] = e.User;
 			}
 			else
 			{
 				e.User.Mask.Nickname = nickname;
+				e.User.Id = id;
 			}
-			e.User.Id = id;
 		}
 	}
 }

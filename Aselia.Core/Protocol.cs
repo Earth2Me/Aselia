@@ -13,7 +13,7 @@ namespace Aselia.Core
 		public static readonly char CP_LOCAL = '&';
 		public static readonly char[] CHANNEL_PREFIX_CHARS = new char[] { CP_REGISTERED, CP_TEMPORARY, CP_SYSTEM, CP_LOCAL };
 		public static readonly string CHANNEL_PREFIX_STRING = new string(CHANNEL_PREFIX_CHARS);
-		public static readonly string CHANNEL_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ#.-";
+		public static readonly string CHANNEL_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!&#.-";
 		public static readonly char[] CHANNEL_CHARS = CHANNEL_STRING.ToCharArray();
 		public static readonly string RANK_STRING = "$~&@%+!";
 		public static readonly char[] RANK_CHARS = RANK_STRING.ToCharArray();

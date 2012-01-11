@@ -34,16 +34,7 @@ namespace Aselia.Common.Core
 
 		public ChannelSurrogate(ChannelSurrogate clone)
 		{
-			Id = clone.Id;
-			Modes = clone.Modes;
-			Prefixes = clone.Prefixes;
-			Bans = clone.Bans;
-			InviteExcepts = clone.InviteExcepts;
-			Exceptions = clone.Exceptions;
-			Quiets = clone.Quiets;
-			Flags = clone.Flags;
-			Name = clone.Name;
-			Properties = clone.Properties;
+			Load(clone);
 		}
 
 		protected ChannelSurrogate(string name, string id)
@@ -58,6 +49,24 @@ namespace Aselia.Common.Core
 			Quiets = new List<HostMask>();
 			Flags = new List<string>();
 			Name = name;
+		}
+
+		public virtual void Load(ChannelSurrogate clone)
+		{
+			Id = clone.Id;
+			Modes = clone.Modes;
+			Prefixes = clone.Prefixes;
+			Bans = clone.Bans;
+			InviteExcepts = clone.InviteExcepts;
+			Exceptions = clone.Exceptions;
+			Quiets = clone.Quiets;
+			Flags = clone.Flags;
+			Name = clone.Name;
+			Properties = clone.Properties;
+		}
+
+		public virtual void Commit()
+		{
 		}
 	}
 }

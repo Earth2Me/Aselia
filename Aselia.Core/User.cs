@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using Aselia.Common;
 using Aselia.Common.Core;
 
@@ -380,16 +379,9 @@ namespace Aselia.Core
 					c.RemoveUser(this, false);
 				}
 
-				for (int i = 0; i < 100; i++)
-				{
-					UserBase dump;
-					if (Server.Users.TryRemove(Mask, out dump))
-					{
-						dump = null;
-						break;
-					}
-					Thread.Sleep(0);
-				}
+				Server.UsersByMask.Remove(Mask);
+				Server.UsersByAccount.Remove(Mask.Account);
+				Server.UsersById.Remove(Id);
 			}
 
 			base.Dispose(reason);
@@ -400,15 +392,28 @@ namespace Aselia.Core
 			SendNumeric(Numerics.ERR_ALREADYREGISTERED, command, ":You have already passed connection negotiation stage.  (If you see this message repeatedly, there is likely a bug in your client.)");
 		}
 
-		public override bool IsOwner(ChannelBase channel)
+		public override bool IsOwner(ChannelSurrogate channel)
 		{
-			if (channel.IsSystem && Level >= Authorizations.NetworkOperator)
+			if (channel.Name[0] == '.' && Level >= Authorizations.NetworkOperator)
 			{
 				return true;
 			}
 
-			string prefix = channel.GetPrefix(this);
-			if (string.IsNullOrWhiteSpace(prefix))
+			string prefix;
+			if (channel.Prefixes.ContainsKey(Mask.Account))
+			{
+				prefix = channel.Prefixes[Mask.Account];
+				if (string.IsNullOrEmpty(prefix))
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+
+			if (string.IsNullOrEmpty(prefix))
 			{
 				return false;
 			}
@@ -518,6 +523,13 @@ namespace Aselia.Core
 		public override void SendCommand(string command, string origin, params object[] args)
 		{
 			WriteLine(CompileCommand(command, origin, args));
+		}
+
+		public override void Commit()
+		{
+			Server.Commit(this);
+
+			base.Commit();
 		}
 	}
 }

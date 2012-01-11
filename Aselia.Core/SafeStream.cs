@@ -92,10 +92,24 @@ namespace Aselia
 
 		public void BeginReadLine(AsyncCallback callback, object state)
 		{
-			Line.Clear();
-			ReadBuffer = new byte[1];
-			ReadCallback = callback;
-			Stream.BeginRead(ReadBuffer, 0, ReadBuffer.Length, OnBeginReadLine, state);
+			try
+			{
+				Line.Clear();
+				ReadBuffer = new byte[1];
+				ReadCallback = callback;
+				if (Stream.CanRead)
+				{
+					Stream.BeginRead(ReadBuffer, 0, ReadBuffer.Length, OnBeginReadLine, state);
+				}
+				else
+				{
+					Dispose();
+				}
+			}
+			catch
+			{
+				Dispose();
+			}
 		}
 
 		private void OnBeginReadLine(IAsyncResult ar)

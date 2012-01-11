@@ -10,7 +10,7 @@ namespace Aselia.Common.Core
 	{
 		public HostMask Mask { get; set; }
 
-		public string Password { get; set; }
+		public byte[] Password { get; set; }
 
 		public DateTime LastSeen { get; set; }
 
@@ -28,13 +28,7 @@ namespace Aselia.Common.Core
 
 		public UserSurrogate(UserSurrogate clone)
 		{
-			Mask = clone.Mask;
-			Password = clone.Password;
-			LastSeen = clone.LastSeen;
-			Modes = clone.Modes;
-			Properties = clone.Properties;
-			Level = clone.Level;
-			Flags = clone.Flags;
+			Load(clone);
 		}
 
 		protected UserSurrogate(HostMask mask, Authorizations level)
@@ -46,6 +40,21 @@ namespace Aselia.Common.Core
 			Modes = new List<Modes>();
 			Properties = new ConcurrentDictionary<string, object>();
 			Flags = new List<string>();
+		}
+
+		public virtual void Load(UserSurrogate clone)
+		{
+			Mask = clone.Mask;
+			Password = clone.Password;
+			LastSeen = clone.LastSeen;
+			Modes = clone.Modes;
+			Properties = clone.Properties;
+			Level = clone.Level;
+			Flags = clone.Flags;
+		}
+
+		public virtual void Commit()
+		{
 		}
 	}
 }

@@ -27,23 +27,13 @@ namespace Aselia.UserCommands
 					ChannelBase channel = e.Server.GetChannel(channels[i]);
 					if (channel == null)
 					{
-						if (!e.Server.IsValidChannel(channels[i]))
-						{
-							e.User.SendNumeric(Numerics.ERR_BADCHANMASK, channels[i], ":That is an invalid channel name.");
-							continue;
-						}
-
-						channel = e.Server.CreateChannel(channels[i], e.User);
-						if (channel == null)
-						{
-							continue;
-						}
+						e.User.SendNumeric(Numerics.ERR_NOSUCHCHANNEL, ":That channel does not exist.  Did you mean to create/register a new channel?  If so, use /cjoin " + channels[i] + " or /quote cjoin " + channels[i] + ".");
 					}
 					else
 					{
 						if (channel.HasFlag("RegisteredOnly") && e.User.Level < Authorizations.Registered)
 						{
-							e.User.SendNumeric(Numerics.ERR_NOLOGIN, CMD, channels[i], ":Only registered users can join that channel.");
+							e.User.SendNumeric(Numerics.ERR_NOLOGIN, ":Only registered users can join that channel.");
 							Forward(e, channel);
 							continue;
 						}
@@ -117,15 +107,15 @@ namespace Aselia.UserCommands
 								}
 							}
 						}
-					}
 
-					if (!e.User.AddToChannel(channel))
-					{
-						e.User.SendNumeric(Numerics.ERR_UNKNOWNERROR, ":An unknown error occurred while joining channel.");
-						return;
+						if (!e.User.AddToChannel(channel))
+						{
+							e.User.SendNumeric(Numerics.ERR_UNKNOWNERROR, ":An unknown error occurred while joining channel.");
+							return;
+						}
+						channel.Broadcast(CMD, e.User, channel.Name);
+						e.User.Names(channel);
 					}
-					channel.Broadcast(CMD, e.User, channel.Name);
-					e.User.Names(channel);
 				}
 				catch (Exception ex)
 				{

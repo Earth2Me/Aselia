@@ -102,6 +102,62 @@ namespace Aselia
 			SaveTimer.Change(save, save);
 		}
 
+		public override bool LogIn(UserBase user, string account, byte[] password)
+		{
+			try
+			{
+				if (!Cache.Accounts.ContainsKey(account))
+				{
+					return false;
+				}
+				UserSurrogate cache = Cache.Accounts[account];
+
+				if (password.Length != cache.Password.Length)
+				{
+					return false;
+				}
+				for (int i = 0; i < password.Length; i++)
+				{
+					if (password[i] != cache.Password[i])
+					{
+						return false;
+					}
+				}
+
+				cache.LastSeen = DateTime.Now;
+				user.Load(cache);
+				user.Mask.Account = account;
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		public override bool Register(UserBase user, byte[] password, string email)
+		{
+			try
+			{
+				if (user.Level >= Authorizations.Registered)
+				{
+					return false;
+				}
+
+				user.Password = password;
+				user.Properties["E-Mail"] = email;
+				user.Level = Cache.Accounts.Count > 0 ? Authorizations.Registered : Authorizations.NetworkOperator;
+				user.Mask.Account = user.Mask.Nickname.ToLower();
+				user.SendNumeric(Numerics.RPL_REGISTERED, ":You are now registered and logged in.  Use /login password to log in next time you connect.");
+				Commit(user);
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
 		private void SaveProc(object state)
 		{
 			if (!CommitCache())
@@ -118,11 +174,11 @@ namespace Aselia
 				Cache.Channels[kv.Key] = new ChannelSurrogate(kv.Value);
 			}
 
-			foreach (KeyValuePair<HostMask, UserBase> kv in Users)
+			foreach (KeyValuePair<string, List<UserBase>> kv in UsersByAccount)
 			{
-				if (!string.IsNullOrEmpty(kv.Key.Account) && kv.Key.Account[0] != '/')
+				if (kv.Value.Count > 0 && !string.IsNullOrEmpty(kv.Key) && kv.Key[0] != '/')
 				{
-					Cache.Accounts[kv.Key.Account] = new UserSurrogate(kv.Value);
+					Cache.Accounts[kv.Key] = new UserSurrogate(kv.Value[0]);
 				}
 			}
 
@@ -146,7 +202,7 @@ namespace Aselia
 				return;
 			}
 
-			foreach (UserBase u in Users.Values)
+			foreach (UserBase u in UsersByMask.Values)
 			{
 				if (u.Mask.Account == user.Mask.Account)
 				{
@@ -167,21 +223,21 @@ namespace Aselia
 		public override UserBase GetUser(string nickname)
 		{
 			string id = nickname.ToLower();
-			foreach (UserBase u in Users.Values)
+
+			if (!UsersById.ContainsKey(id))
 			{
-				if (u.Id == id)
-				{
-					if (u.Level < Authorizations.Normal)
-					{
-						return null;
-					}
-					else
-					{
-						return u;
-					}
-				}
+				return null;
 			}
-			return null;
+
+			UserBase user = UsersById[id];
+			if (user.Level < Authorizations.Normal)
+			{
+				return null;
+			}
+			else
+			{
+				return user;
+			}
 		}
 
 		public override ChannelBase CreateChannel(string name, UserBase user)
@@ -190,16 +246,7 @@ namespace Aselia
 
 			if (Cache.Channels.ContainsKey(channel.Id))
 			{
-				ChannelSurrogate cache = Cache.Channels[channel.Id];
-				channel.Name = cache.Name;
-				channel.Modes = cache.Modes;
-				channel.Prefixes = cache.Prefixes;
-				channel.Quiets = cache.Quiets;
-				channel.Bans = cache.Bans;
-				channel.Exceptions = cache.Exceptions;
-				channel.InviteExcepts = cache.InviteExcepts;
-				channel.Properties = cache.Properties;
-				channel.Flags = cache.Flags;
+				channel.Load(Cache.Channels[channel.Id]);
 			}
 			else
 			{
@@ -339,11 +386,7 @@ namespace Aselia
 			LocalUser user = new LocalUser(this, client, mask, info.Binding.Protocol == Protocols.Rfc2812 ? false : true);
 			user.Start();
 
-			if (!Users.TryAdd(user.Mask, user))
-			{
-				Console.WriteLine("Error adding user to dictionary.  Concurrency issue?");
-				user.Dispose("Concurrency error.");
-			}
+			UsersByMask.Add(user.Mask, user);
 		}
 
 		public override bool IsQLined(string nickname)
@@ -567,6 +610,43 @@ namespace Aselia
 			}
 		}
 
+		public override UserSurrogate GetRegisteredUser(string account)
+		{
+			if (UsersByAccount.ContainsKey(account))
+			{
+				List<UserBase> users = UsersByAccount[account];
+				if (users.Count > 0)
+				{
+					return UsersByAccount[account][0];
+				}
+			}
+
+			if (Cache.Accounts.ContainsKey(account))
+			{
+				return Cache.Accounts[account];
+			}
+			else
+			{
+				return null;
+			}
+		}
+
+		public override ChannelSurrogate GetRegisteredChannel(string channel)
+		{
+			if (Channels.ContainsKey(channel))
+			{
+				return Channels[channel];
+			}
+			else if (Cache.Channels.ContainsKey(channel))
+			{
+				return Cache.Channels[channel];
+			}
+			else
+			{
+				return null;
+			}
+		}
+
 		public override void Dispose()
 		{
 			Running = false;
@@ -584,7 +664,7 @@ namespace Aselia
 				}
 			}
 
-			foreach (UserBase u in Users.Values)
+			foreach (UserBase u in UsersByMask.Values)
 			{
 				try
 				{

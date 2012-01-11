@@ -106,11 +106,8 @@ namespace Aselia.Core
 		{
 			if (Server.Running)
 			{
-				ChannelBase dump;
-				Server.Channels.TryRemove(Id, out dump);
-				dump = null;
-
-				Server.Commit(this);
+				Server.Channels.Remove(Id);
+				Commit();
 			}
 
 			base.Dispose();
@@ -139,7 +136,16 @@ namespace Aselia.Core
 		{
 			if (Prefixes.ContainsKey(user.Mask.Account))
 			{
-				Prefixes[user.Mask.Account] = Prefixes[user.Mask.Account].Replace(c.ToString(), string.Empty);
+				string value = Prefixes[user.Mask.Account].Replace(c.ToString(), string.Empty);
+				if (value == string.Empty)
+				{
+					Prefixes.Remove(user.Mask.Account);
+				}
+				else
+				{
+					Prefixes[user.Mask.Account] = value;
+				}
+
 				Server.Commit(this);
 			}
 		}
@@ -484,10 +490,6 @@ namespace Aselia.Core
 			{
 				return "$";
 			}
-			else if (user.Level < Authorizations.Registered)
-			{
-				return string.Empty;
-			}
 			else if (Prefixes.ContainsKey(user.Mask.Account))
 			{
 				return Prefixes[user.Mask.Account];
@@ -565,6 +567,13 @@ namespace Aselia.Core
 			{
 				sender.SendCommand(command, args);
 			}
+		}
+
+		public override void Commit()
+		{
+			Server.Commit(this);
+
+			base.Commit();
 		}
 	}
 }
