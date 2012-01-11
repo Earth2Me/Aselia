@@ -38,6 +38,77 @@ namespace Aselia.Core
 			}
 		}
 
+		public override bool IsExcepted(ChannelBase channel)
+		{
+			for (int m = 0; m < channel.Exceptions.Count; m++)
+			{
+				if (Mask.Matches(channel.Exceptions[m]))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public override bool IsBanned(ChannelBase channel)
+		{
+			if (IsExcepted(channel))
+			{
+				return false;
+			}
+
+			for (int m = 0; m < channel.Bans.Count; m++)
+			{
+				if (Mask.Matches(channel.Bans[m]))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		public override bool IsQuieted(ChannelBase channel)
+		{
+			if (IsExcepted(channel))
+			{
+				return false;
+			}
+
+			for (int m = 0; m < channel.Quiets.Count; m++)
+			{
+				if (Mask.Matches(channel.Quiets[m]))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		public override bool CanSendToChannel(ChannelBase channel, bool skipInChannelCheck, string action)
+		{
+			if (!skipInChannelCheck && channel.HasFlag("NoExternal") && GetChannel(channel.Name) == null)
+			{
+				SendNumeric(Numerics.ERR_NOTONCHANNEL, channel.Name, ":You cannot " + action + " while not in that channel.");
+				return false;
+			}
+			else if (IsBanned(channel))
+			{
+				SendNumeric(Numerics.ERR_BANNEDFROMCHAN, channel.Name, ":You cannot " + action + " while banned.");
+				return false;
+			}
+			else if (IsQuieted(channel))
+			{
+				SendNumeric(Numerics.ERR_CANNOTSENDTOCHAN, channel.Name, ":You cannot " + action + " while quieted.");
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+
 		public override string MakeUsername(string username)
 		{
 			StringBuilder builder = new StringBuilder(username.Length + 1).Append('-');

@@ -27,94 +27,89 @@ namespace Aselia.UserCommands
 					ChannelBase channel = e.Server.GetChannel(channels[i]);
 					if (channel == null)
 					{
-						e.User.SendNumeric(Numerics.ERR_NOSUCHCHANNEL, ":That channel does not exist.  Did you mean to create/register a new channel?  If so, use /cjoin " + channels[i] + " or /quote cjoin " + channels[i] + ".");
-					}
-					else
-					{
-						if (channel.HasFlag("RegisteredOnly") && e.User.Level < Authorizations.Registered)
+						if (e.Server.GetRegisteredChannel(channels[i]) != null)
 						{
-							e.User.SendNumeric(Numerics.ERR_NOLOGIN, ":Only registered users can join that channel.");
+							channel = e.Server.CreateChannel(channels[i], e.User);
+						}
+						else
+						{
+							e.User.SendNumeric(Numerics.ERR_NOSUCHCHANNEL, ":That channel does not exist.  Did you mean to create/register a new channel?  If so, use /cjoin " + channels[i] + " or /quote cjoin " + channels[i] + ".");
+							return;
+						}
+					}
+
+					if (channel.HasFlag("RegisteredOnly") && e.User.Level < Authorizations.Registered)
+					{
+						e.User.SendNumeric(Numerics.ERR_NOLOGIN, ":Only registered users can join that channel.");
+						Forward(e, channel);
+						continue;
+					}
+
+					if (channel.Properties.ContainsKey("Key"))
+					{
+						if (e.Arguments.Length <= ++key)
+						{
+							e.User.SendNumeric(Numerics.ERR_KEYSET, CMD, channels[i], ":Key not specified for channel.");
 							Forward(e, channel);
 							continue;
 						}
-
-						if (channel.Properties.ContainsKey("Key"))
+						else if (e.Arguments[key] != (string)channel.Properties["Key"])
 						{
-							if (e.Arguments.Length <= ++key)
-							{
-								e.User.SendNumeric(Numerics.ERR_KEYSET, CMD, channels[i], ":Key not specified for channel.");
-								Forward(e, channel);
-								continue;
-							}
-							else if (e.Arguments[key] != (string)channel.Properties["Key"])
-							{
-								e.User.SendNumeric(Numerics.ERR_BADCHANNELKEY, CMD, channels[i], ":Incorrect channel key specified.");
-								Forward(e, channel);
-								continue;
-							}
+							e.User.SendNumeric(Numerics.ERR_BADCHANNELKEY, CMD, channels[i], ":Incorrect channel key specified.");
+							Forward(e, channel);
+							continue;
 						}
+					}
 
-						if (channel.HasFlag("InviteOnly"))
+					if (channel.HasFlag("InviteOnly"))
+					{
+						if (!e.User.HasSessionFlag("Invite:" + channel.Name)
+							&& !e.User.IsVoice(channel))
 						{
-							if (!e.User.HasSessionFlag("Invite:" + channel.Name)
-								&& !e.User.IsVoice(channel))
+							bool inviteExcept = false;
+							for (int m = 0; m < channel.InviteExcepts.Count; m++)
 							{
-								bool inviteExcept = false;
-								for (int m = 0; m < channel.InviteExcepts.Count; m++)
+								if (e.User.Mask.Matches(channel.InviteExcepts[m]))
 								{
-									if (e.User.Mask.Matches(channel.InviteExcepts[m]))
-									{
-										inviteExcept = true;
-										break;
-									}
-								}
-								if (!inviteExcept)
-								{
-									e.User.SendNumeric(Numerics.ERR_INVITEONLYCHAN, CMD, channels[i], ":That channel is marked invite-only.");
-									Forward(e, channel);
-									continue;
-								}
-							}
-						}
-
-						if (!e.User.IsVoice(channel))
-						{
-							bool except = false;
-							for (int m = 0; m < channel.Exceptions.Count; m++)
-							{
-								if (e.User.Mask.Matches(channel.Exceptions[m]))
-								{
-									except = true;
+									inviteExcept = true;
 									break;
 								}
 							}
-							if (!except)
+							if (!inviteExcept)
 							{
-								bool banned = false;
-								for (int m = 0; m < channel.Bans.Count; m++)
-								{
-									if (e.User.Mask.Matches(channel.Bans[m]))
-									{
-										banned = true;
-										break;
-									}
-								}
-								if (banned)
-								{
-									e.User.SendNumeric(Numerics.ERR_BANNEDFROMCHAN, channels[i], ":You are banned from that channel.");
-									Forward(e, channel);
-									continue;
-								}
+								e.User.SendNumeric(Numerics.ERR_INVITEONLYCHAN, CMD, channels[i], ":That channel is marked invite-only.");
+								Forward(e, channel);
+								continue;
 							}
 						}
+					}
 
-						if (!e.User.AddToChannel(channel))
+					if (!e.User.IsVoice(channel))
+					{
+						if (e.User.IsBanned(channel))
 						{
-							e.User.SendNumeric(Numerics.ERR_UNKNOWNERROR, ":An unknown error occurred while joining channel.");
-							return;
+							e.User.SendNumeric(Numerics.ERR_BANNEDFROMCHAN, channels[i], ":You are banned from that channel.");
+							Forward(e, channel);
+							continue;
 						}
-						channel.Broadcast(CMD, e.User, channel.Name);
-						e.User.Names(channel);
+					}
+
+					if (!e.User.AddToChannel(channel))
+					{
+						e.User.SendNumeric(Numerics.ERR_USERONCHANNEL, e.User.Mask.Nickname, channel.Name, ":You are already on that channel.");
+						return;
+					}
+
+					channel.Broadcast(CMD, e.User, channel.Name);
+					e.User.Names(channel);
+
+					if (channel.Properties.ContainsKey("Topic"))
+					{
+						e.User.SendNumeric(Numerics.RPL_TOPIC, channel.Name, (string)channel.Properties["Topic"]);
+					}
+					else
+					{
+						e.User.SendNumeric(Numerics.RPL_NOTOPIC, channel.Name);
 					}
 				}
 				catch (Exception ex)
@@ -209,6 +204,15 @@ namespace Aselia.UserCommands
 
 				channel.Broadcast(CMD, e.User, channel.Name);
 				e.User.Names(channel);
+
+				if (channel.Properties.ContainsKey("Topic"))
+				{
+					e.User.SendNumeric(Numerics.RPL_TOPIC, channel.Name, (string)channel.Properties["Topic"]);
+				}
+				else
+				{
+					e.User.SendNumeric(Numerics.RPL_NOTOPIC, channel.Name);
+				}
 			}
 		}
 	}

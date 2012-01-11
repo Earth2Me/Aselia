@@ -355,7 +355,7 @@ namespace Aselia.Core
 
 			if (!CheckRank(user, attr))
 			{
-				user.SendNumeric(Numerics.ERR_CHANOPRIVSNEEDED, "MODE", ":You need to be a higher rank in the channel to set that mode.");
+				user.SendNumeric(Numerics.ERR_CHANOPPRIVSNEEDED, "MODE", ":You need to be a higher rank in the channel to set that mode.");
 				return false;
 			}
 			else

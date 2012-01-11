@@ -46,7 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IdentifyHandler.cs" />
+    <Compile Include="CjoinHandler.cs" />
+    <Compile Include="LoginHandler.cs" />
     <Compile Include="MetaHandler.cs" />
     <Compile Include="PartHandler.cs" />
     <Compile Include="NoticeHandler.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="NickHandler.cs" />
     <Compile Include="QuitHandler.cs" />
     <Compile Include="RegisterHandler.cs" />
+    <Compile Include="TopicHandler.cs" />
     <Compile Include="UserHandler.cs" />
     <Compile Include="UserhostHandler.cs" />
   </ItemGroup>

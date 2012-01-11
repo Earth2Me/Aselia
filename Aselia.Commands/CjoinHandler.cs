@@ -8,7 +8,7 @@ namespace Aselia.UserCommands
 	[Command(CjoinHandler.CMD, Authorizations.Normal)]
 	public sealed class CjoinHandler : MarshalByRefObject, ICommand
 	{
-		public const string CMD = "JOIN";
+		public const string CMD = "CJOIN";
 
 		public void Handler(object sender, ReceivedCommandEventArgs e)
 		{
@@ -40,11 +40,13 @@ namespace Aselia.UserCommands
 
 						if (!e.User.AddToChannel(channel))
 						{
-							e.User.SendNumeric(Numerics.ERR_UNKNOWNERROR, ":An unknown error occurred while joining channel.");
+							e.User.SendNumeric(Numerics.ERR_CONCURRENCY, ":A concurrency error occurred while joining the channel.");
 							return;
 						}
-						channel.Broadcast(CMD, e.User, channel.Name);
+
+						channel.Broadcast("JOIN", e.User, channel.Name);
 						e.User.Names(channel);
+						e.Server.Channels[channel.Name] = channel;
 					}
 					else
 					{

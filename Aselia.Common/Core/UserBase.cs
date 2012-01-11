@@ -69,6 +69,14 @@ namespace Aselia.Common.Core
 
 		public abstract bool IsVoice(ChannelBase channel);
 
+		public abstract bool IsBanned(ChannelBase channel);
+
+		public abstract bool IsQuieted(ChannelBase channel);
+
+		public abstract bool IsExcepted(ChannelBase channel);
+
+		public abstract bool CanSendToChannel(ChannelBase channel, bool skipInChannelCheck, string action);
+
 		public abstract void ErrorNeedMoreParams(string command);
 
 		public abstract bool AddToChannel(ChannelBase channel);

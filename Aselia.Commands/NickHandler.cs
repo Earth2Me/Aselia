@@ -1,5 +1,6 @@
 ﻿using System;
 using Aselia.Common;
+using Aselia.Common.Core;
 using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
@@ -58,6 +59,14 @@ namespace Aselia.UserCommands
 			}
 			else
 			{
+				foreach (ChannelBase c in e.User.Channels.Values)
+				{
+					if (!e.User.CanSendToChannel(c, true, "change your nickname"))
+					{
+						return;
+					}
+				}
+
 				e.User.Mask.Nickname = nickname;
 				e.User.Id = id;
 			}
