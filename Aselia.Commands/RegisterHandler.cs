@@ -5,7 +5,7 @@ using Aselia.Common.Modules;
 namespace Aselia.UserCommands
 {
 	[Command(RegisterHandler.CMD, Authorizations.Normal)]
-	public class RegisterHandler : ICommand
+	public sealed class RegisterHandler : ICommand
 	{
 		public const string CMD = "REGISTER";
 		private static readonly Regex Email;

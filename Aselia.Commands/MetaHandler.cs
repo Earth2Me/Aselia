@@ -6,7 +6,7 @@ using Aselia.Common.Modules;
 namespace Aselia.UserCommands
 {
 	[Command(MetaHandler.CMD, Authorizations.Normal)]
-	public class MetaHandler : ICommand
+	public sealed class MetaHandler : ICommand
 	{
 		public const string CMD = "META";
 		public const string SYNTAX = ":Syntax: /meta <channel|account> [[+|-]<key> [value]]  (Warning!  Keys and values are case-SENSITIVE!)";
