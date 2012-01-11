@@ -18,7 +18,7 @@ namespace Aselia.UserCommands
 				return;
 			}
 
-			ChannelBase channel = e.User.GetChannel(e.Arguments[0]);
+			ChannelBase channel = e.Server.GetChannel(e.Arguments[0]);
 			if (channel == null)
 			{
 				char c = e.Arguments[0][0];
@@ -39,22 +39,9 @@ namespace Aselia.UserCommands
 			}
 			else
 			{
-				if (!e.User.IsVoice(channel))
+				if (!e.User.IsVoice(channel) && !e.User.CanSendToChannel(channel, false, "talk"))
 				{
-					if (channel.HasFlag("Muted"))
-					{
-						e.User.SendNumeric(Numerics.ERR_CANNOTSENDTOCHAN, CMD, channel.Name, ":That channel is muted.");
-						return;
-					}
-
-					for (int i = 0; i < channel.Quiets.Count; i++)
-					{
-						if (e.User.Mask.Matches(channel.Quiets[i]))
-						{
-							e.User.SendNumeric(Numerics.ERR_CANNOTSENDTOCHAN, CMD, channel.Name, ":You are muted in that channel.");
-							return;
-						}
-					}
+					return;
 				}
 
 				if (channel.HasFlag("NoColors") && e.Arguments[1].Contains(((char)3).ToString()))
