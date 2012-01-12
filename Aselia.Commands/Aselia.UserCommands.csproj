@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CjoinHandler.cs" />
+    <Compile Include="CommitHandler.cs" />
     <Compile Include="GhostHandler.cs" />
     <Compile Include="InviteHandler.cs" />
     <Compile Include="IsonHandler.cs" />
