@@ -3,7 +3,7 @@
 namespace Aselia.Common
 {
 	[Serializable]
-	public class HostMask : MarshalByRefObject
+	public class HostMask : MarshalByRefObject, IEquatable<HostMask>
 	{
 		private static char[] FIRST_SPLIT = new char[] { '@' };
 		private static char[] SECOND_SPLIT = new char[] { '!' };
@@ -146,6 +146,29 @@ namespace Aselia.Common
 			All,
 			Identical,
 			Glob,
+		}
+
+		public bool Equals(HostMask other)
+		{
+			bool username = Username != null && other.Username != null;
+			bool nickname = Nickname != null && other.Nickname != null;
+			bool hostname = Hostname != null && other.Hostname != null;
+			bool account = Account != null && other.Account != null;
+
+			return (!username || Username == other.Username)
+				&& (!nickname || Nickname == other.Nickname)
+				&& (!hostname || Hostname == other.Hostname)
+				&& (!account || Account == other.Account);
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is HostMask && Equals((HostMask)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return Account.GetHashCode() ^ Nickname.GetHashCode() ^ Username.GetHashCode() ^ Hostname.GetHashCode();
 		}
 	}
 }
