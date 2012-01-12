@@ -132,7 +132,7 @@ namespace Aselia.Common.Core
 		{
 		}
 
-		public virtual void ReplyISupport()
+		public virtual void ReplyVersion()
 		{
 		}
 

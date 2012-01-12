@@ -164,8 +164,9 @@ namespace Aselia.Core
 			Ping = false;
 		}
 
-		public override void ReplyISupport()
+		public override void ReplyVersion()
 		{
+			SendNumeric(Numerics.RPL_MYINFO, string.Format("{0} {1}={2} {3} {4} {4}", Server.Id, Server.CoreName, Server.CoreVersion, Protocol.USER_MODES, Protocol.CHANNEL_MODES, Protocol.CHANNEL_PARAM_MODES));
 			SendNumeric(Numerics.RPL_ISUPPORT,
 				"CHANTYPES=" + Protocol.CHANNEL_PREFIX_STRING,
 				"EXCEPTS",
@@ -192,18 +193,17 @@ namespace Aselia.Core
 				"EXTBAN=$,a",
 				":are supported by this server");
 
-			base.ReplyISupport();
+			base.ReplyVersion();
 		}
 
 		public override void OnConnected()
 		{
-			Level = Authorizations.Unregistered;
+			Level = Server.GetRegisteredUser(Id) == null ? Authorizations.Unregistered : Authorizations.Unidentified;
 
 			SendNumeric(Numerics.RPL_WELCOME, string.Format(":Welcome to the {0} Internet Relay Chat Network {1}", Server.NetworkName, Mask.Nickname));
 			SendNumeric(Numerics.RPL_YOURHOST, string.Format(":Your host is {0}[{1}], running version {2}={3}", Server.Id, Client.Client.LocalEndPoint, Server.CoreName, Server.CoreVersion));
 			SendNumeric(Numerics.RPL_CREATED, string.Format(":This server was created at {0}", Server.Created));
-			SendNumeric(Numerics.RPL_MYINFO, string.Format("{0} {1}={2} {3} {4} {4}", Server.Id, Server.CoreName, Server.CoreVersion, Protocol.USER_MODES, Protocol.CHANNEL_MODES, Protocol.CHANNEL_PARAM_MODES));
-			ReplyISupport();
+			ReplyVersion();
 
 			base.OnConnected();
 
