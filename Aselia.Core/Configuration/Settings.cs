@@ -110,6 +110,7 @@ namespace Aselia.Core.Configuration
 			MaximumRanksSize = 20;
 			MaximumLongRanksSize = 100;
 			MaximumUsernameLength = 16;
+			MaximumNicknameLength = 16;
 			MaximumChannelLength = 30;
 			MaximumTopicLength = 300;
 			MaximumChannels = 50;
