@@ -5,7 +5,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.ChannelModes
 {
-	[ChannelMode(Modes.j, ModeSyntax.OnAdd, Authorizations.Normal, '@')]
+	[ChannelMode(Modes.j, ModeSyntax.OnAdd, Authorizations.Unregistered, '@')]
 	public class JoinThrottle : MarshalByRefObject, IChannelMode
 	{
 		public void AddHandler(object sender, ReceivedChannelModeEventArgs e)

@@ -4,7 +4,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(TopicHandler.CMD, Authorizations.Normal, ":{1} {0} {2} :{3}")]
+	[Command(TopicHandler.CMD, Authorizations.Unregistered, ":{1} {0} {2} :{3}")]
 	public sealed class TopicHandler : ICommand
 	{
 		public const string CMD = "TOPIC";

@@ -5,7 +5,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(UserhostHandler.CMD, Authorizations.Normal)]
+	[Command(UserhostHandler.CMD, Authorizations.Unregistered)]
 	public sealed class UserhostHandler : MarshalByRefObject, ICommand
 	{
 		public const string CMD = "USERHOST";

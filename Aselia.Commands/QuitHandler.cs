@@ -11,7 +11,7 @@ namespace Aselia.UserCommands
 
 		public void Handler(object sender, ReceivedCommandEventArgs e)
 		{
-			if (e.User.Level >= Authorizations.Normal)
+			if (e.User.Level >= Authorizations.Unregistered)
 			{
 				e.User.BroadcastInclusive(CMD, e.User.Mask, "Client quit.");
 			}

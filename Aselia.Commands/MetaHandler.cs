@@ -5,7 +5,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(MetaHandler.CMD, Authorizations.Normal)]
+	[Command(MetaHandler.CMD, Authorizations.Unregistered)]
 	public sealed class MetaHandler : ICommand
 	{
 		public const string CMD = "META";

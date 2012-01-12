@@ -4,7 +4,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(NamesHandler.CMD, Authorizations.Normal)]
+	[Command(NamesHandler.CMD, Authorizations.Unregistered)]
 	public sealed class NamesHandler : MarshalByRefObject, ICommand
 	{
 		public const string CMD = "NAMES";

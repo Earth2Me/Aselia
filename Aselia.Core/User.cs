@@ -168,24 +168,30 @@ namespace Aselia.Core
 				case Authorizations.Quitting:
 				case Authorizations.Banned:
 					Dispose("Below-normal authorization: " + Enum.GetName(typeof(Authorizations), Level));
-					break;
+					return false;
 
 				case Authorizations.Connecting:
 					SendNumeric(Numerics.ERR_NOTREGISTERED, ":You need to fully connect before you can " + action + ".");
-					break;
+					return false;
+
+				case Authorizations.Unidentified:
+					SendNumeric(Numerics.ERR_NOLOGIN, ":You are using a registered nickname.  You need to log in before you can use normal commands.  If this is not your account, change your nickname using /nick.");
+					return false;
 				}
 
 				switch (level)
 				{
 				case Authorizations.Registered:
 					SendNumeric(Numerics.ERR_NOLOGIN, ":Only users identified with services can " + action + ".");
-					break;
+					return false;
 
 				case Authorizations.NetworkOperator:
 					SendNumeric(Numerics.ERR_NOPRIVILEGES, ":Only network operators can " + ".");
-					break;
+					return false;
+
+				default:
+					return false;
 				}
-				return false;
 			}
 			else
 			{

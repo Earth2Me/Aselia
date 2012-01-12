@@ -5,7 +5,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(PrivmsgHandler.CMD, Authorizations.Normal, ":{1} {0} {2} :{3}")]
+	[Command(PrivmsgHandler.CMD, Authorizations.Unregistered, ":{1} {0} {2} :{3}")]
 	public sealed class PrivmsgHandler : MarshalByRefObject, ICommand
 	{
 		public const string CMD = "PRIVMSG";

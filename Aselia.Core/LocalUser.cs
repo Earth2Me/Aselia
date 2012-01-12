@@ -197,7 +197,7 @@ namespace Aselia.Core
 
 		public override void OnConnected()
 		{
-			Level = Authorizations.Normal;
+			Level = Authorizations.Unregistered;
 
 			SendNumeric(Numerics.RPL_WELCOME, string.Format(":Welcome to the {0} Internet Relay Chat Network {1}", Server.NetworkName, Mask.Nickname));
 			SendNumeric(Numerics.RPL_YOURHOST, string.Format(":Your host is {0}[{1}], running version {2}={3}", Server.Id, Client.Client.LocalEndPoint, Server.CoreName, Server.CoreVersion));

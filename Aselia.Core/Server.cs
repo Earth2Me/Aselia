@@ -235,7 +235,7 @@ namespace Aselia
 			}
 
 			UserBase user = UsersById[id];
-			if (user.Level < Authorizations.Normal)
+			if (user.Level < Authorizations.Unregistered)
 			{
 				return null;
 			}

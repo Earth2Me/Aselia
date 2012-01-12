@@ -4,7 +4,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(PongHandler.CMD, Authorizations.Normal, "{0}")]
+	[Command(PongHandler.CMD, Authorizations.Unregistered, "{0}")]
 	public sealed class PongHandler : MarshalByRefObject, ICommand
 	{
 		public const string CMD = "PONG";

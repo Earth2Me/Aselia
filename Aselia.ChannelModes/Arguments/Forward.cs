@@ -6,7 +6,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.ChannelModes
 {
-	[ChannelMode(Modes.f, ModeSyntax.OnAdd, Authorizations.Normal, '@')]
+	[ChannelMode(Modes.f, ModeSyntax.OnAdd, Authorizations.Unregistered, '@')]
 	public class Forward : MarshalByRefObject, IChannelMode
 	{
 		public void AddHandler(object sender, ReceivedChannelModeEventArgs e)

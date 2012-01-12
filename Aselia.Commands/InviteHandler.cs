@@ -3,7 +3,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(InviteHandler.CMD, Authorizations.Normal)]
+	[Command(InviteHandler.CMD, Authorizations.Unregistered)]
 	public sealed class InviteHandler : ICommand
 	{
 		public const string CMD = "INVITE";

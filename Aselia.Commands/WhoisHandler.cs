@@ -3,7 +3,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(WhoisHandler.CMD, Authorizations.Normal)]
+	[Command(WhoisHandler.CMD, Authorizations.Unregistered)]
 	public sealed class WhoisHandler : ICommand
 	{
 		public const string CMD = "WHOIS";

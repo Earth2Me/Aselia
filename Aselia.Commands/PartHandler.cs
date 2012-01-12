@@ -5,7 +5,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(PartHandler.CMD, Authorizations.Normal, ":{1} {0} {2} :{3}")]
+	[Command(PartHandler.CMD, Authorizations.Unregistered, ":{1} {0} {2} :{3}")]
 	public sealed class PartHandler : MarshalByRefObject, ICommand
 	{
 		public const string CMD = "PART";

@@ -4,7 +4,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.ChannelModes.Flags
 {
-	[ChannelMode(Modes.t, ModeSyntax.Never, Authorizations.Normal, 't')]
+	[ChannelMode(Modes.t, ModeSyntax.Never, Authorizations.Unregistered, 't')]
 	public class LockTopic : ChannelFlag
 	{
 		public override string Flag

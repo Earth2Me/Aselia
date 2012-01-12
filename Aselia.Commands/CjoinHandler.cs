@@ -5,7 +5,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(CjoinHandler.CMD, Authorizations.Normal)]
+	[Command(CjoinHandler.CMD, Authorizations.Unregistered)]
 	public sealed class CjoinHandler : MarshalByRefObject, ICommand
 	{
 		public const string CMD = "CJOIN";

@@ -3,7 +3,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(IsonHandler.CMD, Authorizations.Normal)]
+	[Command(IsonHandler.CMD, Authorizations.Unregistered)]
 	public sealed class IsonHandler : ICommand
 	{
 		public const string CMD = "ISON";

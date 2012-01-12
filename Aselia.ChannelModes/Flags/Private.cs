@@ -4,7 +4,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.ChannelModes.Flags
 {
-	[ChannelMode(Modes.p, ModeSyntax.Never, Authorizations.Normal, '@')]
+	[ChannelMode(Modes.p, ModeSyntax.Never, Authorizations.Unregistered, '@')]
 	public class Private : ChannelFlag
 	{
 		public override string Flag

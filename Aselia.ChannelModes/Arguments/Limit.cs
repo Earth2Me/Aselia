@@ -5,7 +5,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.ChannelModes
 {
-	[ChannelMode(Modes.l, ModeSyntax.OnAdd, Authorizations.Normal, '@')]
+	[ChannelMode(Modes.l, ModeSyntax.OnAdd, Authorizations.Unregistered, '@')]
 	public class Limit : MarshalByRefObject, IChannelMode
 	{
 		public void AddHandler(object sender, ReceivedChannelModeEventArgs e)

@@ -312,8 +312,8 @@ namespace Aselia.Core
 
 			switch (attr.Level)
 			{
-			case Authorizations.Normal:
-				if (user.Level < Authorizations.Normal)
+			case Authorizations.Unregistered:
+				if (user.Level < Authorizations.Unregistered)
 				{
 					user.SendNumeric(Numerics.ERR_NOTREGISTERED, "MODE", ":You aren't fully connected at present.");
 					return false;

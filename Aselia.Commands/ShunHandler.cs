@@ -3,7 +3,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(ShunHandler.CMD, Authorizations.Normal)]
+	[Command(ShunHandler.CMD, Authorizations.Unregistered)]
 	public sealed class ShunHandler : ICommand
 	{
 		public const string CMD = "SHUN";

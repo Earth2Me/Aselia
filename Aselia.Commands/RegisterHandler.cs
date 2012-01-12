@@ -4,7 +4,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(RegisterHandler.CMD, Authorizations.Normal)]
+	[Command(RegisterHandler.CMD, Authorizations.Unregistered)]
 	public sealed class RegisterHandler : ICommand
 	{
 		public const string CMD = "REGISTER";

@@ -3,7 +3,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(ListHandler.CMD, Authorizations.Normal)]
+	[Command(ListHandler.CMD, Authorizations.Unregistered)]
 	public sealed class ListHandler : ICommand
 	{
 		public const string CMD = "LIST";

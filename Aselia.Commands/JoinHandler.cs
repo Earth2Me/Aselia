@@ -5,7 +5,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(JoinHandler.CMD, Authorizations.Normal, ":{1} {0} :{2}")]
+	[Command(JoinHandler.CMD, Authorizations.Unregistered, ":{1} {0} :{2}")]
 	public sealed class JoinHandler : MarshalByRefObject, ICommand
 	{
 		public const string CMD = "JOIN";
