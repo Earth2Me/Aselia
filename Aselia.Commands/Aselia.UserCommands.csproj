@@ -49,6 +49,8 @@
     <Compile Include="CjoinHandler.cs" />
     <Compile Include="InviteHandler.cs" />
     <Compile Include="IsonHandler.cs" />
+    <Compile Include="KillHandler.cs" />
+    <Compile Include="ListHandler.cs" />
     <Compile Include="LoginHandler.cs" />
     <Compile Include="MetaHandler.cs" />
     <Compile Include="PartHandler.cs" />
@@ -70,6 +72,8 @@
     <Compile Include="TopicHandler.cs" />
     <Compile Include="UserHandler.cs" />
     <Compile Include="UserhostHandler.cs" />
+    <Compile Include="WhoHandler.cs" />
+    <Compile Include="WhoisHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Aselia.Common\Aselia.Common.csproj">
