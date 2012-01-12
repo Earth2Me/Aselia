@@ -50,6 +50,13 @@ namespace Aselia.Core
 			return false;
 		}
 
+		public override void OnConnected()
+		{
+			Server.UsersById.Add(Id, this);
+
+			base.OnConnected();
+		}
+
 		public override bool IsBanned(ChannelBase channel)
 		{
 			if (IsExcepted(channel))

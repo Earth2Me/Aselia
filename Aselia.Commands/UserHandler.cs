@@ -23,7 +23,10 @@ namespace Aselia.UserCommands
 				return;
 			}
 
+			e.Server.UsersByMask.Remove(e.User.Mask);
 			e.User.Mask.Username = e.User.MakeUsername(e.Arguments[0]);
+			e.Server.UsersByMask.Add(e.User.Mask, e.User);
+
 			e.User.Gecos = e.Arguments[3];
 
 			if (!e.User.HasSessionFlag("PassedNick") || e.User.HasSessionFlag("WaitForCap"))

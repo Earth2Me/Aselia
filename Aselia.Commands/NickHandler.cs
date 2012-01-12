@@ -51,7 +51,10 @@ namespace Aselia.UserCommands
 				e.Server.UsersByMask.Remove(e.User.Mask);
 				e.Server.UsersById.Remove(e.User.Id);
 
+				e.Server.UsersByMask.Remove(e.User.Mask);
 				e.User.Mask.Nickname = nickname;
+				e.Server.UsersByMask.Add(e.User.Mask, e.User);
+
 				e.User.Id = id;
 
 				e.Server.UsersByMask[e.User.Mask] = e.User;

@@ -288,20 +288,6 @@ namespace Aselia.Core
 				PingTimer.Dispose();
 			}
 
-			if (IsAuthenticated)
-			{
-				try
-				{
-					if (Stream.CanWrite)
-					{
-						Stream.BeginWriteLine(":" + Mask + " QUIT :" + reason);
-					}
-				}
-				catch
-				{
-				}
-			}
-
 			base.Dispose(reason);
 
 			try
