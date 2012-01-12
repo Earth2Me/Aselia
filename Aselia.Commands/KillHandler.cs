@@ -4,7 +4,7 @@ using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
 {
-	[Command(KillHandler.CMD, Authorizations.NetworkOperator, "{1} {0} :{2}")]
+	[Command(KillHandler.CMD, Authorizations.NetworkOperator, "{1} {0} {2} :{3}")]
 	public sealed class KillHandler : ICommand
 	{
 		public const string CMD = "KILL";
@@ -26,8 +26,8 @@ namespace Aselia.UserCommands
 
 			string reason = e.Arguments.Length > 1 ? "Killed: " + e.Arguments[1] : "Killed by network operator.";
 
-			e.User.BroadcastExclusive("QUIT", e.User.Mask, reason);
-			e.User.SendCommand(CMD, e.Server.Id, reason);
+			e.User.SendCommand(CMD, e.Server.Id, e.User.Mask.Nickname, reason);
+			e.User.Dispose(reason);
 		}
 	}
 }
