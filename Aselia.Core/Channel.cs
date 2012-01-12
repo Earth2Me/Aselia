@@ -104,7 +104,7 @@ namespace Aselia.Core
 
 		public override void Dispose()
 		{
-			if (Server.Running)
+			if (Server.IsRunning)
 			{
 				Server.Channels.Remove(Id);
 				Commit();

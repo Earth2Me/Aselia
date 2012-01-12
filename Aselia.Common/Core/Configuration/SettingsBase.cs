@@ -17,6 +17,8 @@ namespace Aselia.Common.Core.Configuration
 
 		public string NetworkName { get; set; }
 
+		public string[] Motd { get; set; }
+
 		public int MaximumListSize { get; set; }
 
 		public int MaximumLongListSize { get; set; }
@@ -77,6 +79,7 @@ namespace Aselia.Common.Core.Configuration
 		public virtual void Load(SettingsBase clone)
 		{
 			NetworkName = clone.NetworkName;
+			Motd = clone.Motd;
 			MaximumListSize = clone.MaximumListSize;
 			MaximumLongListSize = clone.MaximumLongListSize;
 			MaximumRanksSize = clone.MaximumRanksSize;

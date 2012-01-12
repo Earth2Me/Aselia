@@ -38,6 +38,11 @@ namespace Aselia.UserCommands
 			if (e.Server.LogIn(e.User, account, hash))
 			{
 				e.User.SendNumeric(Numerics.RPL_IDENTIFIED, CMD, e.User.Mask.Account, ":You are now logged in as " + e.User.Mask.Account + ".");
+
+				if (e.User.Level == Authorizations.NetworkOperator && !e.Server.NetworkOperators.Contains(e.User))
+				{
+					e.Server.NetworkOperators.Add(e.User);
+				}
 			}
 			else
 			{

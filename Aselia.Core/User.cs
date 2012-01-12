@@ -55,6 +55,11 @@ namespace Aselia.Core
 			Server.UsersById.Add(Id, this);
 
 			base.OnConnected();
+
+			if (Level == Authorizations.NetworkOperator)
+			{
+				Server.NetworkOperators.Add(this);
+			}
 		}
 
 		public override bool IsBanned(ChannelBase channel)
@@ -454,14 +459,14 @@ namespace Aselia.Core
 		{
 			Properties["LastSeenTime"] = DateTime.Now;
 
-			if (Server.Running)
+			if (Server.IsRunning)
 			{
-				Server.Commit(this);
-
-				if (Level > Authorizations.Connecting)
+				if (Level == Authorizations.NetworkOperator)
 				{
-					BroadcastInclusive("QUIT", Mask.Nickname, reason);
+					Server.NetworkOperators.Remove(this);
 				}
+
+				Server.Commit(this);
 
 				foreach (ChannelBase c in Channels.Values)
 				{

@@ -136,6 +136,18 @@ namespace Aselia.Common.Core
 		{
 		}
 
+		public virtual void ReplyMotd()
+		{
+		}
+
+		public virtual void ReplyLUsers()
+		{
+		}
+
+		public virtual void ReplyUsers()
+		{
+		}
+
 		public virtual void OnPong()
 		{
 		}

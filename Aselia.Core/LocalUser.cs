@@ -115,6 +115,9 @@ namespace Aselia.Core
 		public override void Start()
 		{
 			Level = Authorizations.Connecting;
+
+			Server.LocalUsers.Add(this);
+
 			BeginRead();
 		}
 
@@ -164,6 +167,43 @@ namespace Aselia.Core
 			Ping = false;
 		}
 
+		public override void ReplyLUsers()
+		{
+			SendNumeric(Numerics.RPL_LUSERCLIENT, ":There are", Server.UsersById.Count, "users on", Server.Settings.NetworkServers, "servers.");
+			SendNumeric(Numerics.RPL_LUSEROP, ":" + Server.NetworkOperators.Count, "IRC operators online.");
+			SendNumeric(Numerics.RPL_LUSERCHANNELS, ":" + Server.Channels.Count, "active channels formed.");
+			SendNumeric(Numerics.RPL_LUSERCHANNELS, ":" + Server.Cache.Channels.Count, "channels registered.");
+			SendNumeric(Numerics.RPL_LUSERME, ":This specific server has", Server.LocalUsers.Count, "users.");
+
+			ReplyUsers();
+
+			base.ReplyLUsers();
+		}
+
+		public override void ReplyMotd()
+		{
+			if (Server.Settings.Motd != null && Server.Settings.Motd.Length > 0)
+			{
+				SendNumeric(Numerics.RPL_MOTDSTART, ":Message of the Day:");
+				for (int i = 0; i < Server.Settings.Motd.Length; i++)
+				{
+					SendNumeric(Numerics.RPL_MOTD, ":" + Server.Settings.Motd[i]);
+				}
+				SendNumeric(Numerics.RPL_ENDOFMOTD, ":End of MOTD.");
+			}
+			else
+			{
+				SendNumeric(Numerics.ERR_NOMOTD, ":This server does not have a Message of the Day.");
+			}
+
+			base.ReplyMotd();
+		}
+
+		public override void ReplyUsers()
+		{
+			base.ReplyUsers();
+		}
+
 		public override void ReplyVersion()
 		{
 			SendNumeric(Numerics.RPL_MYINFO, string.Format("{0} {1}={2} {3} {4} {4}", Server.Id, Server.CoreName, Server.CoreVersion, Protocol.USER_MODES, Protocol.CHANNEL_MODES, Protocol.CHANNEL_PARAM_MODES));
@@ -204,6 +244,8 @@ namespace Aselia.Core
 			SendNumeric(Numerics.RPL_YOURHOST, string.Format(":Your host is {0}[{1}], running version {2}={3}", Server.Id, Client.Client.LocalEndPoint, Server.CoreName, Server.CoreVersion));
 			SendNumeric(Numerics.RPL_CREATED, string.Format(":This server was created at {0}", Server.Created));
 			ReplyVersion();
+			ReplyLUsers();
+			ReplyMotd();
 
 			base.OnConnected();
 
@@ -288,7 +330,20 @@ namespace Aselia.Core
 				PingTimer.Dispose();
 			}
 
+			if (Server.IsRunning)
+			{
+				if (Level > Authorizations.Connecting)
+				{
+					BroadcastInclusive("QUIT", Mask.Nickname, reason);
+				}
+			}
+
 			base.Dispose(reason);
+
+			if (Server.IsRunning)
+			{
+				Server.LocalUsers.Remove(this);
+			}
 
 			try
 			{

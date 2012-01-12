@@ -45,6 +45,12 @@ namespace Aselia.UserCommands
 			if (!e.User.Register(password, e.Arguments[1]))
 			{
 				e.User.SendNumeric(Numerics.ERR_ALREADYREGISTERED, ":You are already registered.");
+				return;
+			}
+
+			if (e.User.Level == Authorizations.NetworkOperator && !e.Server.NetworkOperators.Contains(e.User))
+			{
+				e.Server.NetworkOperators.Add(e.User);
 			}
 		}
 	}

@@ -24,7 +24,7 @@ namespace Aselia.Common.Core
 
 		public string Id { get; set; }
 
-		public bool Running { get; set; }
+		public bool IsRunning { get; set; }
 
 		public CacheSurrogate Cache { get; set; }
 
@@ -35,6 +35,10 @@ namespace Aselia.Common.Core
 		public IDictionary<string, List<UserBase>> UsersByAccount { get; set; }
 
 		public IDictionary<string, UserBase> UsersById { get; set; }
+
+		public List<UserBase> NetworkOperators { get; set; }
+
+		public List<UserBase> LocalUsers { get; set; }
 
 		public SettingsBase Settings { get; set; }
 
@@ -96,7 +100,9 @@ namespace Aselia.Common.Core
 			UsersByAccount = new ConcurrentDictionary<string, List<UserBase>>();
 			UsersById = new ConcurrentDictionary<string, UserBase>();
 			Created = DateTime.Now;
-			Running = true;
+			IsRunning = true;
+			LocalUsers = new List<UserBase>();
+			NetworkOperators = new List<UserBase>();
 		}
 
 		protected ServerBase(DomainManager domains, ServerBase clone)
@@ -104,7 +110,7 @@ namespace Aselia.Common.Core
 			Id = clone.Id;
 			Settings = clone.Settings;
 			_Domains = domains;
-			Running = clone.Running;
+			IsRunning = clone.IsRunning;
 			Channels = clone.Channels;
 			UsersByMask = clone.UsersByMask;
 			UsersById = clone.UsersById;
@@ -113,6 +119,8 @@ namespace Aselia.Common.Core
 			NetworkName = clone.NetworkName;
 			Certificates = clone.Certificates;
 			Cache = clone.Cache;
+			LocalUsers = clone.LocalUsers;
+			NetworkOperators = clone.NetworkOperators;
 		}
 	}
 }

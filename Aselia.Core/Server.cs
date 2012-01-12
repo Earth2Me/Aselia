@@ -570,7 +570,7 @@ namespace Aselia
 
 			NetworkName = settings.NetworkName;
 
-			bool running = Running;
+			bool running = IsRunning;
 			if (running)
 			{
 				Stop();
@@ -666,7 +666,7 @@ namespace Aselia
 
 		public override void Dispose()
 		{
-			Running = false;
+			IsRunning = false;
 
 			Stop();
 
