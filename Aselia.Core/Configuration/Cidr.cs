@@ -8,7 +8,7 @@ namespace Aselia.Core.Configuration
 	{
 		public uint Ip { get; set; }
 
-		public byte Bits { get; set; }
+		public byte Mask { get; set; }
 
 		public Cidr()
 		{
@@ -17,12 +17,12 @@ namespace Aselia.Core.Configuration
 		public Cidr(uint ip, byte bits)
 		{
 			Ip = ip;
-			Bits = bits;
+			Mask = bits;
 		}
 
 		public unsafe Cidr(IPAddress ip, byte bits)
 		{
-			Bits = bits;
+			Mask = bits;
 
 			unchecked
 			{

@@ -432,8 +432,8 @@ namespace Aselia
 				for (int i = 0; i < ks.Length; i++)
 				{
 					Cidr cidr = ks[i];
-					uint mask = cidr.Ip >> (32 - cidr.Bits);
-					uint match = ip >> (32 - cidr.Bits);
+					uint mask = cidr.Ip >> (32 - cidr.Mask);
+					uint match = ip >> (32 - cidr.Mask);
 					if (match == mask)
 					{
 						return true;
