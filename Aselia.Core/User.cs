@@ -246,6 +246,7 @@ namespace Aselia.Core
 		public override void BroadcastInclusive(string command, params object[] args)
 		{
 			string line = CompileCommand(command, args);
+			List<UserBase> users = new List<UserBase>();
 
 			foreach (ChannelBase c in Channels.Values)
 			{
@@ -256,6 +257,12 @@ namespace Aselia.Core
 
 				foreach (UserBase u in c.Users.Values)
 				{
+					if (users.Contains(u))
+					{
+						continue;
+					}
+					users.Add(u);
+
 					u.WriteLine(line);
 				}
 			}
@@ -264,6 +271,7 @@ namespace Aselia.Core
 		public override void BroadcastExclusive(string command, params object[] args)
 		{
 			string line = CompileCommand(command, args);
+			List<UserBase> users = new List<UserBase>();
 
 			foreach (ChannelBase c in Channels.Values)
 			{
@@ -274,10 +282,12 @@ namespace Aselia.Core
 
 				foreach (UserBase u in c.Users.Values)
 				{
-					if (u == this)
+					if (u == this || users.Contains(u))
 					{
 						continue;
 					}
+					users.Add(u);
+
 					u.WriteLine(line);
 				}
 			}
