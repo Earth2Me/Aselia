@@ -51,7 +51,7 @@ namespace Aselia
 			DirectRemotes = new Dictionary<string, RemoteServer>();
 			Remotes = new Dictionary<string, RemoteServer>();
 			Settings = InitializeSettings();
-			Settings.Load(new FileInfo("Settings.db"));
+			LocalRehash();
 
 			Cache = Cache.Load();
 			if (Cache == null)
@@ -105,6 +105,17 @@ namespace Aselia
 
 			int save = Settings.CacheCommitInterval;
 			SaveTimer.Change(save, save);
+		}
+
+		public override void LocalRehash()
+		{
+			Settings.Load(new FileInfo("Settings.xml"));
+		}
+
+		public override void GlobalRehash()
+		{
+			LocalRehash();
+			// TODO: Rehash remote servers.
 		}
 
 		public override bool LogIn(UserBase user, string account, byte[] password)

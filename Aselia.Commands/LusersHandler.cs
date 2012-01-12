@@ -10,7 +10,7 @@ namespace Aselia.UserCommands
 
 		public void Handler(object sender, ReceivedCommandEventArgs e)
 		{
-			e.User.ReplyMotd();
+			e.User.ReplyLUsers();
 		}
 	}
 }

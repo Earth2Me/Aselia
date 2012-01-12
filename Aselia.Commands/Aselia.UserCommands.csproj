@@ -54,7 +54,9 @@
     <Compile Include="KillHandler.cs" />
     <Compile Include="ListHandler.cs" />
     <Compile Include="LoginHandler.cs" />
+    <Compile Include="LusersHandler.cs" />
     <Compile Include="MetaHandler.cs" />
+    <Compile Include="MotdHandler.cs" />
     <Compile Include="PartHandler.cs" />
     <Compile Include="NoticeHandler.cs" />
     <Compile Include="HotswapHandler.cs" />
@@ -70,11 +72,14 @@
     <Compile Include="QuitHandler.cs" />
     <Compile Include="RegainHandler.cs" />
     <Compile Include="RegisterHandler.cs" />
+    <Compile Include="RehashHandler.cs" />
     <Compile Include="ShunHandler.cs" />
     <Compile Include="SummonHandler.cs" />
     <Compile Include="TopicHandler.cs" />
     <Compile Include="UserHandler.cs" />
     <Compile Include="UserhostHandler.cs" />
+    <Compile Include="UsersHandler.cs" />
+    <Compile Include="VersionHandler.cs" />
     <Compile Include="WhoHandler.cs" />
     <Compile Include="WhoisHandler.cs" />
   </ItemGroup>

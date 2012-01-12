@@ -81,6 +81,10 @@ namespace Aselia.Common.Core
 
 		public abstract void Dispose();
 
+		public abstract void LocalRehash();
+
+		public abstract void GlobalRehash();
+
 		public abstract SettingsBase InitializeSettings();
 
 		public abstract UserSurrogate GetRegisteredUser(string account);
