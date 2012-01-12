@@ -52,8 +52,10 @@ namespace Aselia.Core
 				}
 				return true;
 			}
-			catch
+			catch (Exception ex)
 			{
+				Console.WriteLine(ex);
+
 				try
 				{
 					tmp.Delete();
@@ -61,6 +63,7 @@ namespace Aselia.Core
 				catch
 				{
 				}
+
 				return false;
 			}
 		}
