@@ -169,7 +169,7 @@ namespace Aselia.Core
 
 		public override void ReplyLUsers()
 		{
-			SendNumeric(Numerics.RPL_LUSERCLIENT, ":There are", Server.UsersById.Count, "users on", Server.Settings.NetworkServers, "servers.");
+			SendNumeric(Numerics.RPL_LUSERCLIENT, ":There are", Server.UsersById.Count, "users on", Server.Settings.NetworkServers.Length, "servers.");
 			SendNumeric(Numerics.RPL_LUSEROP, ":" + Server.NetworkOperators.Count, "IRC operators online.");
 			SendNumeric(Numerics.RPL_LUSERCHANNELS, ":" + Server.Channels.Count, "active channels formed.");
 			SendNumeric(Numerics.RPL_LUSERCHANNELS, ":" + Server.Cache.Channels.Count, "channels registered.");
