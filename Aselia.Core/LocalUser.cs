@@ -33,7 +33,7 @@ namespace Aselia.Core
 			}
 
 			PingTimer = new Timer(PingProc);
-			PingTimer.Change(Server.PingTimeout, Server.PingTimeout);
+			PingTimer.Change(Server.Settings.PingTimeout, Server.Settings.PingTimeout);
 
 			Initialize();
 			BeginRead();
@@ -120,7 +120,7 @@ namespace Aselia.Core
 
 		public override void OnPing()
 		{
-			PingTimer.Change(Server.PongTimeout, Timeout.Infinite);
+			PingTimer.Change(Server.Settings.PongTimeout, Timeout.Infinite);
 			Ping = true;
 		}
 
@@ -160,7 +160,7 @@ namespace Aselia.Core
 
 		public override void OnPong()
 		{
-			PingTimer.Change(Server.PingTimeout, Timeout.Infinite);
+			PingTimer.Change(Server.Settings.PingTimeout, Timeout.Infinite);
 			Ping = false;
 		}
 
@@ -171,9 +171,9 @@ namespace Aselia.Core
 				"EXCEPTS",
 				"INVEX",
 				"CHANMODES=" + Protocol.CHANNEL_CATEGORIZED_MODES,
-				"CHANLIMIT=" + Protocol.CHANNEL_PREFIX_STRING + ":" + Server.Settings["MaximumChannels"],
+				"CHANLIMIT=" + Protocol.CHANNEL_PREFIX_STRING + ":" + Server.Settings.MaximumChannels,
 				"PREFIX=(" + Protocol.CHANNEL_RANK_MODES + ")" + Protocol.RANK_STRING,
-				"MAXLIST=" + Protocol.CHANNEL_LIST_MODES + ":" + Server.Settings["MaximumListSize"],
+				"MAXLIST=" + Protocol.CHANNEL_LIST_MODES + ":" + Server.Settings.MaximumListSize,
 				"MODES=10",
 				"NETWORK=" + Server.NetworkName,
 				"RFC2812",
@@ -185,9 +185,9 @@ namespace Aselia.Core
 				"SAFELIST",
 				"CASEMAPPING=ascii",
 				"CHARSET=ascii",
-				"NICKLEN=" + Server.Settings["MaximumNicknameLength"],
-				"CHANNELLEN=" + Server.Settings["MaximumChannelLength"],
-				"TOPICLEN=" + Server.Settings["MaximumTopicLength"],
+				"NICKLEN=" + Server.Settings.MaximumNicknameLength,
+				"CHANNELLEN=" + Server.Settings.MaximumChannelLength,
+				"TOPICLEN=" + Server.Settings.MaximumTopicLength,
 				"TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:1,NOTICE:1",
 				"EXTBAN=$,a",
 				":are supported by this server");

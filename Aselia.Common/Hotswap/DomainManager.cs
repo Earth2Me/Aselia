@@ -43,6 +43,9 @@ namespace Aselia.Common.Hotswap
 		{
 			FileInfo file;
 #if DEBUG
+			file = null;
+			GC.KeepAlive(file);
+
 			AppDomain ad = AppDomain.CurrentDomain;
 			string name;
 			switch (domain)

@@ -52,6 +52,13 @@
     <Compile Include="Core\CacheSurrogate.cs" />
     <Compile Include="CancelableEventArgs.cs" />
     <Compile Include="Core\ChannelSurrogate.cs" />
+    <Compile Include="Core\Configuration\Binding.cs" />
+    <Compile Include="Core\Configuration\Cidr.cs" />
+    <Compile Include="Core\Configuration\KLine.cs" />
+    <Compile Include="Core\Configuration\Line.cs" />
+    <Compile Include="Core\Configuration\Protocols.cs" />
+    <Compile Include="Core\Configuration\QLine.cs" />
+    <Compile Include="Core\Configuration\ServerInfo.cs" />
     <Compile Include="Core\Configuration\SettingsBase.cs" />
     <Compile Include="Core\UserBase.cs" />
     <Compile Include="Core\UserSurrogate.cs" />

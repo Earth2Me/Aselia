@@ -1,4 +1,4 @@
-﻿namespace Aselia.Core.Configuration
+﻿namespace Aselia.Common.Core.Configuration
 {
 	public enum Protocols : byte
 	{

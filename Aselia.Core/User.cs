@@ -21,7 +21,7 @@ namespace Aselia.Core
 
 		public override bool ValidateNickname(string nickname)
 		{
-			if (nickname.Length > (byte)Server.Settings["MaximumNicknameLength"])
+			if (nickname.Length > Server.Settings.MaximumNicknameLength)
 			{
 				SendNumeric(Numerics.ERR_ERRONEUSNICKNAME, nickname, ":That nickname is too long.");
 				return false;
@@ -118,7 +118,7 @@ namespace Aselia.Core
 		{
 			StringBuilder builder = new StringBuilder(username.Length + 1).Append('-');
 			char[] chars = username.ToCharArray();
-			byte max = (byte)Server.Settings["MaximumUsernameLength"];
+			byte max = Server.Settings.MaximumUsernameLength;
 			for (int i = 0; i < chars.Length && i < max; i++)
 			{
 				if (Protocol.USERNAME_CHARS.Contains(chars[i]))

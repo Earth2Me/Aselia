@@ -51,13 +51,6 @@
   <ItemGroup>
     <Compile Include="Cache.cs" />
     <Compile Include="Channel.cs" />
-    <Compile Include="Configuration\Binding.cs" />
-    <Compile Include="Configuration\Cidr.cs" />
-    <Compile Include="Configuration\KLine.cs" />
-    <Compile Include="Configuration\Line.cs" />
-    <Compile Include="Configuration\Protocols.cs" />
-    <Compile Include="Configuration\QLine.cs" />
-    <Compile Include="Configuration\ServerInfo.cs" />
     <Compile Include="Configuration\Settings.cs" />
     <Compile Include="InterServer\Rfc.cs" />
     <Compile Include="LocalUser.cs" />

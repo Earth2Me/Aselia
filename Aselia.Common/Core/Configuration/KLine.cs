@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Aselia.Core.Configuration
+namespace Aselia.Common.Core.Configuration
 {
 	[Serializable]
 	public sealed class KLine : Line<Cidr>

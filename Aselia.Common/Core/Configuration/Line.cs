@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Aselia.Core.Configuration
+namespace Aselia.Common.Core.Configuration
 {
 	[Serializable]
 	public abstract class Line<T> : MarshalByRefObject

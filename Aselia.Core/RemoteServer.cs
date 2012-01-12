@@ -5,7 +5,7 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using Aselia.Common.Core;
-using Aselia.Core.Configuration;
+using Aselia.Common.Core.Configuration;
 using Aselia.Core.InterServer;
 
 namespace Aselia.Core

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace Aselia.Core.Configuration
+namespace Aselia.Common.Core.Configuration
 {
 	[Serializable]
 	public class Cidr : MarshalByRefObject

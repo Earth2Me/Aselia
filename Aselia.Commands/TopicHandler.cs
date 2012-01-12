@@ -61,7 +61,7 @@ namespace Aselia.UserCommands
 				}
 				else
 				{
-					ushort max = (ushort)e.Server.Settings["MaximumTopicLength"];
+					int max = e.Server.Settings.MaximumTopicLength;
 					if (topic.Length > max)
 					{
 						topic = topic.Remove(max);

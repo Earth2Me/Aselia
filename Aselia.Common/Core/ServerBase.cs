@@ -28,10 +28,6 @@ namespace Aselia.Common.Core
 
 		public CacheSurrogate Cache { get; set; }
 
-		public int PingTimeout { get; set; }
-
-		public int PongTimeout { get; set; }
-
 		public IDictionary<string, ChannelBase> Channels { get; set; }
 
 		public IDictionary<HostMask, UserBase> UsersByMask { get; set; }
@@ -114,8 +110,6 @@ namespace Aselia.Common.Core
 			UsersById = clone.UsersById;
 			UsersByAccount = clone.UsersByAccount;
 			Created = clone.Created;
-			PingTimeout = clone.PingTimeout;
-			PongTimeout = clone.PongTimeout;
 			NetworkName = clone.NetworkName;
 			Certificates = clone.Certificates;
 			Cache = clone.Cache;

@@ -66,7 +66,7 @@ namespace Aselia
 			}
 
 			Certificates = new CertificateManager();
-			string password = (string)Settings.Properties["CertificatePassword"];
+			string password = Settings.CertificatePassword;
 			if (!Certificates.Load(Id, password) && !Certificates.Generate(Id, password))
 			{
 				Console.WriteLine("There must be a single, valid X.509 certificate file named 'Certificate.{0}.*' in the current directory.", Id);
@@ -103,7 +103,7 @@ namespace Aselia
 			CoreName = Protocol.CORE_NAME;
 			CoreVersion = new Version(Protocol.CORE_VERSION);
 
-			int save = (int)Settings["CacheCommitInterval"];
+			int save = Settings.CacheCommitInterval;
 			SaveTimer.Change(save, save);
 		}
 
@@ -268,7 +268,21 @@ namespace Aselia
 				}
 
 				channel.AddPrefix(user, '~');
-				channel.SetModes(null, (string)Settings["DefaultChannelModes:" + channel.Name[0]]);
+
+				switch (channel.Name[0])
+				{
+				case '!':
+					channel.SetModes(null, Settings.DefaultChannelModesReg);
+					break;
+
+				case '#':
+					channel.SetModes(null, Settings.DefaultChannelModesTemp);
+					break;
+
+				case '&':
+					channel.SetModes(null, Settings.DefaultChannelModesLoc);
+					break;
+				}
 			}
 
 			return channel;
@@ -293,7 +307,7 @@ namespace Aselia
 				return false;
 			}
 
-			if (chars.Length > (byte)Settings.Properties["MaximumChannelLength"])
+			if (chars.Length > Settings.MaximumChannelLength)
 			{
 				return false;
 			}
@@ -478,7 +492,7 @@ namespace Aselia
 
 			try
 			{
-				foreach (Binding b in (List<Binding>)Settings["Bindings"])
+				foreach (Binding b in Settings.Bindings)
 				{
 					for (int i = 0; i < BindIps.Length; i++)
 					{
@@ -554,9 +568,7 @@ namespace Aselia
 
 			Lines.Load(settings);
 
-			PingTimeout = (int)settings["PingTimeout"];
-			PongTimeout = (int)settings["PongTimeout"];
-			NetworkName = (string)settings["NetworkName"];
+			NetworkName = settings.NetworkName;
 
 			bool running = Running;
 			if (running)
@@ -566,7 +578,7 @@ namespace Aselia
 
 			Info = null;
 			List<ServerInfo> others = new List<ServerInfo>();
-			foreach (ServerInfo i in (List<ServerInfo>)settings["NetworkServers"])
+			foreach (ServerInfo i in settings.NetworkServers)
 			{
 				if (Info == null)
 				{
@@ -710,8 +722,8 @@ namespace Aselia
 			{
 				try
 				{
-					List<KLine> ks = (List<KLine>)settings.Properties["K-"];
-					K = new Cidr[ks.Count];
+					KLine[] ks = settings.KLines;
+					K = new Cidr[ks.Length];
 					for (int i = 0; i < K.Length; i++)
 					{
 						K[i] = ks[i].Ban;
@@ -724,8 +736,8 @@ namespace Aselia
 
 				try
 				{
-					List<QLine> qs = ((List<QLine>)settings.Properties["Q-"]);
-					Q = new Regex[qs.Count];
+					QLine[] qs = settings.QLines;
+					Q = new Regex[qs.Length];
 					for (int i = 0; i < Q.Length; i++)
 					{
 						try

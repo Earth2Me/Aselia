@@ -14,9 +14,9 @@ namespace Aselia.ChannelModes
 		{
 			List<HostMask> list = GetList(e.Channel);
 
-			if (list.Count > (int)e.Server.Settings["MaximumListLength"]
-				&& (!e.Channel.HasFlag("LargeLists")
-				|| list.Count > (int)e.Server.Settings["MaximumLargeListLength"]))
+			if (list.Count > e.Server.Settings.MaximumListSize
+				&& (!e.Channel.HasFlag("LongLists")
+				|| list.Count > e.Server.Settings.MaximumLongListSize))
 			{
 				e.User.SendNumeric(Numerics.ERR_BANLISTFULL, "That list is full.  Contact a network operator to override this.");
 				e.Cancel();

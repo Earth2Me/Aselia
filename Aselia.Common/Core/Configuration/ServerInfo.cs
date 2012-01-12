@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Aselia.Core.Configuration
+namespace Aselia.Common.Core.Configuration
 {
 	[Serializable]
 	public class ServerInfo : MarshalByRefObject
