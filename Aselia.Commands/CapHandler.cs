@@ -65,11 +65,17 @@ namespace Aselia.UserCommands
 			case "END":
 				if (e.User.Level == Authorizations.Connecting)
 				{
-					if (e.User.Mask.Username[0] != ':')
+					if (e.User.HasSessionFlag("PassedUser") && e.User.HasSessionFlag("PassedNick"))
 					{
+						e.User.ClearSessionFlag("PassedUser");
+						e.User.ClearSessionFlag("PassedNick");
+						e.User.ClearSessionFlag("WaitForCap");
 						e.User.OnConnected();
 					}
-					e.User.ClearSessionFlag("WaitForCap");
+					else
+					{
+						e.User.ClearSessionFlag("WaitForCap");
+					}
 				}
 				else
 				{

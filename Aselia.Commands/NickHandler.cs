@@ -69,6 +69,16 @@ namespace Aselia.UserCommands
 
 				e.User.Mask.Nickname = nickname;
 				e.User.Id = id;
+
+				if (e.User.HasSessionFlag("PassedUser") && !e.User.HasSessionFlag("WaitForCap"))
+				{
+					e.User.ClearSessionFlag("PassedUser");
+					e.User.OnConnected();
+				}
+				else
+				{
+					e.User.SetSessionFlag("PassedNick");
+				}
 			}
 		}
 	}

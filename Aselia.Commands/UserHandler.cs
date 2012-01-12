@@ -17,7 +17,7 @@ namespace Aselia.UserCommands
 				return;
 			}
 
-			if (e.User.Mask.Username[0] != ':')
+			if (e.User.Level != Authorizations.Connecting || e.User.HasSessionFlag("PassedUser"))
 			{
 				e.User.ErrorAlreadyRegistered(CMD);
 				return;
@@ -26,11 +26,13 @@ namespace Aselia.UserCommands
 			e.User.Mask.Username = e.User.MakeUsername(e.Arguments[0]);
 			e.User.Gecos = e.Arguments[3];
 
-			if (e.User.HasSessionFlag("WaitForCap"))
+			if (!e.User.HasSessionFlag("PassedNick") || e.User.HasSessionFlag("WaitForCap"))
 			{
+				e.User.SetSessionFlag("PassedUser");
 				return;
 			}
 
+			e.User.ClearSessionFlag("PassedNick");
 			e.User.OnConnected();
 		}
 	}

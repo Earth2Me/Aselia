@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CjoinHandler.cs" />
+    <Compile Include="GhostHandler.cs" />
     <Compile Include="InviteHandler.cs" />
     <Compile Include="IsonHandler.cs" />
     <Compile Include="KillHandler.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="NamesHandler.cs" />
     <Compile Include="NickHandler.cs" />
     <Compile Include="QuitHandler.cs" />
+    <Compile Include="RegainHandler.cs" />
     <Compile Include="RegisterHandler.cs" />
     <Compile Include="ShunHandler.cs" />
     <Compile Include="SummonHandler.cs" />
