@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Aselia.Common.Flags;
 
@@ -20,7 +19,7 @@ namespace Aselia.Common.Core
 
 		public List<string> Flags { get; set; }
 
-		public ConcurrentDictionary<string, object> Properties { get; set; }
+		public IDictionary<string, object> Properties { get; set; }
 
 		public UserSurrogate()
 		{
@@ -38,7 +37,7 @@ namespace Aselia.Common.Core
 			Password = null;
 			LastSeen = DateTime.MaxValue;
 			Modes = new List<Modes>();
-			Properties = new ConcurrentDictionary<string, object>();
+			Properties = new Dictionary<string, object>();
 			Flags = new List<string>();
 		}
 

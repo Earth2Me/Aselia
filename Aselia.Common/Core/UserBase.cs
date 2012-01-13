@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Aselia.Common.Core
@@ -13,7 +12,7 @@ namespace Aselia.Common.Core
 
 		public string Gecos { get; set; }
 
-		public ConcurrentDictionary<string, ChannelBase> Channels { get; protected set; }
+		public IDictionary<string, ChannelBase> Channels { get; protected set; }
 
 		public ServerBase Server { get; protected set; }
 
@@ -110,7 +109,7 @@ namespace Aselia.Common.Core
 		{
 			Server = server;
 			Location = location;
-			Channels = new ConcurrentDictionary<string, ChannelBase>();
+			Channels = new Dictionary<string, ChannelBase>();
 			SessionFlags = new List<string>();
 			if (mask.Nickname != "*" && mask.Nickname != null)
 			{

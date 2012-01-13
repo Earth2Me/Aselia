@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using Aselia.Common.Core.Configuration;
@@ -99,10 +98,10 @@ namespace Aselia.Common.Core
 		{
 			Id = id;
 			_Domains = domains;
-			Channels = new ConcurrentDictionary<string, ChannelBase>();
-			UsersByMask = new ConcurrentDictionary<HostMask, UserBase>();
-			UsersByAccount = new ConcurrentDictionary<string, List<UserBase>>();
-			UsersById = new ConcurrentDictionary<string, UserBase>();
+			Channels = new Dictionary<string, ChannelBase>();
+			UsersByMask = new Dictionary<HostMask, UserBase>();
+			UsersByAccount = new Dictionary<string, List<UserBase>>();
+			UsersById = new Dictionary<string, UserBase>();
 			Created = DateTime.Now;
 			IsRunning = true;
 			LocalUsers = new List<UserBase>();

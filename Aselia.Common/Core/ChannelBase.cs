@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace Aselia.Common.Core
 {
@@ -8,7 +8,7 @@ namespace Aselia.Common.Core
 	{
 		public ServerBase Server { get; private set; }
 
-		public ConcurrentDictionary<string, UserBase> Users { get; protected set; }
+		public IDictionary<string, UserBase> Users { get; protected set; }
 
 		public abstract bool IsGlobal { get; }
 
@@ -40,7 +40,7 @@ namespace Aselia.Common.Core
 			: base(name, id)
 		{
 			Server = server;
-			Users = new ConcurrentDictionary<string, UserBase>();
+			Users = new Dictionary<string, UserBase>();
 		}
 
 		public abstract void RemoveUser(UserBase user, bool removeFromUser = true);

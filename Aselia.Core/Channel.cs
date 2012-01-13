@@ -115,18 +115,14 @@ namespace Aselia.Core
 
 		public override void RemoveUser(UserBase user, bool removeFromUser = true)
 		{
-			UserBase dump;
-			Users.TryRemove(user.Id, out dump);
-			dump = null;
+			Users.Remove(user.Id);
 
 			if (removeFromUser)
 			{
-				ChannelBase dump2;
-				user.Channels.TryRemove(Id, out dump2);
-				dump = null;
+				user.Channels.Remove(Id);
 			}
 
-			if (Users.IsEmpty)
+			if (Users.Count < 1)
 			{
 				Dispose();
 			}

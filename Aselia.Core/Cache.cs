@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -69,8 +69,8 @@ namespace Aselia.Core
 		{
 			return new Cache()
 			{
-				Accounts = new ConcurrentDictionary<string, UserSurrogate>(),
-				Channels = new ConcurrentDictionary<string, ChannelSurrogate>(),
+				Accounts = new Dictionary<string, UserSurrogate>(),
+				Channels = new Dictionary<string, ChannelSurrogate>(),
 			};
 		}
 

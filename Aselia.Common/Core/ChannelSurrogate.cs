@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Aselia.Common.Flags;
 
@@ -40,9 +39,9 @@ namespace Aselia.Common.Core
 		protected ChannelSurrogate(string name, string id)
 		{
 			Id = id;
-			Modes = new ConcurrentDictionary<Modes, string>();
-			Properties = new ConcurrentDictionary<string, object>();
-			Prefixes = new ConcurrentDictionary<string, string>();
+			Modes = new Dictionary<Modes, string>();
+			Properties = new Dictionary<string, object>();
+			Prefixes = new Dictionary<string, string>();
 			Bans = new List<HostMask>();
 			InviteExcepts = new List<HostMask>();
 			Exceptions = new List<HostMask>();
