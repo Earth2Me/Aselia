@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -110,10 +110,6 @@
     <ProjectReference Include="..\Aselia.Core\Aselia.Core.csproj">
       <Project>{7B97D4B9-4137-4655-ABB9-7286EC778FBF}</Project>
       <Name>Aselia.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Aselia.Test\Aselia.Test.csproj">
-      <Project>{1A4A4F51-4788-4E8D-B5BD-CE26A0AD3DA9}</Project>
-      <Name>Aselia.Test</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

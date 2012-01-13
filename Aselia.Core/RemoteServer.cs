@@ -20,9 +20,11 @@ namespace Aselia.Core
 		private ServerInfo Info;
 		private byte[] CommandBuffer = new byte[sizeof(ServerCommands)];
 		private byte[] LengthBuffer = new byte[sizeof(int)];
+		private byte[] IdBuffer = new byte[sizeof(int)];
 		private byte[] BodyBuffer;
 		private ServerCommands ReadCommand;
 		private int ReadLength;
+		private readonly List<byte[]> SentPackets = new List<byte[]>();
 
 		public List<RemoteServer> Forwards { get; private set; }
 
@@ -74,7 +76,24 @@ namespace Aselia.Core
 			}
 		}
 
-		private void BeginReadCommand()
+		private void BeginRead()
+		{
+			try
+			{
+				if (!Ssl.CanRead)
+				{
+					OnDropped();
+				}
+
+				Ssl.BeginRead(IdBuffer, 0, IdBuffer.Length, OnBeginReadId, null);
+			}
+			catch
+			{
+				OnDropped();
+			}
+		}
+
+		private void OnBeginReadId(IAsyncResult ar)
 		{
 			try
 			{
@@ -154,6 +173,38 @@ namespace Aselia.Core
 			}
 		}
 
+		private unsafe void SendReceived(int id)
+		{
+			byte[] buffer = new byte[sizeof(ServerCommands) + sizeof(int)];
+			buffer[0] = (byte)ServerCommands.Received;
+
+			fixed (byte* pBuffer = buffer)
+			{
+				int* pIdTarget = (int*)&pBuffer[1];
+				pIdTarget[0] = id;
+			}
+
+			Ssl.BeginWrite(buffer, 0, buffer.Length, OnBeginWriteReceived, null);
+		}
+
+		private void OnBeginWriteReceived(IAsyncResult ar)
+		{
+			try
+			{
+				if (!ar.IsCompleted || !Ssl.CanWrite)
+				{
+					OnDropped();
+					return;
+				}
+
+				Ssl.EndWrite(ar);
+			}
+			catch
+			{
+				OnDropped();
+			}
+		}
+
 		private void OnBeginReadCommand(IAsyncResult ar)
 		{
 			try
@@ -169,11 +220,34 @@ namespace Aselia.Core
 
 				ReadCommand = (ServerCommands)CommandBuffer[0];
 
+				int id = BitConverter.ToInt32(IdBuffer, 0);
+				if (!Ssl.CanWrite)
+				{
+					OnDropped();
+					return;
+				}
+				if (ReadCommand != ServerCommands.Received)
+				{
+					try
+					{
+						SendReceived(id);
+					}
+					catch
+					{
+						OnDropped();
+						return;
+					}
+				}
+
 				try
 				{
 					switch (ReadCommand)
 					{
 					case ServerCommands.Void:
+						break;
+
+					case ServerCommands.Received:
+						OnReceived();
 						break;
 
 					case ServerCommands.Reloading:
@@ -201,12 +275,17 @@ namespace Aselia.Core
 				{
 				}
 				// NOT finally:
-				BeginReadCommand();
+				BeginRead();
 			}
 			catch
 			{
 				OnDropped();
 			}
+		}
+
+		private void OnReceived()
+		{
+			throw new NotImplementedException();
 		}
 
 		private void OnCacheRequest()
@@ -276,7 +355,7 @@ namespace Aselia.Core
 				}
 				finally
 				{
-					BeginReadCommand();
+					BeginRead();
 				}
 			}
 			catch
@@ -397,7 +476,7 @@ namespace Aselia.Core
 			try
 			{
 				Ssl.EndAuthenticateAsClient(ar);
-				BeginReadCommand();
+				BeginRead();
 				if (Local.NetworkEstablished)
 				{
 					BeginWrite(ServerCommands.JoinedLate);

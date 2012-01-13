@@ -3,6 +3,7 @@
 	public enum ServerCommands : byte
 	{
 		Void = 0,
+		Received,
 		Reloading,
 		JoinedLate,
 		Dispose,
