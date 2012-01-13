@@ -125,9 +125,9 @@ namespace Aselia.Core.Configuration
 			{
 				new ServerInfo()
 				{
-					Id = "jd0.earth2me.net",
+					Id = Environment.MachineName,
 					InterServerPort = 51232,
-					InterServerIp = "204.27.58.132",
+					InterServerIp = "127.0.0.1",
 				},
 			};
 			Bindings = new Binding[]
@@ -136,7 +136,7 @@ namespace Aselia.Core.Configuration
 				{
 					Interfaces = new string[]
 					{
-						"204.27.58.132",
+						"127.0.0.1",
 					},
 					Port = 6667,
 					Backlog = 20,
@@ -146,7 +146,7 @@ namespace Aselia.Core.Configuration
 				{
 					Interfaces = new string[]
 					{
-						"204.27.58.132",
+						"127.0.0.1",
 					},
 					Port = 7000,
 					Backlog = 20,
@@ -156,7 +156,7 @@ namespace Aselia.Core.Configuration
 				{
 					Interfaces = new string[]
 					{
-						"204.27.58.132",
+						"127.0.0.1",
 					},
 					Port = 51232,
 					Backlog = 20,
