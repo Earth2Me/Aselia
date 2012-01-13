@@ -486,6 +486,10 @@ namespace Aselia.Core
 			{
 				return "$";
 			}
+			else if (IsSystem && user.Level >= Authorizations.NetworkOperator)
+			{
+				return "~";
+			}
 			else if (Prefixes.ContainsKey(user.Mask.Account))
 			{
 				return Prefixes[user.Mask.Account];
