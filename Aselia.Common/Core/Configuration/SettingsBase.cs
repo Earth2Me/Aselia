@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Aselia.Common.Core.Configuration
@@ -53,9 +54,9 @@ namespace Aselia.Common.Core.Configuration
 
 		public Binding[] Bindings { get; set; }
 
-		public KLine[] KLines { get; set; }
+		public List<KLine> KLines { get; set; }
 
-		public QLine[] QLines { get; set; }
+		public List<QLine> QLines { get; set; }
 
 		public ServerInfo[] NetworkServers { get; set; }
 

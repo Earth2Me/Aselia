@@ -7,6 +7,8 @@ namespace Aselia.Common.Core.Configuration
 	{
 		public ushort Port { get; set; }
 
+		public string[] Interfaces { get; set; }
+
 		public Protocols Protocol { get; set; }
 
 		public byte Backlog { get; set; }

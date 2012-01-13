@@ -125,34 +125,45 @@ namespace Aselia.Core.Configuration
 			{
 				new ServerInfo()
 				{
-					Id = Environment.MachineName,
-					Interfaces = new List<string>() { "0.0.0.0" },
+					Id = "jd0.earth2me.net",
 					InterServerPort = 51232,
-					InterServerIp = "127.0.0.1",
+					InterServerIp = "204.27.58.132",
 				},
 			};
 			Bindings = new Binding[]
 			{
 				new Binding()
 				{
+					Interfaces = new string[]
+					{
+						"204.27.58.132",
+					},
 					Port = 6667,
 					Backlog = 20,
 					Protocol = Protocols.Rfc2812,
 				},
 				new Binding()
 				{
+					Interfaces = new string[]
+					{
+						"204.27.58.132",
+					},
 					Port = 7000,
 					Backlog = 20,
 					Protocol = Protocols.Rfc2812Ssl,
 				},
 				new Binding()
 				{
+					Interfaces = new string[]
+					{
+						"204.27.58.132",
+					},
 					Port = 51232,
-					Backlog = 1,
+					Backlog = 20,
 					Protocol = Protocols.InterServer,
 				},
 			};
-			KLines = new KLine[]
+			KLines = new List<KLine>(new KLine[]
 			{
 				new KLine()
 				{
@@ -160,8 +171,8 @@ namespace Aselia.Core.Configuration
 					Reason = "Invalid IP address.",
 					Ban = new Cidr(0, 32),
 				},
-			};
-			QLines = new QLine[]
+			});
+			QLines = new List<QLine>(new QLine[]
 			{
 				new QLine()
 				{
@@ -169,7 +180,7 @@ namespace Aselia.Core.Configuration
 					Reason = "Impersonation of services.",
 					Ban = "serv$",
 				},
-			};
+			});
 		}
 
 		public override void Reload()

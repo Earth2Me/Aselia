@@ -22,7 +22,6 @@ namespace Aselia
 		private readonly List<TcpListener> Listeners = new List<TcpListener>();
 		private readonly LineSet Lines;
 		private readonly Timer SaveTimer;
-		private IPAddress[] BindIps;
 		private ServerInfo Info;
 		private ServerInfo[] RemoteInfo;
 		private Dictionary<string, RemoteServer> Remotes;
@@ -82,7 +81,6 @@ namespace Aselia
 		{
 			Cache = clone.Cache;
 			Certificates = clone.Certificates;
-			BindIps = clone.BindIps;
 			DirectRemotes = clone.DirectRemotes;
 			RemoteInfo = clone.RemoteInfo;
 			Remotes = clone.Remotes;
@@ -496,20 +494,22 @@ namespace Aselia
 			Remotes.Clear();
 			ConnectRemotes(Odd);
 
-			if (BindIps.Length < 1)
-			{
-				return;
-			}
-
 			try
 			{
 				foreach (Binding b in Settings.Bindings)
 				{
-					for (int i = 0; i < BindIps.Length; i++)
+					for (int i = 0; i < b.Interfaces.Length; i++)
 					{
 						try
 						{
-							TcpListener listener = new TcpListener(BindIps[i], b.Port);
+							IPAddress ip;
+							if (!IPAddress.TryParse(b.Interfaces[i], out ip))
+							{
+								Console.WriteLine("Skipping invalid interface: {0}", b.Interfaces[i]);
+								continue;
+							}
+
+							TcpListener listener = new TcpListener(ip, b.Port);
 							Bind(new ListenerInfo(listener, b), false);
 							Listeners.Add(listener);
 						}
@@ -599,22 +599,6 @@ namespace Aselia
 				if (i.Id == Id)
 				{
 					Info = i;
-
-					List<IPAddress> ips = new List<IPAddress>();
-					for (int x = 0; x < i.Interfaces.Count; x++)
-					{
-						IPAddress ip;
-						if (IPAddress.TryParse(i.Interfaces[x], out ip))
-						{
-							ips.Add(ip);
-						}
-					}
-					BindIps = ips.ToArray();
-
-					if (BindIps.Length < 1)
-					{
-						Console.WriteLine("Warning: Not binding to any interfaces!");
-					}
 				}
 				else
 				{
@@ -625,7 +609,6 @@ namespace Aselia
 			if (Info == null)
 			{
 				Console.WriteLine("Could not find {0} in list of servers.  Shutting down.", Id);
-				Dispose();
 				Environment.Exit(2);
 				return;
 			}
@@ -733,7 +716,7 @@ namespace Aselia
 			{
 				try
 				{
-					KLine[] ks = settings.KLines;
+					KLine[] ks = settings.KLines.ToArray();
 					K = new Cidr[ks.Length];
 					for (int i = 0; i < K.Length; i++)
 					{
@@ -747,7 +730,7 @@ namespace Aselia
 
 				try
 				{
-					QLine[] qs = settings.QLines;
+					QLine[] qs = settings.QLines.ToArray();
 					Q = new Regex[qs.Length];
 					for (int i = 0; i < Q.Length; i++)
 					{
