@@ -55,7 +55,7 @@ namespace Aselia.Core
 
 			try
 			{
-				Ssl = new SslStream(Client.GetStream(), false, RemoteVerification, LocalSelection, EncryptionPolicy.RequireEncryption);
+				Ssl = new SslStream(Client.GetStream(), false, RemoteVerification, LocalSelection);
 				Ssl.BeginAuthenticateAsClient(Info.Id, OnBeginAuthenticateAsClient, null);
 			}
 			catch

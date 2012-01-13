@@ -31,7 +31,7 @@ namespace Aselia
 			Encrypted = certificate != null;
 			if (Encrypted)
 			{
-				Stream = Ssl = new SslStream(stream, false, RemoteVerification, LocalSelection, EncryptionPolicy.RequireEncryption);
+				Stream = Ssl = new SslStream(stream, false, RemoteVerification, LocalSelection);
 			}
 			else
 			{
