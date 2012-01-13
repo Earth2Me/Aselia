@@ -24,10 +24,7 @@ namespace Aselia.Core
 
 		public void Serialize(Stream stream, bool leaveOpen)
 		{
-			using (DeflateStream deflate = new DeflateStream(stream, CompressionMode.Compress, leaveOpen))
-			{
-				Serializer.Serialize(stream, new CacheSurrogate(this));
-			}
+			Serializer.Serialize(stream, new CacheSurrogate(this));
 		}
 
 		public bool Save()
@@ -81,10 +78,7 @@ namespace Aselia.Core
 		{
 			try
 			{
-				using (DeflateStream deflate = new DeflateStream(stream, CompressionMode.Decompress, leaveOpen))
-				{
-					return new Cache((CacheSurrogate)Serializer.Deserialize(stream));
-				}
+				return new Cache((CacheSurrogate)Serializer.Deserialize(stream));
 			}
 			catch
 			{
