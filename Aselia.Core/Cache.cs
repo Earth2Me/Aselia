@@ -32,11 +32,29 @@ namespace Aselia.Core
 			FileInfo tmp = new FileInfo(File.FullName + ".tmp");
 			try
 			{
-				using (FileStream fs = tmp.Exists ? tmp.OpenWrite() : tmp.Create())
+				tmp.Delete();
+				using (FileStream fs = tmp.Create())
 				{
 					Serialize(fs, false);
 				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
 
+				try
+				{
+					tmp.Delete();
+				}
+				catch
+				{
+				}
+
+				return false;
+			}
+
+			try
+			{
 				FileInfo bak = new FileInfo(File.FullName + ".bak");
 				bak.Delete();
 				if (File.Exists)
