@@ -6,7 +6,7 @@ namespace Aselia.Test
 	{
 		public static void Main(string[] args)
 		{
-			Console.WriteLine(new TimeSpan(365, 6, 0, 0));
+			Console.WriteLine(DateTime.Now + new TimeSpan(365, 6, 0, 0));
 		}
 	}
 }

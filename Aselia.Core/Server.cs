@@ -69,7 +69,7 @@ namespace Aselia
 			string password = Settings.CertificatePassword;
 			if (!Certificates.Load(Id, password) && !Certificates.Generate(Id, password))
 			{
-				Console.WriteLine("Unable to generate certificate.  There must be a single, valid X.509 certificate file named 'Certificate.{0}.*' in the current directory.", Id);
+				Console.WriteLine("Unable to generate certificate on non-Windows OS.  There must be a single, valid X.509 certificate file named 'Certificate.{0}.*' in the current directory.", Id);
 				Environment.Exit(1);
 				return;
 			}

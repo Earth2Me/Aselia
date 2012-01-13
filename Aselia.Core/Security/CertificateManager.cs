@@ -55,9 +55,8 @@ namespace Aselia.Core.Security
 
 				return true;
 			}
-			catch (Exception ex)
+			catch
 			{
-				Console.WriteLine(ex);
 				return false;
 			}
 		}
