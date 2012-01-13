@@ -34,7 +34,7 @@ namespace Aselia.UserCommands
 						else
 						{
 							e.User.SendNumeric(Numerics.ERR_NOSUCHCHANNEL, ":That channel does not exist.  Did you mean to create/register a new channel?  If so, use /cjoin " + channels[i] + " or /quote cjoin " + channels[i] + ".");
-							return;
+							continue;
 						}
 					}
 
