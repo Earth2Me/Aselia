@@ -19,7 +19,7 @@ namespace Aselia
 {
 	public class Server : ServerBase
 	{
-		private readonly List<TcpListener> Listeners = new List<TcpListener>();
+		private readonly List<ListenerInfo> Listeners = new List<ListenerInfo>();
 		private readonly LineSet Lines;
 		private readonly Timer SaveTimer;
 		private ServerInfo Info;
@@ -27,6 +27,7 @@ namespace Aselia
 		private Dictionary<string, RemoteServer> Remotes;
 		private Dictionary<string, RemoteServer> DirectRemotes;
 		private bool Odd;
+		private bool Unloaded;
 
 		public bool NetworkEstablished { get; private set; }
 
@@ -76,22 +77,28 @@ namespace Aselia
 			Initialize();
 		}
 
-		public Server(DomainManager domains, Server clone)
-			: base(domains, clone)
+		public Server(DomainManager domains, ServerBase cloneBase)
+			: base(domains, cloneBase)
 		{
-			Cache = clone.Cache;
-			Certificates = clone.Certificates;
-			DirectRemotes = clone.DirectRemotes;
-			RemoteInfo = clone.RemoteInfo;
-			Remotes = clone.Remotes;
-			Lines = clone.Lines;
-			NetworkEstablished = clone.NetworkEstablished;
+			if (cloneBase is Server)
+			{
+				Server clone = (Server)cloneBase;
+
+				Cache = clone.Cache;
+				DirectRemotes = clone.DirectRemotes;
+				RemoteInfo = clone.RemoteInfo;
+				Remotes = clone.Remotes;
+				Lines = clone.Lines;
+				NetworkEstablished = clone.NetworkEstablished;
+				Listeners = clone.Listeners;
+
+				if (clone.SaveTimer.Change(Timeout.Infinite, Timeout.Infinite))
+				{
+					clone.SaveTimer.Dispose();
+				}
+			}
 
 			SaveTimer = new Timer(SaveProc);
-			if (clone.SaveTimer.Change(Timeout.Infinite, Timeout.Infinite))
-			{
-				clone.Dispose();
-			}
 
 			Initialize();
 		}
@@ -354,6 +361,11 @@ namespace Aselia
 
 		private void Bind(ListenerInfo info, bool rebind)
 		{
+			if (Unloaded)
+			{
+				return;
+			}
+
 			if (rebind)
 			{
 				Console.WriteLine("Appear to have lost a binding.  Rebinding.");
@@ -364,12 +376,21 @@ namespace Aselia
 
 		private void OnBeginAcceptTcpClient(IAsyncResult ar)
 		{
+			if (Unloaded)
+			{
+				return;
+			}
+
 			ListenerInfo info = (ListenerInfo)ar.AsyncState;
 			try
 			{
 				if (!info.Listener.Server.IsBound)
 				{
 					Bind(info, true);
+					return;
+				}
+				if (Unloaded) // Check a second time because there's some delay.
+				{
 					return;
 				}
 				TcpClient client = info.Listener.EndAcceptTcpClient(ar);
@@ -523,8 +544,8 @@ namespace Aselia
 								continue;
 							}
 
-							TcpListener listener = new TcpListener(ip, b.Port);
-							Bind(new ListenerInfo(listener, b), false);
+							ListenerInfo listener = new ListenerInfo(new TcpListener(ip, b.Port), b);
+							Bind(listener, false);
 							Listeners.Add(listener);
 						}
 						catch (Exception ex)
@@ -542,23 +563,45 @@ namespace Aselia
 
 		public override void Unload()
 		{
-			Stop();
+			Unloaded = true;
+
+			foreach (ListenerInfo l in Listeners)
+			{
+				try
+				{
+					l.Listener.Stop();
+				}
+				catch
+				{
+				}
+			}
 		}
 
 		public override void Load()
 		{
-			Restart();
+			foreach (ListenerInfo l in Listeners)
+			{
+				try
+				{
+					l.Listener.Start();
+					l.Listener.BeginAcceptTcpClient(OnBeginAcceptTcpClient, Info);
+				}
+				catch
+				{
+				}
+			}
 		}
 
 		public override void Stop()
 		{
 			SaveTimer.Change(Timeout.Infinite, Timeout.Infinite);
 
-			foreach (TcpListener l in Listeners)
+			foreach (ListenerInfo l in Listeners)
 			{
 				try
 				{
-					l.Stop();
+					Console.WriteLine("Stopping listener on {0}.", l.Listener.LocalEndpoint);
+					l.Listener.Stop();
 				}
 				catch
 				{

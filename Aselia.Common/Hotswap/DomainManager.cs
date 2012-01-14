@@ -42,7 +42,7 @@ namespace Aselia.Common.Hotswap
 		public void Reload(Domains domain)
 		{
 			FileInfo file;
-#if DEBUG
+#if SINGLE_DOMAIN
 			file = null;
 			GC.KeepAlive(file);
 
@@ -102,7 +102,7 @@ namespace Aselia.Common.Hotswap
 			}
 			catch (Exception ex)
 			{
-#if !DEBUG
+#if !SINGLE_DOMAIN
 				try
 				{
 					AppDomain.Unload(ad);
@@ -114,14 +114,14 @@ namespace Aselia.Common.Hotswap
 				throw new Exception("Error initializing new domain.", ex);
 			}
 
-#if !DEBUG
+#if !SINGLE_DOMAIN
 			AppDomain remove = AppDomains.ContainsKey(domain) ? AppDomains[domain] : null;
 			AppDomains[domain] = ad;
 			if (remove != null)
 			{
 				try
 				{
-					AppDomain.Unload(remove);
+					//AppDomain.Unload(remove);
 				}
 				catch (Exception ex)
 				{
