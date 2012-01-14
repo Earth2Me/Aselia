@@ -161,9 +161,10 @@ namespace Aselia
 				user.Password = password;
 				user.Properties["E-Mail"] = email;
 				user.Level = Cache.Accounts.Count > 0 ? Authorizations.Registered : Authorizations.NetworkOperator;
-				user.Mask.Account = user.Mask.Nickname.ToLower();
+				user.Mask.Account = user.Id;
+				Cache.Accounts.Add(user.Mask.Account, user);
+				user.Commit();
 				user.SendNumeric(Numerics.RPL_REGISTERED, ":You are now registered and logged in.  Use /login password to log in next time you connect.");
-				Commit(user);
 				return true;
 			}
 			catch
