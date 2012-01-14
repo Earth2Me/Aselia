@@ -555,9 +555,9 @@ namespace Aselia.Core
 		public override void Broadcast(string command, UserBase sender, params object[] arguments)
 		{
 			List<object> full = new List<object>(new object[]
-				{
-					sender == null ? Server.Id : (object)sender.Mask,
-				});
+			{
+				sender == null ? Server.Id : (object)sender.Mask,
+			});
 			full.AddRange(arguments);
 			object[] args = full.ToArray();
 
