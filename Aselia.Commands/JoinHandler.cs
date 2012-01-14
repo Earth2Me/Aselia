@@ -105,7 +105,7 @@ namespace Aselia.UserCommands
 
 					if (channel.Properties.ContainsKey("Topic"))
 					{
-						e.User.SendNumeric(Numerics.RPL_TOPIC, channel.Name, (string)channel.Properties["Topic"]);
+						e.User.SendNumeric(Numerics.RPL_TOPIC, channel.Name, ":" + (string)channel.Properties["Topic"]);
 					}
 					else
 					{
@@ -207,7 +207,7 @@ namespace Aselia.UserCommands
 
 				if (channel.Properties.ContainsKey("Topic"))
 				{
-					e.User.SendNumeric(Numerics.RPL_TOPIC, channel.Name, (string)channel.Properties["Topic"]);
+					e.User.SendNumeric(Numerics.RPL_TOPIC, channel.Name, ":" + (string)channel.Properties["Topic"]);
 				}
 				else
 				{
