@@ -484,8 +484,19 @@ namespace Aselia.Core
 				}
 
 				Server.UsersByMask.Remove(Mask);
-				Server.UsersByAccount.Remove(Mask.Account);
 				Server.UsersById.Remove(Id);
+				if (Level >= Authorizations.Registered)
+				{
+					List<UserBase> users = Server.UsersByAccount[Mask.Account];
+					if (users.Count < 2)
+					{
+						Server.UsersByAccount.Remove(Mask.Account);
+					}
+					else
+					{
+						users.Remove(this);
+					}
+				}
 			}
 
 			base.Dispose(reason);

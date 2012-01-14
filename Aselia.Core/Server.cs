@@ -141,6 +141,16 @@ namespace Aselia
 				cache.LastSeen = DateTime.Now;
 				user.Load(cache);
 				user.Mask.Account = account;
+
+				if (UsersByAccount.ContainsKey(account))
+				{
+					UsersByAccount[account].Add(user);
+				}
+				else
+				{
+					UsersByAccount.Add(account, new List<UserBase>(new UserBase[] { user }));
+				}
+
 				return true;
 			}
 			catch
@@ -164,6 +174,9 @@ namespace Aselia
 				user.Mask.Account = user.Id;
 				Cache.Accounts.Add(user.Mask.Account, user);
 				user.Commit();
+
+				UsersByAccount.Add(user.Mask.Account, new List<UserBase>(new UserBase[] { user }));
+
 				user.SendNumeric(Numerics.RPL_REGISTERED, ":You are now registered and logged in.  Use /login password to log in next time you connect.");
 				return true;
 			}
