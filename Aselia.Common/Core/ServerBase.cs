@@ -88,7 +88,7 @@ namespace Aselia.Common.Core
 
 		public abstract UserSurrogate GetRegisteredUser(string account);
 
-		public abstract ChannelSurrogate GetRegisteredChannel(string account);
+		public abstract ChannelSurrogate GetRegisteredChannel(string name);
 
 		public ServerBase()
 		{

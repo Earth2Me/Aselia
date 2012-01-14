@@ -110,6 +110,11 @@ namespace Aselia.Core
 				Commit();
 			}
 
+			foreach (UserBase u in Users.Values)
+			{
+				u.Channels.Remove(Id);
+			}
+
 			base.Dispose();
 		}
 
