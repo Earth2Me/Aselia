@@ -1,4 +1,5 @@
 ﻿using Aselia.Common;
+using Aselia.Common.Core;
 using Aselia.Common.Modules;
 
 namespace Aselia.UserCommands
@@ -10,8 +11,14 @@ namespace Aselia.UserCommands
 
 		public void Handler(object sender, ReceivedCommandEventArgs e)
 		{
-			// TODO: Implement command
-			e.User.SendNumeric(Numerics.ERR_UNKNOWNERROR, ":That command is not yet implemented.");
+			if (e.Arguments.Length < 1)
+			{
+				e.User.ErrorNeedMoreParams(CMD);
+				return;
+			}
+
+			UserBase user = e.Server.GetUser(e.Arguments[0]);
+			e.User.SendNumeric(Numerics.RPL_ISON, ":ison:", user == null ? "no such user" : user.Mask.Nickname);
 		}
 	}
 }
