@@ -25,7 +25,7 @@ namespace Aselia.UserCommands
 				return;
 			}
 
-			channel.Broadcast(CMD, e.User, channel.Name, "Leaving.");
+			channel.BroadcastInclusive(CMD, e.User, channel.Name, "Leaving.");
 			channel.RemoveUser(e.User);
 		}
 	}

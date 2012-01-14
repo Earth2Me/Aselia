@@ -71,7 +71,7 @@ namespace Aselia.UserCommands
 					channel.Commit();
 				}
 
-				channel.Broadcast(CMD, e.User, channel.Name, topic);
+				channel.BroadcastInclusive(CMD, e.User, channel.Name, topic);
 			}
 			else
 			{

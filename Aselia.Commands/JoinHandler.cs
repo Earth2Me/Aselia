@@ -100,7 +100,7 @@ namespace Aselia.UserCommands
 						return;
 					}
 
-					channel.Broadcast(CMD, e.User, channel.Name);
+					channel.BroadcastInclusive(CMD, e.User, channel.Name);
 					e.User.Names(channel);
 
 					if (channel.Properties.ContainsKey("Topic"))
@@ -202,7 +202,7 @@ namespace Aselia.UserCommands
 					e.User.SendNumeric(Numerics.ERR_UNKNOWNERROR, CMD, channel.Name, ":Unknown error occurred while joining channel.");
 				}
 
-				channel.Broadcast(CMD, e.User, channel.Name);
+				channel.BroadcastInclusive(CMD, e.User, channel.Name);
 				e.User.Names(channel);
 
 				if (channel.Properties.ContainsKey("Topic"))

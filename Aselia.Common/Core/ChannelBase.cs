@@ -57,7 +57,9 @@ namespace Aselia.Common.Core
 
 		public abstract string GetPrefix(UserBase user);
 
-		public abstract void Broadcast(string command, UserBase sender, params object[] arguments);
+		public abstract void BroadcastInclusive(string command, UserBase sender, params object[] arguments);
+
+		public abstract void BroadcastExclusive(string command, UserBase sender, params object[] arguments);
 
 		public virtual void Dispose()
 		{

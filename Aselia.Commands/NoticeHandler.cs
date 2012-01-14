@@ -56,7 +56,7 @@ namespace Aselia.UserCommands
 					return;
 				}
 
-				channel.Broadcast(CMD, e.User, channel.Name, e.Arguments[1]);
+				channel.BroadcastInclusive(CMD, e.User, channel.Name, e.Arguments[1]);
 			}
 		}
 	}

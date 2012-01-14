@@ -50,7 +50,7 @@ namespace Aselia.UserCommands
 				return;
 			}
 
-			channel.Broadcast(CMD, e.User, channel.Name, target.Mask.Nickname, e.Arguments.Length > 2 ? e.Arguments[2] : "User kicked from channel.");
+			channel.BroadcastInclusive(CMD, e.User, channel.Name, target.Mask.Nickname, e.Arguments.Length > 2 ? e.Arguments[2] : "User kicked from channel.");
 			channel.RemoveUser(target);
 		}
 	}

@@ -44,7 +44,7 @@ namespace Aselia.UserCommands
 							return;
 						}
 
-						channel.Broadcast("JOIN", e.User, channel.Name);
+						channel.BroadcastInclusive("JOIN", e.User, channel.Name);
 						e.User.Names(channel);
 						e.Server.Channels[channel.Name] = channel;
 					}

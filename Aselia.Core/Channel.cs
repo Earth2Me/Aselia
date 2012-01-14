@@ -301,7 +301,7 @@ namespace Aselia.Core
 			RemArgs.CopyTo(bargs, 1 + AddArgs.Count);
 
 			Server.Commit(this);
-			Broadcast("MODE", user, Name, string.Join(" ", bargs));
+			BroadcastInclusive("MODE", user, Name, string.Join(" ", bargs));
 		}
 
 		private bool CheckMode(UserBase user, ChannelModeAttribute attr, string argument)
@@ -552,7 +552,7 @@ namespace Aselia.Core
 			SetModes(user, tok[0], tok.Length > 1 ? tok[1] : string.Empty);
 		}
 
-		public override void Broadcast(string command, UserBase sender, params object[] arguments)
+		public override void BroadcastInclusive(string command, UserBase sender, params object[] arguments)
 		{
 			List<object> full = new List<object>(new object[]
 			{
@@ -565,6 +565,32 @@ namespace Aselia.Core
 			{
 				foreach (UserBase u in Users.Values)
 				{
+					u.SendCommand(command, args);
+				}
+			}
+			else
+			{
+				sender.SendCommand(command, args);
+			}
+		}
+
+		public override void BroadcastExclusive(string command, UserBase sender, params object[] arguments)
+		{
+			List<object> full = new List<object>(new object[]
+			{
+				sender == null ? Server.Id : (object)sender.Mask,
+			});
+			full.AddRange(arguments);
+			object[] args = full.ToArray();
+
+			if (sender == null || !HasFlag("Arena") || sender.IsVoice(this))
+			{
+				foreach (UserBase u in Users.Values)
+				{
+					if (u == sender)
+					{
+						continue;
+					}
 					u.SendCommand(command, args);
 				}
 			}
