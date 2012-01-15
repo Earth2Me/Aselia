@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Aselia.Common;
 using Aselia.Common.Core;
 using Aselia.Common.Modules;
@@ -100,22 +101,81 @@ namespace Aselia.UserCommands
 						return;
 					}
 
-					channel.BroadcastInclusive(CMD, e.User, channel.Name);
-					e.User.Names(channel);
-
-					if (channel.Properties.ContainsKey("Topic"))
-					{
-						e.User.SendNumeric(Numerics.RPL_TOPIC, channel.Name, ":" + (string)channel.Properties["Topic"]);
-					}
-					else
-					{
-						e.User.SendNumeric(Numerics.RPL_NOTOPIC, channel.Name);
-					}
+					OnJoin(channel, e.User);
 				}
 				catch (Exception ex)
 				{
 					e.User.SendNumeric(Numerics.ERR_UNKNOWNERROR, ":Error joining channel:", ex.Message);
 				}
+			}
+		}
+
+		private void OnJoin(ChannelBase channel, UserBase user)
+		{
+			channel.BroadcastInclusive(CMD, user, channel.Name);
+			user.Names(channel);
+
+			if (channel.Properties.ContainsKey("Topic"))
+			{
+				user.SendNumeric(Numerics.RPL_TOPIC, channel.Name, ":" + (string)channel.Properties["Topic"]);
+			}
+			else
+			{
+				user.SendNumeric(Numerics.RPL_NOTOPIC, channel.Name);
+			}
+
+			if (channel.Users.Count < 2)
+			{
+				return;
+			}
+
+			string prefix = channel.GetPrefix(user);
+			if (!string.IsNullOrEmpty(prefix))
+			{
+				StringBuilder modes = new StringBuilder(prefix.Length + 1).Append('+');
+				StringBuilder args = new StringBuilder(prefix.Length * (user.Mask.Nickname.Length + 1));
+				foreach (char c in prefix)
+				{
+					char m;
+					switch (c)
+					{
+					case '$':
+						m = 'X';
+						break;
+
+					case '~':
+						m = 'O';
+						break;
+
+					case '&':
+						m = 'a';
+						break;
+
+					case '@':
+						m = 'o';
+						break;
+
+					case '%':
+						m = 'h';
+						break;
+
+					case '+':
+						m = 'v';
+						break;
+
+					case '!':
+						m = 'x';
+						break;
+
+					default:
+						continue;
+					}
+
+					modes.Append(m);
+					args.Append(' ').Append(user.Mask.Nickname);
+				}
+
+				channel.BroadcastInclusive("MODE", null, channel.Name, modes.ToString() + args.ToString());
 			}
 		}
 
@@ -202,17 +262,7 @@ namespace Aselia.UserCommands
 					e.User.SendNumeric(Numerics.ERR_UNKNOWNERROR, CMD, channel.Name, ":Unknown error occurred while joining channel.");
 				}
 
-				channel.BroadcastInclusive(CMD, e.User, channel.Name);
-				e.User.Names(channel);
-
-				if (channel.Properties.ContainsKey("Topic"))
-				{
-					e.User.SendNumeric(Numerics.RPL_TOPIC, channel.Name, ":" + (string)channel.Properties["Topic"]);
-				}
-				else
-				{
-					e.User.SendNumeric(Numerics.RPL_NOTOPIC, channel.Name);
-				}
+				OnJoin(channel, e.User);
 			}
 		}
 	}
