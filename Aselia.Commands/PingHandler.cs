@@ -11,6 +11,13 @@ namespace Aselia.UserCommands
 
 		public void Handler(object sender, ReceivedCommandEventArgs e)
 		{
+			if (e.Arguments.Length < 1)
+			{
+				e.User.ErrorNeedMoreParams(CMD);
+				return;
+			}
+
+			e.User.SendCommand("PONG", e.Server.Id, e.Arguments[0]);
 		}
 	}
 }
