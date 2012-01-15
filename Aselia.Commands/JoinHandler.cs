@@ -116,12 +116,8 @@ namespace Aselia.UserCommands
 			user.Names(channel);
 
 			if (channel.Properties.ContainsKey("Topic"))
-			{
+			{ // Note: Shouldn't send RPL_NOTOPIC under any circumstances at this point.
 				user.SendNumeric(Numerics.RPL_TOPIC, channel.Name, ":" + (string)channel.Properties["Topic"]);
-			}
-			else
-			{
-				user.SendNumeric(Numerics.RPL_NOTOPIC, channel.Name, ":No topic set.");
 			}
 
 			if (channel.Users.Count < 2)
