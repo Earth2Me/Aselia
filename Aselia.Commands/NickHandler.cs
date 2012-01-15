@@ -48,17 +48,11 @@ namespace Aselia.UserCommands
 			{
 				e.User.BroadcastInclusive("NICK", e.User.Mask.Nickname, nickname);
 
-				e.Server.UsersByMask.Remove(e.User.Mask);
-				e.Server.UsersById.Remove(e.User.Id);
-
-				e.Server.UsersByMask.Remove(e.User.Mask);
 				e.User.Mask.Nickname = nickname;
-				e.Server.UsersByMask.Add(e.User.Mask, e.User);
 
+				e.Server.UsersById.Remove(e.User.Id);
 				e.User.Id = id;
-
-				e.Server.UsersByMask[e.User.Mask] = e.User;
-				e.Server.UsersById[e.User.Id] = e.User;
+				e.Server.UsersById.Add(e.User.Id, e.User);
 			}
 			else
 			{
