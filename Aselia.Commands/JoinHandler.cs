@@ -121,7 +121,7 @@ namespace Aselia.UserCommands
 			}
 			else
 			{
-				user.SendNumeric(Numerics.RPL_NOTOPIC, channel.Name);
+				user.SendNumeric(Numerics.RPL_NOTOPIC, channel.Name, ":No topic set.");
 			}
 
 			if (channel.Users.Count < 2)

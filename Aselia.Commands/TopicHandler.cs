@@ -81,7 +81,7 @@ namespace Aselia.UserCommands
 				}
 				else
 				{
-					e.User.SendNumeric(Numerics.RPL_NOTOPIC, channel.Name);
+					e.User.SendNumeric(Numerics.RPL_NOTOPIC, channel.Name, ":No topic set.");
 				}
 			}
 		}
