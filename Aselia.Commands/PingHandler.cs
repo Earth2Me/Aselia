@@ -17,7 +17,7 @@ namespace Aselia.UserCommands
 				return;
 			}
 
-			e.User.SendCommand("PONG", e.Server.Id, e.Arguments[0]);
+			e.User.SendCommand("PONG", e.Server.Id, e.Server.Id, e.Arguments[0]);
 		}
 	}
 }
