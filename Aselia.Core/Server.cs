@@ -315,6 +315,11 @@ namespace Aselia
 				}
 			}
 
+			if (channel != null)
+			{
+				Channels.Add(channel.Id, channel);
+			}
+
 			return channel;
 		}
 

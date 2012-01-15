@@ -106,7 +106,10 @@ namespace Aselia.Core
 		{
 			if (Server.IsRunning)
 			{
-				Server.Channels.Remove(Id);
+				if (!HasFlag("Permanent"))
+				{
+					Server.Channels.Remove(Id);
+				}
 				Commit();
 			}
 
