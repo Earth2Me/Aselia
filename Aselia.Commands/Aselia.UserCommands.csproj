@@ -111,13 +111,12 @@
     <Compile Include="RegisterHandler.cs" />
     <Compile Include="RehashHandler.cs" />
     <Compile Include="ShunHandler.cs" />
-    <Compile Include="SummonHandler.cs" />
     <Compile Include="TopicHandler.cs" />
     <Compile Include="UserHandler.cs" />
     <Compile Include="UserhostHandler.cs" />
     <Compile Include="UsersHandler.cs" />
     <Compile Include="VersionHandler.cs" />
-    <Compile Include="WhoHandler.cs" />
+    <Compile Include="DisabledHandler.cs" />
     <Compile Include="WhoisHandler.cs" />
   </ItemGroup>
   <ItemGroup>
