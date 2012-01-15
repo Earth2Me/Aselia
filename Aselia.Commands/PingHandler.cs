@@ -11,8 +11,6 @@ namespace Aselia.UserCommands
 
 		public void Handler(object sender, ReceivedCommandEventArgs e)
 		{
-			Console.WriteLine("============");
-			e.User.SendCommand("PONG", e.Server.Id, e.User.Mask);
 		}
 	}
 }
