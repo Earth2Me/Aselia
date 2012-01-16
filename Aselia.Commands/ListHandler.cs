@@ -20,7 +20,7 @@ namespace Aselia.UserCommands
 				}
 				else if (c.Properties.ContainsKey("Topic"))
 				{
-					e.User.SendNumeric(Numerics.RPL_LIST, c.Name, c.Users.Count, c.Properties["Topic"]);
+					e.User.SendNumeric(Numerics.RPL_LIST, c.Name, c.Users.Count, ":" + c.Properties["Topic"]);
 				}
 				else
 				{
