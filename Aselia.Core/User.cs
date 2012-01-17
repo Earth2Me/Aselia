@@ -53,7 +53,7 @@ namespace Aselia.Core
 
 				default:
 					Modes mode = chars[i].ToMode();
-					if (mode == 0 || !Server.Domains.ChannelModeAttrs.ContainsKey(mode))
+					if (mode == 0 || !Server.Domains.UserModeAttrs.ContainsKey(mode))
 					{
 						if (user != null)
 						{
