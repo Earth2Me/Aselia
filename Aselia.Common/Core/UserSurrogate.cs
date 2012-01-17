@@ -13,7 +13,7 @@ namespace Aselia.Common.Core
 
 		public DateTime LastSeen { get; set; }
 
-		public List<Modes> Modes { get; set; }
+		public IDictionary<Modes, string> Modes { get; set; }
 
 		public Authorizations Level { get; set; }
 
@@ -36,7 +36,7 @@ namespace Aselia.Common.Core
 			Level = Level;
 			Password = null;
 			LastSeen = DateTime.MaxValue;
-			Modes = new List<Modes>();
+			Modes = new Dictionary<Modes, string>();
 			Properties = new Dictionary<string, object>();
 			Flags = new List<string>();
 		}

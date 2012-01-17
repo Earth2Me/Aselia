@@ -38,6 +38,10 @@ namespace Aselia.Common.Core
 
 		public abstract void SendCommand(string command, string origin, params object[] args);
 
+		public abstract void SetModes(UserBase user, string flags, string arguments);
+
+		public abstract void SetModes(UserBase user, string modes);
+
 		public abstract string PrefixHostMask(ChannelBase channel);
 
 		public abstract string PrefixNickname(ChannelBase channel);

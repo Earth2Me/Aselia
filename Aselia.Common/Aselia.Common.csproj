@@ -98,6 +98,9 @@
     <Compile Include="Core\UserSurrogate.cs" />
     <Compile Include="Hotswap\DomainManager.cs" />
     <Compile Include="Hotswap\Domains.cs" />
+    <Compile Include="Modules\IUserMode.cs" />
+    <Compile Include="Modules\ReceivedUserModeEventArgs.cs" />
+    <Compile Include="Modules\UserModeAttribute.cs" />
     <Compile Include="Numerics.cs" />
     <Compile Include="Core\ChannelBase.cs" />
     <Compile Include="Flags\Modes.cs" />

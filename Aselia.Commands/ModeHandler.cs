@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Aselia.Common;
 using Aselia.Common.Core;
 using Aselia.Common.Modules;
@@ -40,22 +41,33 @@ namespace Aselia.UserCommands
 				args = string.Empty;
 			}
 
-			foreach (string c in e.Arguments[0].Split(','))
+			foreach (string t in e.Arguments[0].Split(','))
 			{
 				try
 				{
-					ChannelBase channel = e.User.GetChannel(c);
-					if (channel == null)
+					if (".!#&".Contains(t[0]))
 					{
-						e.User.SendNumeric(Numerics.ERR_NOTONCHANNEL, c, ":You are not on that channel.");
-						return;
-					}
+						ChannelBase channel = e.User.GetChannel(t);
+						if (channel == null)
+						{
+							e.User.SendNumeric(Numerics.ERR_NOTONCHANNEL, t, ":You are not on that channel.");
+							return;
+						}
 
-					channel.SetModes(e.User, e.Arguments[1], args);
+						channel.SetModes(e.User, e.Arguments[1], args);
+					}
+					else if (t.ToLower() != e.User.Id)
+					{
+						e.User.SendNumeric(Numerics.ERR_COMMANDSPECIFIC, ":You can only set user mode flags on yourself.");
+					}
+					else
+					{
+						e.User.SetModes(e.User, e.Arguments[1], args);
+					}
 				}
 				catch (Exception ex)
 				{
-					e.User.SendNumeric(Numerics.ERR_CANNOTSENDTOCHAN, c, ":Error setting mode:", ex.Message);
+					e.User.SendNumeric(Numerics.ERR_UNKNOWNERROR, ":Error setting mode:", ex.Message);
 				}
 			}
 		}

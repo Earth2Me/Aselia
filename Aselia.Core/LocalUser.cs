@@ -229,7 +229,7 @@ namespace Aselia.Core
 				"NICKLEN=" + Server.Settings.MaximumNicknameLength,
 				"CHANNELLEN=" + Server.Settings.MaximumChannelLength,
 				"TOPICLEN=" + Server.Settings.MaximumTopicLength,
-				"TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:1,NOTICE:1",
+				"TARGMAX=NAMES:1,LIST:1,KICK:1,WHOIS:1,PRIVMSG:1,NOTICE:1,MODE:5",
 				"EXTBAN=$,a",
 				":are supported by this server");
 

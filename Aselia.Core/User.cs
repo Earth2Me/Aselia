@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using Aselia.Common;
 using Aselia.Common.Core;
+using Aselia.Common.Flags;
+using Aselia.Common.Modules;
 
 namespace Aselia.Core
 {
@@ -17,6 +19,261 @@ namespace Aselia.Core
 		protected User(Server server, Locations location, HostMask mask, Authorizations level)
 			: base(server, location, mask, level)
 		{
+		}
+
+		public override void SetModes(UserBase user, string modes)
+		{
+			string[] tok = modes.Split(new char[] { ' ' }, 2);
+			SetModes(user, tok[0], tok.Length > 1 ? tok[1] : string.Empty);
+		}
+
+		public override void SetModes(UserBase user, string flags, string arguments)
+		{
+			string[] tok = arguments.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+			char[] chars = flags.ToCharArray();
+			bool add = true;
+			int arg = 0;
+
+			List<char> AddModes = new List<char>();
+			List<string> AddArgs = new List<string>();
+			List<char> RemModes = new List<char>();
+			List<string> RemArgs = new List<string>();
+
+			for (int i = 0; i < chars.Length; i++)
+			{
+				switch (chars[i])
+				{
+				case '+':
+					add = true;
+					break;
+
+				case '-':
+					add = false;
+					break;
+
+				default:
+					Modes mode = chars[i].ToMode();
+					if (mode == 0 || !Server.Domains.ChannelModeAttrs.ContainsKey(mode))
+					{
+						if (user != null)
+						{
+							user.SendNumeric(Numerics.ERR_UNKNOWNMODE, chars[i], ":That not a valid mode character.");
+						}
+						break;
+					}
+
+					string argument;
+					bool valid = true;
+					bool missingArgs = false;
+					UserModeAttribute attr = Server.Domains.UserModeAttrs[mode];
+					switch (attr.Syntax)
+					{
+					case ModeSyntax.Always:
+						if (arg < tok.Length)
+						{
+							argument = tok[arg++];
+						}
+						else
+						{
+							argument = null;
+							missingArgs = true;
+						}
+						break;
+
+					case ModeSyntax.Never:
+						argument = null;
+						break;
+
+					case ModeSyntax.OnAdd:
+						if (add)
+						{
+							if (arg < tok.Length)
+							{
+								argument = tok[arg++];
+							}
+							else
+							{
+								argument = null;
+								missingArgs = true;
+							}
+						}
+						else
+						{
+							argument = null;
+						}
+						break;
+
+					default:
+						argument = null;
+						valid = false;
+						break;
+					}
+
+					if (!valid)
+					{
+						if (user != null)
+						{
+							user.SendNumeric(Numerics.ERR_UNKNOWNERROR, ":Mode", chars[i], " is programmed incorrectly.  Please file a bug report.");
+						}
+						continue;
+					}
+					else if (missingArgs)
+					{
+						if (user != null)
+						{
+							user.SendNumeric(Numerics.ERR_NEEDMOREPARAMS, "MODE", ":Expected parameter for channelmode ", chars[i] + ".");
+						}
+						continue;
+					}
+
+					if (!CheckMode(user, attr, argument))
+					{
+						break;
+					}
+					else if (add)
+					{
+						if (AddMode(user, attr, argument))
+						{
+							AddModes.Add(chars[i]);
+							if (argument != null)
+							{
+								AddArgs.Add(argument);
+							}
+						}
+					}
+					else
+					{
+						if (RemoveMode(user, attr, argument))
+						{
+							RemModes.Add(chars[i]);
+							if (argument != null)
+							{
+								RemArgs.Add(argument);
+							}
+						}
+					}
+					break;
+				}
+			}
+
+			if (AddModes.Count + RemModes.Count == 0)
+			{
+				return;
+			}
+
+			StringBuilder modes = new StringBuilder(AddModes.Count + RemModes.Count + 2);
+			if (AddModes.Count > 0)
+			{
+				modes.Append('+').Append(AddModes.ToArray());
+			}
+			if (RemModes.Count > 0)
+			{
+				modes.Append('-').Append(RemModes.ToArray());
+			}
+
+			string[] bargs = new string[1 + AddArgs.Count + RemArgs.Count];
+			bargs[0] = modes.ToString();
+			AddArgs.CopyTo(bargs, 1);
+			RemArgs.CopyTo(bargs, 1 + AddArgs.Count);
+
+			Server.Commit(this);
+			SendCommand("MODE", user, user.Mask.Nickname, string.Join(" ", bargs));
+		}
+
+		private bool CheckMode(UserBase user, UserModeAttribute attr, string argument)
+		{
+			if (user == null)
+			{
+				return true;
+			}
+
+			switch (attr.Level)
+			{
+			case Authorizations.Unregistered:
+				if (user.Level < Authorizations.Unregistered)
+				{
+					user.SendNumeric(Numerics.ERR_NOTREGISTERED, "MODE", ":You aren't fully connected at present.");
+					return false;
+				}
+				break;
+
+			case Authorizations.Registered:
+				if (user.Level < Authorizations.Registered)
+				{
+					user.SendNumeric(Numerics.ERR_NOLOGIN, "MODE", ":You must be identified with services to do that.");
+					return false;
+				}
+				break;
+
+			case Authorizations.NetworkOperator:
+				if (user.Level < Authorizations.NetworkOperator)
+				{
+					user.SendNumeric(Numerics.ERR_UNIQOPRIVSNEEDED, "MODE", ":You must be a network operator to do that.");
+					return false;
+				}
+				break;
+
+			case Authorizations.Service:
+				if (user.Level < Authorizations.Service)
+				{
+					user.SendNumeric(Numerics.ERR_UNIQOPRIVSNEEDED, "MODE", ":That is for use only.");
+					return false;
+				}
+				break;
+
+			default:
+				return false;
+			}
+
+			return true;
+		}
+
+		private bool AddMode(UserBase user, UserModeAttribute attr, string argument)
+		{
+			try
+			{
+				ReceivedUserModeEventArgs e = new ReceivedUserModeEventArgs(Server, this, user, argument);
+				Server.Domains.AddUserModeHandlers[attr.Mode].Invoke(this, e);
+
+				if (e.IsCanceled)
+				{
+					return false;
+				}
+				else
+				{
+					Modes[attr.Mode] = argument ?? string.Empty;
+					return true;
+				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Error adding mode {0}: {1}", ex);
+				return false;
+			}
+		}
+
+		private bool RemoveMode(UserBase user, UserModeAttribute attr, string argument)
+		{
+			try
+			{
+				ReceivedUserModeEventArgs e = new ReceivedUserModeEventArgs(Server, this, user, argument);
+				Server.Domains.RemoveUserModeHandlers[attr.Mode].Invoke(this, e);
+
+				if (e.IsCanceled)
+				{
+					return false;
+				}
+				else
+				{
+					Modes.Remove(attr.Mode);
+					return true;
+				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Error removing mode {0}: {1}", ex);
+				return false;
+			}
 		}
 
 		public override bool ValidateNickname(string nickname)

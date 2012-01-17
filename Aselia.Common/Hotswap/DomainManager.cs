@@ -27,6 +27,12 @@ namespace Aselia.Common.Hotswap
 
 		public Dictionary<Modes, ChannelModeAttribute> ChannelModeAttrs { get; private set; }
 
+		public Dictionary<Modes, ReceivedUserModeEventHandler> AddUserModeHandlers { get; private set; }
+
+		public Dictionary<Modes, ReceivedUserModeEventHandler> RemoveUserModeHandlers { get; private set; }
+
+		public Dictionary<Modes, UserModeAttribute> UserModeAttrs { get; private set; }
+
 		public DomainManager()
 		{
 			Alive = true;
@@ -36,38 +42,13 @@ namespace Aselia.Common.Hotswap
 		{
 			Reload(Domains.UserCommands);
 			Reload(Domains.ChannelModes);
+			Reload(Domains.UserModes);
 			Reload(Domains.Core);
 		}
 
 		public void Reload(Domains domain)
 		{
 			FileInfo file;
-#if SINGLE_DOMAIN
-			file = null;
-			GC.KeepAlive(file);
-
-			AppDomain ad = AppDomain.CurrentDomain;
-			string name;
-			switch (domain)
-			{
-			case Domains.Core:
-				name = "Aselia.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=4c128b1c5b34b028";
-				break;
-
-			case Domains.UserCommands:
-				name = "Aselia.UserCommands, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c6a0b92f47071a54";
-				break;
-
-			case Domains.ChannelModes:
-				name = "Aselia.ChannelModes, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cf0f7bf703229a1e";
-				break;
-
-			default:
-				throw new Exception("Unknown domain specified: " + domain);
-			}
-
-			Assembly asm = Assembly.Load(name);
-#else
 			string name = Enum.GetName(typeof(Domains), domain);
 			AppDomain ad = AppDomain.CreateDomain(name);
 
@@ -93,7 +74,6 @@ namespace Aselia.Common.Hotswap
 			{
 				throw new Exception("Could not find valid Aselia assembly in DLL.");
 			}
-#endif
 
 			try
 			{
@@ -102,7 +82,6 @@ namespace Aselia.Common.Hotswap
 			}
 			catch (Exception ex)
 			{
-#if !SINGLE_DOMAIN
 				try
 				{
 					AppDomain.Unload(ad);
@@ -110,18 +89,17 @@ namespace Aselia.Common.Hotswap
 				catch
 				{
 				}
-#endif
 				throw new Exception("Error initializing new domain.", ex);
 			}
 
-#if !SINGLE_DOMAIN
 			AppDomain remove = AppDomains.ContainsKey(domain) ? AppDomains[domain] : null;
 			AppDomains[domain] = ad;
+#if UNLOAD
 			if (remove != null)
 			{
 				try
 				{
-					//AppDomain.Unload(remove);
+					AppDomain.Unload(remove);
 				}
 				catch (Exception ex)
 				{
@@ -145,6 +123,10 @@ namespace Aselia.Common.Hotswap
 
 			case Domains.ChannelModes:
 				InitializeChannelMode(asm);
+				break;
+
+			case Domains.UserModes:
+				InitializeUserMode(asm);
 				break;
 			}
 		}
@@ -242,13 +224,49 @@ namespace Aselia.Common.Hotswap
 				}
 				catch
 				{
-					Console.WriteLine("Error loading command handler {0}.", t);
+					Console.WriteLine("Error loading channel mode handler {0}.", t);
 				}
 			}
 
 			AddChannelModeHandlers = addChannelModeHandlers;
 			RemoveChannelModeHandlers = removeChannelModeHandlers;
 			ChannelModeAttrs = channelModeAttrs;
+		}
+
+		private void InitializeUserMode(Assembly asm)
+		{
+			Dictionary<Modes, ReceivedUserModeEventHandler> addUserModeHandlers = new Dictionary<Modes, ReceivedUserModeEventHandler>();
+			Dictionary<Modes, ReceivedUserModeEventHandler> removeUserModeHandlers = new Dictionary<Modes, ReceivedUserModeEventHandler>();
+			Dictionary<Modes, UserModeAttribute> userModeAttrs = new Dictionary<Modes, UserModeAttribute>();
+
+			IEnumerable<Type> types = from x in asm.GetTypes()
+									  where x.GetInterfaces().Contains(typeof(IChannelMode))
+									  select x;
+
+			foreach (Type t in types)
+			{
+				try
+				{
+					UserModeAttribute[] attrs = t.GetCustomAttributes(typeof(UserModeAttribute), false).Cast<UserModeAttribute>().ToArray();
+					if (attrs.Length < 1 || userModeAttrs.ContainsKey(attrs[0].Mode))
+					{
+						continue;
+					}
+
+					IUserMode command = (IUserMode)t.GetConstructor(Type.EmptyTypes).Invoke(new object[0]);
+					addUserModeHandlers.Add(attrs[0].Mode, command.AddHandler);
+					removeUserModeHandlers.Add(attrs[0].Mode, command.RemoveHandler);
+					userModeAttrs.Add(attrs[0].Mode, attrs[0]);
+				}
+				catch
+				{
+					Console.WriteLine("Error loading user mode handler {0}.", t);
+				}
+			}
+
+			AddUserModeHandlers = addUserModeHandlers;
+			RemoveUserModeHandlers = removeUserModeHandlers;
+			UserModeAttrs = userModeAttrs;
 		}
 	}
 }
