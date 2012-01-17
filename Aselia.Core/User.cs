@@ -57,7 +57,7 @@ namespace Aselia.Core
 					{
 						if (user != null)
 						{
-							user.SendNumeric(Numerics.ERR_UNKNOWNMODE, chars[i], ":That not a valid mode character.");
+							user.SendNumeric(Numerics.ERR_UMODEUNKNOWNFLAG, chars[i], ":That not a valid mode character.");
 						}
 						break;
 					}
