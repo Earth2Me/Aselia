@@ -12,7 +12,7 @@ namespace Aselia.UserCommands
 		{
 			if (e.Arguments.Length < 1)
 			{
-				e.User.SendNumeric(Numerics.ERR_NEEDMOREPARAMS, CMD, ":Syntax: /login account password");
+				e.User.SendNumeric(Numerics.ERR_NEEDMOREPARAMS, CMD, ":Syntax: /login [account] <password>");
 				return;
 			}
 

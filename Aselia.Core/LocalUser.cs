@@ -76,7 +76,15 @@ namespace Aselia.Core
 
 		public override bool Register(byte[] password, string email)
 		{
-			return Server.Register(this, password, email);
+			if (Server.Register(this, password, email))
+			{
+				SetModes(null, "+r" + (Level < Authorizations.NetworkOperator ? "" : "o"), string.Empty);
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 		private void Receive(string command, params string[] args)
@@ -246,6 +254,8 @@ namespace Aselia.Core
 			ReplyVersion();
 			ReplyLUsers();
 			ReplyMotd();
+
+			SetModes(null, "+i" + (Encrypted ? "Z" : ""), string.Empty);
 
 			base.OnConnected();
 

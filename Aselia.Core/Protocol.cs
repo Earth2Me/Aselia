@@ -19,7 +19,7 @@ namespace Aselia.Core
 		public static readonly char[] RANK_CHARS = RANK_STRING.ToCharArray();
 		public static readonly string STATUSMSG = "~&@%+";
 
-		public static readonly string CHANNEL_LIST_MODES = "eIbq";
+		public static readonly string CHANNEL_LIST_MODES = "Iebq";
 		public static readonly string CHANNEL_ARG_BOTH_MODES = "k";
 		public static readonly string CHANNEL_ARG_SET_MODES = "flj";
 		public static readonly string CHANNEL_FLAG_MODES = "CFLMOPQcgimnpstuz";
@@ -28,7 +28,7 @@ namespace Aselia.Core
 		public static readonly string CHANNEL_MODES = CHANNEL_FLAG_MODES + CHANNEL_PARAM_MODES;
 		public static readonly string CHANNEL_CATEGORIZED_MODES = string.Join(",", CHANNEL_LIST_MODES, CHANNEL_ARG_BOTH_MODES, CHANNEL_ARG_SET_MODES, CHANNEL_FLAG_MODES);
 
-		public static readonly string USER_MODES = "i";
+		public static readonly string USER_MODES = "SZior";
 
 		public static readonly string NICKNAME_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789[]{}-_|`";
 		public static readonly char[] NICKNAME_CHARS = NICKNAME_STRING.ToCharArray();

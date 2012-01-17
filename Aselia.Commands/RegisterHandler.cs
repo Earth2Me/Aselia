@@ -19,7 +19,7 @@ namespace Aselia.UserCommands
 		{
 			if (e.Arguments.Length < 2)
 			{
-				e.User.SendNumeric(Numerics.ERR_NEEDMOREPARAMS, CMD, ":Syntax: /register password e-mail");
+				e.User.SendNumeric(Numerics.ERR_NEEDMOREPARAMS, CMD, ":Syntax: /register <password> <e-mail>");
 				return;
 			}
 

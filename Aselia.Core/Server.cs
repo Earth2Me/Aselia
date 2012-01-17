@@ -158,6 +158,7 @@ namespace Aselia
 					UsersByAccount.Add(account, new List<UserBase>(new UserBase[] { user }));
 				}
 
+				user.SetModes(null, "+r" + (user.Level < Authorizations.NetworkOperator ? "" : "o"), string.Empty);
 				return true;
 			}
 			catch

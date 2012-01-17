@@ -46,6 +46,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Flags\Invisible.cs" />
+    <Compile Include="Flags\Operator.cs" />
+    <Compile Include="Flags\Registered.cs" />
+    <Compile Include="Flags\Secure.cs" />
+    <Compile Include="Flags\Service.cs" />
     <Compile Include="UserFlag.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -58,9 +63,7 @@
   <ItemGroup>
     <None Include="Key.snk" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Flags\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
