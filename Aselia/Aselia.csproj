@@ -111,6 +111,10 @@
       <Project>{7B97D4B9-4137-4655-ABB9-7286EC778FBF}</Project>
       <Name>Aselia.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Aselia.UserModes\Aselia.UserModes.csproj">
+      <Project>{D561DEA8-7546-4045-9223-B421A1C5E751}</Project>
+      <Name>Aselia.UserModes</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Key.snk" />
