@@ -9,7 +9,7 @@ namespace Aselia.UserCommands
 	public sealed class CapHandler : MarshalByRefObject, ICommand
 	{
 		public const string CMD = "CAP";
-		private const string SUPPORTED_STRING = "multi-prefix";
+		private const string SUPPORTED_STRING = "sasl multi-prefix";
 		private static readonly string[] SUPPORTED_ARRAY = SUPPORTED_STRING.Split(' ');
 
 		public void Handler(object sender, ReceivedCommandEventArgs e)
@@ -30,7 +30,7 @@ namespace Aselia.UserCommands
 			switch (e.Arguments[0].ToUpper())
 			{
 			case "LS":
-				e.User.SendCommand(CMD, e.Server.Id, e.User.Mask, "LS", SUPPORTED_STRING);
+				e.User.SendCommand(CMD, e.Server.Id, e.User.Mask.Nickname, "LS", SUPPORTED_STRING);
 				break;
 
 			case "REQ":
@@ -46,35 +46,35 @@ namespace Aselia.UserCommands
 					{
 						if (SUPPORTED_ARRAY.Contains(tok[n]))
 						{
-							e.User.SendCommand(CMD, e.Server.Id, e.User.Mask, "ACK", ":" + tok[n]);
+							e.User.SendCommand(CMD, e.Server.Id, e.User.Mask.Nickname, "ACK", ":" + tok[n]);
 							switch (tok[n])
 							{
 							case "multi-prefix":
 								e.User.SetSessionFlag("MultiPrefix");
 								break;
+
+							case "sasl":
+								e.User.SetSessionFlag("SaslRequested");
+								break;
 							}
 						}
 						else
 						{
-							e.User.SendCommand(CMD, e.Server.Id, e.User.Mask, "NAK", ":" + tok[n]);
+							e.User.SendCommand(CMD, e.Server.Id, e.User.Mask.Nickname, "NAK", ":" + tok[n]);
 						}
 					}
 				}
 				break;
 
 			case "END":
-				if (e.User.Level == Authorizations.Connecting)
+				if (e.User.Level == Authorizations.Connecting || e.User.ClearSessionFlag("SaslWaitForCapEnd"))
 				{
+					e.User.ClearSessionFlag("WaitForCap");
 					if (e.User.HasSessionFlag("PassedUser") && e.User.HasSessionFlag("PassedNick"))
 					{
 						e.User.ClearSessionFlag("PassedUser");
 						e.User.ClearSessionFlag("PassedNick");
-						e.User.ClearSessionFlag("WaitForCap");
 						e.User.OnConnected();
-					}
-					else
-					{
-						e.User.ClearSessionFlag("WaitForCap");
 					}
 				}
 				else

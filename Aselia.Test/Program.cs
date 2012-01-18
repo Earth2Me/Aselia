@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace Aselia.Test
 {
@@ -6,7 +7,10 @@ namespace Aselia.Test
 	{
 		public static void Main(string[] args)
 		{
-			Console.WriteLine(DateTime.Now + new TimeSpan(365, 6, 0, 0));
+			const string ORIGINAL_TEXT = "1231231234";
+			string base64 = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(ORIGINAL_TEXT));
+			Console.WriteLine(base64);
+			Console.ReadKey(true);
 		}
 	}
 }

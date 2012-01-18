@@ -230,5 +230,15 @@
 		ERR_CONCURRENCY = 856,
 		ERR_COMMITFAIL = 857,
 		ERR_COMMANDDISABLED = 858,
+
+		// SASL
+
+		RPL_SASLLOGGEDINAS = 900, // Sent first
+		RPL_SASLSUCCESS = 903, // Sent second
+
+		ERR_SASLABORTED = 904, // Either client aborted or server could not connect to services.
+		ERR_SASLFAILED = 905, // Invalid credentials.
+		ERR_SASLINTERRUPTED = 906, // Client completed registration without finishing SASL authentication.
+		ERR_SASLALREADYAUTHED = 907, // SASL authentication has already been completed successfully.
 	}
 }
