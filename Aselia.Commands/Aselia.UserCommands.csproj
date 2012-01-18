@@ -79,6 +79,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AuthenticateCommand.cs" />
     <Compile Include="CjoinHandler.cs" />
     <Compile Include="CommitHandler.cs" />
     <Compile Include="DemoteHandler.cs" />
