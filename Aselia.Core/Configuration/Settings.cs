@@ -79,11 +79,15 @@ namespace Aselia.Core.Configuration
 				File.Refresh();
 				if (File.Exists)
 				{
-					file.Replace(File.FullName, file.FullName + ".bak");
+					FileInfo backup = new FileInfo(File.FullName + ".bak");
+					if (backup.Exists)
+					{
+						backup.Delete();
+					}
+					file.Replace(File.FullName, backup.FullName);
 				}
 				else
 				{
-					File.Delete();
 					file.MoveTo(File.FullName);
 				}
 			}
