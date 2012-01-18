@@ -36,6 +36,7 @@ namespace Aselia.Core.Configuration
 
 		public override void Load(FileInfo file)
 		{
+			file.Refresh();
 			File = file;
 			if (!file.Exists)
 			{
@@ -75,12 +76,14 @@ namespace Aselia.Core.Configuration
 					fs.Flush();
 				}
 
+				File.Refresh();
 				if (File.Exists)
 				{
 					file.Replace(File.FullName, file.FullName + ".bak");
 				}
 				else
 				{
+					File.Delete();
 					file.MoveTo(File.FullName);
 				}
 			}
