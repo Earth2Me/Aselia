@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -284,7 +284,7 @@ namespace Aselia.Core
 				return false;
 			}
 
-			if (!Validate(nickname, Protocol.NICKNAME_CHARS))
+			if (!Validate(nickname, CoreProtocol.NICKNAME_CHARS))
 			{
 				SendNumeric(Numerics.ERR_ERRONEUSNICKNAME, nickname, ":That nickname contains invalid character(s).");
 				return false;
@@ -390,7 +390,7 @@ namespace Aselia.Core
 			byte max = Server.Settings.MaximumUsernameLength;
 			for (int i = 0; i < chars.Length && i < max; i++)
 			{
-				if (Protocol.USERNAME_CHARS.Contains(chars[i]))
+				if (CoreProtocol.USERNAME_CHARS.Contains(chars[i]))
 				{
 					builder.Append(chars[i]);
 				}

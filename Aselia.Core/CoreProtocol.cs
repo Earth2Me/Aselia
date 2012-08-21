@@ -2,17 +2,11 @@
 
 namespace Aselia.Core
 {
-	public static class Protocol
+	public static class CoreProtocol
 	{
 		public static readonly string CORE_NAME;
 		public static readonly string CORE_VERSION = "1.0.0.0";
 
-		public static readonly char CP_REGISTERED = '!';
-		public static readonly char CP_TEMPORARY = '#';
-		public static readonly char CP_SYSTEM = '.';
-		public static readonly char CP_LOCAL = '&';
-		public static readonly char[] CHANNEL_PREFIX_CHARS = new char[] { CP_REGISTERED, CP_TEMPORARY, CP_SYSTEM, CP_LOCAL };
-		public static readonly string CHANNEL_PREFIX_STRING = new string(CHANNEL_PREFIX_CHARS);
 		public static readonly string CHANNEL_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!&#.-";
 		public static readonly char[] CHANNEL_CHARS = CHANNEL_STRING.ToCharArray();
 		public static readonly string RANK_STRING = "$~&@%+!";
@@ -35,7 +29,7 @@ namespace Aselia.Core
 		public static readonly string USERNAME_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 		public static readonly char[] USERNAME_CHARS = USERNAME_STRING.ToCharArray();
 
-		static Protocol()
+		static CoreProtocol()
 		{
 			Assembly asm = Assembly.GetExecutingAssembly();
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,17 +14,17 @@ namespace Aselia.Core
 	{
 		public override bool IsGlobal
 		{
-			get { return Name[0] != Protocol.CP_LOCAL; }
+			get { return Name[0] != Protocol.CHANNEL_PREFIX_LOCAL; }
 		}
 
 		public override bool IsSystem
 		{
-			get { return Name[0] == Protocol.CP_SYSTEM; }
+			get { return Name[0] == Protocol.CHANNEL_PREFIX_SYSTEM; }
 		}
 
 		public override bool IsRegistered
 		{
-			get { return Name[0] == Protocol.CP_REGISTERED; }
+			get { return Name[0] == Protocol.CHANNEL_PREFIX_REGISTERED; }
 		}
 
 		public Channel()
@@ -83,9 +83,9 @@ namespace Aselia.Core
 
 				char* prefix = stackalloc char[max];
 
-				for (int i = 0; i < Protocol.RANK_CHARS.Length && len < max; i++)
+				for (int i = 0; i < CoreProtocol.RANK_CHARS.Length && len < max; i++)
 				{
-					char c = Protocol.RANK_CHARS[i];
+					char c = CoreProtocol.RANK_CHARS[i];
 					if (add == c || chars.Contains(c))
 					{
 						prefix[len++] = c;

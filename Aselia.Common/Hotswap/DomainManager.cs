@@ -92,8 +92,12 @@ namespace Aselia.Common.Hotswap
 				throw new Exception("Error initializing new domain.", ex);
 			}
 
+#if UNLOAD
 			AppDomain remove = AppDomains.ContainsKey(domain) ? AppDomains[domain] : null;
+#endif
+
 			AppDomains[domain] = ad;
+
 #if UNLOAD
 			if (remove != null)
 			{

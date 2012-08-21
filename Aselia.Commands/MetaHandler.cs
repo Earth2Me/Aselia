@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
+using System.Collections.Generic;
 using Aselia.Common;
 using Aselia.Common.Core;
 using Aselia.Common.Modules;
@@ -19,22 +20,7 @@ namespace Aselia.UserCommands
 				return;
 			}
 
-			bool channel;
-			switch (e.Arguments[0][0])
-			{
-			case '!':
-			case '#':
-			case '&':
-			case '.':
-				channel = true;
-				break;
-
-			default:
-				channel = false;
-				break;
-			}
-
-			if (channel)
+			if (Protocol.CHANNEL_PREFIX_CHARS.Contains(e.Arguments[0][0]))
 			{
 				ChannelSurrogate target = e.Server.GetRegisteredChannel(e.Arguments[0]);
 				if (target == null)

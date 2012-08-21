@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Sockets;
 using System.Threading;
 using Aselia.Common;
@@ -214,15 +214,15 @@ namespace Aselia.Core
 
 		public override void ReplyVersion()
 		{
-			SendNumeric(Numerics.RPL_MYINFO, string.Format("{0} {1}={2} {3} {4} {4}", Server.Id, Server.CoreName, Server.CoreVersion, Protocol.USER_MODES, Protocol.CHANNEL_MODES, Protocol.CHANNEL_PARAM_MODES));
+			SendNumeric(Numerics.RPL_MYINFO, string.Format("{0} {1}={2} {3} {4} {4}", Server.Id, Server.CoreName, Server.CoreVersion, CoreProtocol.USER_MODES, CoreProtocol.CHANNEL_MODES, CoreProtocol.CHANNEL_PARAM_MODES));
 			SendNumeric(Numerics.RPL_ISUPPORT,
 				"CHANTYPES=" + Protocol.CHANNEL_PREFIX_STRING,
 				"EXCEPTS",
 				"INVEX",
-				"CHANMODES=" + Protocol.CHANNEL_CATEGORIZED_MODES,
+				"CHANMODES=" + CoreProtocol.CHANNEL_CATEGORIZED_MODES,
 				"CHANLIMIT=" + Protocol.CHANNEL_PREFIX_STRING + ":" + Server.Settings.MaximumChannels,
-				"PREFIX=(" + Protocol.CHANNEL_RANK_MODES + ")" + Protocol.RANK_STRING,
-				"MAXLIST=" + Protocol.CHANNEL_LIST_MODES + ":" + Server.Settings.MaximumListSize,
+				"PREFIX=(" + CoreProtocol.CHANNEL_RANK_MODES + ")" + CoreProtocol.RANK_STRING,
+				"MAXLIST=" + CoreProtocol.CHANNEL_LIST_MODES + ":" + Server.Settings.MaximumListSize,
 				"MODES=10",
 				"NETWORK=" + Server.NetworkName,
 				"RFC2812",

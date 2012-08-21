@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -105,8 +105,8 @@ namespace Aselia
 
 		private void Initialize()
 		{
-			CoreName = Protocol.CORE_NAME;
-			CoreVersion = new Version(Protocol.CORE_VERSION);
+			CoreName = CoreProtocol.CORE_NAME;
+			CoreVersion = new Version(CoreProtocol.CORE_VERSION);
 
 			int save = Settings.CacheCommitInterval;
 			SaveTimer.Change(save, save);
@@ -350,7 +350,7 @@ namespace Aselia
 
 			for (int i = 1; i < name.Length; i++)
 			{
-				if (!Protocol.CHANNEL_CHARS.Contains(chars[i]))
+				if (!CoreProtocol.CHANNEL_CHARS.Contains(chars[i]))
 				{
 					return false;
 				}
