@@ -1,4 +1,5 @@
-Debug
+bin
 obj
+*.userprefs
 *.suo
 *.cachefile
